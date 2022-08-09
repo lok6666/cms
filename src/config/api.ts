@@ -9,8 +9,8 @@ export  const articleSelectAll = `${host}/article/selectAll` //  文章列表
 export  const articleDelete = `${host}/article/deleteAll` // 文章删除
 export  const articleRecycle = `${host}/article/selectRecycleBin` // 文章删除
 export  const articleSelectById = `${host}/article/selectById` // 文章内容
-export  const articlePpdateOne = `${host}/article/updateOne` // 文章内容
-
+export  const articleUpdateOne = `${host}/article/updateOne` // 文章内容
+export  const articleArticleAelectCircle = `${host}/articletype/selectType` // 文章类型
 
 // menu路由
 export const getMenuByUserId = `${host}/sysResource/getMenuByUserId`

@@ -2,25 +2,43 @@
   <u-container-layout>
     <div class="inline-edit-table">
       <el-tabs
-        v-model="activeName"
         type="card"
         class="demo-tabs"
         style="width: 100%"
-        @tab-click="handleClick"
+        @tab-click="articleHandleClick"
+        v-model="state.editableTabsValue"
       >
-        <el-tab-pane label="User" name="first"></el-tab-pane>
-        <el-tab-pane label="Config" name="second"></el-tab-pane>
-        <el-tab-pane label="Role" name="third"></el-tab-pane>
-        <el-tab-pane label="Task" name="fourth"></el-tab-pane>
+        <el-tab-pane
+          v-for="item in state.optionsList"
+          :key="item.id"
+          :label="item.title"
+          :name="item.id"
+        >
+          <el-tabs
+            type="card"
+            class="demo-tabs"
+            style="width: 100%"
+            v-model="state.activeName"
+            @tab-click="articleHandleClick"
+          >
+            <el-tab-pane
+              v-for="i in item.children"
+              :key="i.id"
+              :label="i.title"
+              :name="i.id"
+              >
+            </el-tab-pane>
+          </el-tabs>
+        </el-tab-pane>
       </el-tabs>
       <el-tabs
-        v-model="activeName"
+        v-model="state.activeName"
         type="card"
         class="demo-tabs"
         @tab-click="handleClick"
       >
-        <el-tab-pane label="内容列表" name="first"></el-tab-pane>
-        <el-tab-pane label="回收站" name="second"></el-tab-pane>
+        <el-tab-pane label="内容列表" name="content"></el-tab-pane>
+        <el-tab-pane label="回收站" name="resume"></el-tab-pane>
       </el-tabs>
       <el-form :inline="true" :model="formInline" class="demo-form-inline">
         <el-form-item label="标题">
@@ -32,10 +50,12 @@
         </el-form-item>
       </el-form>
       <div style="display: flex; justify-content: flex-end">
-        <el-button type="primary" @click="add"><el-icon><plus /></el-icon> 添加</el-button>
+        <el-button type="primary" @click="add"
+          ><el-icon><plus /></el-icon> 添加</el-button
+        >
       </div>
       <el-table
-        :data="tableData"
+        :data="state.tableData"
         style="width: 100%"
         :border="true"
         v-loading="loading"
@@ -58,21 +78,16 @@
             {{ scope.row.recommend === "0 " ? "不推荐" : "推荐" }}
           </template>
         </el-table-column>
-        <el-table-column
-          prop="operator"
-          label="操作"
-          width="180px"
-          fixed="right"
-        >
+        <el-table-column prop="operator" label="操作" width="200" fixed="right">
           <template #default="scope">
             <el-button
-              v-if="scope.row.edit"
+              v-if="state.isResume"
               type="success"
               size="small"
-              icon="CircleCheckFilled"
-              @click="confirmEdit(scope.row)"
+              icon="Refresh"
+              @click="resume(scope.row)"
             >
-              保存
+              恢复
             </el-button>
             <el-button
               v-else
@@ -83,20 +98,19 @@
             >
               编辑
             </el-button>
-
             <el-button
               type="danger"
               size="small"
               icon="Delete"
-              @click="deleteAction(scope.row)"
+              @click="deleteAction(scope.row, state.isResume)"
             >
-              删除
+              {{ state.isResume ? "彻底删除" : "删除" }}
             </el-button>
           </template>
         </el-table-column>
       </el-table>
       <el-dialog
-        v-model="dialogVisible"
+        v-model="state.dialogVisible"
         :title="title"
         width="50%"
         @closed="closeDialog()"
@@ -142,9 +156,6 @@
           <el-form-item label="发布日期" prop="releaseDate">
             <el-input v-model="ruleForm.releaseDate" />
           </el-form-item>
-          <el-form-item label="外部链接" prop="releaseDate">
-            <el-input v-model="ruleForm.releaseDate" />
-          </el-form-item>
           <el-form-item label="文章内容" prop="content">
             <editor
               :content="ruleForm.content"
@@ -154,7 +165,7 @@
         </el-form>
         <template #footer>
           <span class="dialog-footer">
-            <el-button @click="dialogVisible = false">取消</el-button>
+            <el-button @click="state.dialogVisible = false">取消</el-button>
             <el-button type="primary" @click="handleClose(ruleFormRef)"
               >确定</el-button
             >
@@ -171,10 +182,10 @@
       >
         <el-pagination
           v-model:currentPage="currentPage"
-          :page-size="pageSize.value"
+          :page-size="state.pageSize"
           background
           layout="total, sizes, prev, pager, next, jumper"
-          :total="tableData.length"
+          :total="state.total"
           @size-change="handleSizeChange"
           @current-change="handleCurrentChange"
         />
@@ -189,55 +200,120 @@ export default { name: "inline-table" };
 import { computed, ref, reactive, onMounted, toRefs } from "vue";
 import editor from "@/components/editor/index.vue";
 import {
-  articlePpdateOne,
+  articleUpdateOne,
   articleRecycle,
   login,
   articleSelectAll,
   articleDelete,
+  articleArticleAelectCircle,
   articleSelectById,
 } from "@/config/api";
-import { ElMessage, ElMessageBox } from "element-plus";
-import { deepClone } from "lodash";
+import { ElMessage, ElMessageBox, FormRules } from "element-plus";
 import { get, post } from "@/utils/request";
-let currentPage = ref(1);
-let tableData = ref([]);
+
+interface baseData {
+  title: string;
+  operator: string;
+  picture: string;
+  dataSources: string;
+  avatar: string;
+  releaseDate: string;
+  content: string;
+}
+
+interface selectAllConfig {
+  title?: string
+}
+const rules = reactive<FormRules>({
+  title: {
+    required: true,
+  },
+  operator: {
+    required: true,
+  },
+  dataSources: {
+    required: true,
+  },
+  picture: {
+    required: true,
+  },
+  releaseDate: {
+    required: true,
+  },
+  content: {
+    required: true,
+  },
+});
+const state = reactive({
+  currentPage: 0,
+  tableData: [],
+  total: 0,
+  pageSize: 10,
+  activeName: "content",
+  editableTabsValue: "1",
+  dialogVisible: false,
+  articletype: 1,
+  optionsList: [
+    {
+      label: "User",
+      name: "User",
+    },
+  ],
+  isResume: false,
+});
 const ruleFormRef = ref();
-let pageSize = ref(10);
-const activeName = ref("first");
-const dialogVisible = ref(false);
 const title = ref("新增");
 const baseData = {
   title: "",
   username: "1",
   operator: "",
   picture: "",
+  articletype: 1,
   dataSources: "",
   avatar: "",
   digest: "",
   id: "",
-  releasedate: "",
+  releaseDate: "",
   content: "",
 };
-let ruleForm = reactive(baseData);
+let ruleForm: baseData = reactive(baseData);
+
+// 获取文章类型
+const getOPtionList = () => {
+  get(`${articleArticleAelectCircle}`)
+    .then(function (data) {
+      state.optionsList = data;
+    })
+    .catch((e) => {
+      console.log("e", e);
+    });
+};
+getOPtionList();
+
+const articleHandleClick = (tab, event) => {
+  state.articletype = tab.props.name;
+  getArticleSelectAll();
+};
 // 添加
 const add = () => {
   title.value = "新增";
-  dialogVisible.value = true;
+  state.dialogVisible = true;
 };
+
+//富文本编辑emit事件
 const changeContent = (HTML) => {
   ruleForm.content = HTML;
 };
+
 // 关闭弹窗
 const handleClose = async (done: () => void) => {
   await ruleFormRef.value.validate((valid, fields) => {
-    debugger;
-    console.log('toRef(ruleForm)', {...ruleForm});
     if (valid) {
       let obj = {
         ...ruleForm,
       };
       if (title.value === "新增") {
-        post(`${articlePpdateOne}`, {
+        post(`${articleUpdateOne}`, {
           ...obj,
           headers: {
             "Access-Control-Allow-Origin": "*",
@@ -245,14 +321,14 @@ const handleClose = async (done: () => void) => {
           },
         })
           .then(function (data) {
-            console.log('data-----', data);
+            console.log("data-----", data);
           })
           .catch((e) => {
             console.log("e", e);
           });
         ElMessage.success("添加成功");
       } else {
-        post(`${articlePpdateOne}`, {
+        post(`${articleUpdateOne}`, {
           ...obj,
           headers: {
             "Access-Control-Allow-Origin": "*",
@@ -260,19 +336,20 @@ const handleClose = async (done: () => void) => {
           },
         })
           .then(function (data) {
-           console.log('data----', data);
+            console.log("data----", data);
           })
           .catch((e) => {
             console.log("e", e);
           });
       }
-      dialogVisible.value = false;
+      state.dialogVisible = false;
       console.log("submit!", obj);
     } else {
       console.log("error submit!", fields);
     }
   });
 };
+
 // todo 改写法
 const closeDialog = async (done: () => void) => {
   Object.assign(ruleForm, {
@@ -290,7 +367,7 @@ const closeDialog = async (done: () => void) => {
 };
 // 编辑
 const edit = (row) => {
-  title.value = "编辑";;
+  title.value = "编辑";
   post(`${articleSelectById}?id=${row.id}`, {
     headers: {
       "Access-Control-Allow-Origin": "*",
@@ -298,7 +375,7 @@ const edit = (row) => {
     },
   })
     .then(function (data) {
-      dialogVisible.value = true;
+      state.dialogVisible = true;
       Object.assign(ruleForm, data);
     })
     .catch((e) => {
@@ -306,32 +383,37 @@ const edit = (row) => {
     });
 };
 //  文章内容列表
-const getArticleSelectAll = () => {
+const getArticleSelectAll = (config?: selectAllConfig) => {
   post(`${articleSelectAll}`, {
     headers: {
       "Access-Control-Allow-Origin": "*",
     },
-    pageNum: currentPage.value,
-    pageSize: pageSize.value,
-    articletype: "5",
+    pageNum: state.currentPage,
+    pageSize: state.pageSize,
+    articletype: state.articletype,
+    ...config,
   }).then(function (data) {
-    tableData.value = data.list;
+    state.tableData = data.list;
+    state.total = data.total;
   });
 };
+getArticleSelectAll();
+
 // 回收站·
-const getArticleRecycle = (articletype) => {
+const getArticleRecycle = (config?: selectAllConfig) => {
   post(`${articleRecycle}`, {
     headers: {
       "Access-Control-Allow-Origin": "*",
     },
-    pageNum: currentPage.value,
-    pageSize: pageSize.value,
-    articletype,
+    pageNum: state.currentPage,
+    pageSize: state.pageSize,
+    ...config,
   }).then(function (data) {
-    tableData.value = data.list;
+    state.tableData = data.list;
+    state.total = data.total;
   });
 };
-getArticleSelectAll();
+
 // 登录接口
 post(`${login}`, {
   headers: {
@@ -343,38 +425,29 @@ post(`${login}`, {
   },
 }).then(function (data) {});
 
+// 切换tab
 const handleClick = (tab, event) => {
-  console.log("handleClick", tab.props.label, event);
-  getArticleRecycle(6);
+  if (tab.props.name === "resume") {
+    state.isResume = true;
+    getArticleRecycle();
+  } else {
+    state.isResume = false;
+    getArticleSelectAll();
+  }
 };
 
+// 切换每页显示数
 const handleSizeChange = (val: number) => {
   console.log(`${val} items per page`);
-  pageSize.value = val;
-  post(`${articleSelectAll}`, {
-    headers: {
-      "Access-Control-Allow-Origin": "*",
-    },
-    pageNum: currentPage.value,
-    pageSize: pageSize.value,
-    articletype: "5",
-  }).then(function (data) {
-    tableData.value = data.list;
-  });
+  state.pageSize = val;
+  getArticleSelectAll({ title: formInline.username});
 };
+
+// 换页数
 const handleCurrentChange = (val: number) => {
   console.log(`current page: ${val}`);
-  currentPage.value = val;
-  post(`${articleSelectAll}`, {
-    headers: {
-      "Access-Control-Allow-Origin": "*",
-    },
-    pageNum: currentPage.value,
-    pageSize: pageSize.value,
-    articletype: "5",
-  }).then(function (data) {
-    tableData.value = data.list;
-  });
+  state.currentPage = val;
+  getArticleSelectAll({ title: formInline.username});
 };
 const loading = ref(false);
 
@@ -390,42 +463,33 @@ const formInline = reactive({
   username: "",
 });
 
+// 搜索
 const onSubmit = () => {
   console.log("submit!");
   loading.value = true;
   setTimeout(() => {
     loading.value = false;
-    post(`${articleSelectAll}`, {
-      headers: {
-        "Access-Control-Allow-Origin": "*",
-      },
-      pageNum: currentPage.value,
-      pageSize: pageSize.value,
-      title: formInline.username,
-    }).then(function (data) {
-      tableData.value = data.list;
-    });
+    getArticleSelectAll({ title: formInline.username});
   }, 500);
 };
+
+// 清空
 const onClear = () => {
   loading.value = true;
   formInline.value = {};
   setTimeout(() => {
     loading.value = false;
-    post(`${articleSelectAll}`, {
-      headers: {
-        "Access-Control-Allow-Origin": "*",
-      },
-      pageNum: currentPage.value,
-      pageSize: pageSize.value,
-      title: "",
-    }).then(function (data) {
-      tableData.value = data.list;
-    });
+    getArticleSelectAll({ title: ""});
   }, 500);
 };
 
-const deleteAction = (row) => {
+// 删除
+const deleteAction = (row, isResume) => {
+  let obj = {
+    ...row,
+    deleteState: 1,
+  };
+  debugger;
   ElMessageBox.confirm("你确定要删除当前项吗?", "温馨提示", {
     confirmButtonText: "确定",
     cancelButtonText: "取消",
@@ -433,8 +497,45 @@ const deleteAction = (row) => {
     draggable: true,
   })
     .then(() => {
-      post(`${articleDelete}`, [row.id]).then(function (data) {
-        getArticleSelectAll();
+      !isResume
+        ? post(`${articleUpdateOne}`, {
+            ...obj,
+            headers: {
+              "Access-Control-Allow-Origin": "*",
+              "Content-Type": "application/json",
+            },
+          }).then(function (data) {
+            getArticleSelectAll();
+          })
+        : post(`${articleDelete}`, [row.id]).then(function (data) {
+            getArticleRecycle();
+          });
+      ElMessage.success("删除成功");
+    })
+    .catch(() => {});
+};
+
+// 恢复
+const resume = (row) => {
+  let obj = {
+    ...row,
+    deleteState: 0,
+  };
+  ElMessageBox.confirm("你确定要恢复当前项吗?", "温馨提示", {
+    confirmButtonText: "确定",
+    cancelButtonText: "取消",
+    type: "warning",
+    draggable: true,
+  })
+    .then(() => {
+      post(`${articleUpdateOne}`, {
+        ...obj,
+        headers: {
+          "Access-Control-Allow-Origin": "*",
+          "Content-Type": "application/json",
+        },
+      }).then(function (data) {
+        getArticleRecycle();
       });
       ElMessage.success("删除成功");
     })

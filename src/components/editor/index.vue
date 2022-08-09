@@ -31,8 +31,7 @@ import attachmentModule from "@wangeditor/plugin-upload-attachment";
 const emit = defineEmits(['handle'])
 Boot.registerModule(attachmentModule);
 const props = defineProps({
-    content:String,
-    test:String
+    content:String
 });
 watch(
     () => props.content,
@@ -44,7 +43,6 @@ watch(
 
 const state = reactive(props);
 const data = toRefs(state);
-console.log('data---', data);
 // 编辑器实例，必须用 shallowRef，重要！
 const editorRef = shallowRef();
 const url = ref("");
@@ -54,7 +52,7 @@ const valueHtml = ref("<p>hello</p>");
 // 模拟 ajax 异步获取内容
  onMounted(() => {
    setTimeout(() => {
-     valueHtml.value = "<p>模拟 Ajax 异步设置内容</p>";
+    valueHtml.value = state.content;
     }, 1500);
  });
 
