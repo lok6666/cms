@@ -7,8 +7,6 @@
         </el-button>
       </div>
       <el-table :data="state.tableData" style="width: 100%" :border="true" v-loading="loading">
-<!--         <el-table-column prop="id" label="序号" />
-        <el-table-column prop="sensitiveword" label="敏感词" /> -->
         <el-table-column
           v-for="(item, index) in tableHeaderConfig"
           :key="index"
@@ -38,7 +36,7 @@
         :title="title"
         width="50%"
         @closed="closeDialog()"
-      > <formConpoent :formConfig="state.formConfig" @handle="changeFormData"></formConpoent>
+      > <formConpoent v-model:formConfig="state.formConfig" @handle="changeFormData"></formConpoent>
         <template #footer>
           <span class="dialog-footer">
             <el-button @click="state.dialogVisible = false">取消</el-button>
@@ -69,17 +67,15 @@
   </u-container-layout>
 </template>
 <script lang="ts">
-export default { name: "sensitive-manage" }
-</script>
-<script lang="ts" setup >
 import {ref, reactive,provide } from "vue";
 import formConpoent from "./form.vue";
 import { sensitiveSelectAll, sensitiveAddOne, sensitiveUpdateOne } from "@/config/api";
 import { ElMessage, ElMessageBox, FormRules } from "element-plus";
 import { get, post } from "@/utils/request";
-
-// 表头
-const tableHeaderConfig = [
+export default { name: "sensitive-manage",
+data() {
+  return {
+  tableHeaderConfig: [
   {
     prop: "id",
     label: "序号",
@@ -87,10 +83,14 @@ const tableHeaderConfig = [
   {
     prop: "sensitiveword",
     label: "敏感词",
-    showInput: true,
+    showInput: true
   }
-];
+]
+  }
 
+} }
+</script>
+<script lang="ts" setup>
 const rules = reactive<FormRules>({
   title: {
     required: true
@@ -99,17 +99,18 @@ const rules = reactive<FormRules>({
     required: true
   },
 });
-const state = reactive({
-  currentPage: 0,
-  pageSize: 10,
-  formConfig: [[
+const formConfig = [[
    {
     prop: "sensitiveword",
     label: "敏感词",
     showInput: true,
-    value: ''
+    value: '1'
   }
-]],
+]];
+const state = reactive({
+  currentPage: 0,
+  pageSize: 10,
+  formConfig: formConfig,
   tableData: [
     {
       createdate: null,
@@ -176,23 +177,16 @@ const handleClose = async (done: () => void) => {
 
 // todo 改写法
 const closeDialog = async (done: () => void) => {
-  Object.assign(ruleForm, {
-    id: "",
-    sensitiveword: ""
-  });
+  state.formConfig = formConfig;
+  // Object.assign(state.formConfig, formConfig);
 };
 // 修改
 const edit = (row) => {
   title.value = "修改";
   state.dialogVisible = true;
-  state.formConfig = state.formConfig.map(el => {
-    return {...el, value: row[el.prop]};
-  });
-  provide('formConfig1', 1111);
-  setTimeout(() => {
-     provide('formConfig1', 1111);
-  }, 2000);
-  console.log('formConfig', state.formConfig);
+  state.formConfig = state.formConfig.map((e, b) => {
+    return {...e[b], value: row[e[b].prop]};
+  }).splice(0);
 };
 //  文章内容列表
 const getSensitiveSelectAll = () => {

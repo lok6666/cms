@@ -6,15 +6,15 @@
       label-width="80px"
       class="demo-dynamic"
     >
-      <el-form-item v-for="(item, index) in formConfig"
-          :key="index"
+      <el-form-item v-for="(item, i) in state.formConfig"
+          :key="i"
           :prop="item.prop"
           :label="item.label">
-        <el-input v-model="item.value" v-if="item.showInput"/>
+          {{item[i]}}
+          <el-input v-model="item.value" v-if="item.showInput"/>
       </el-form-item>
       <el-form-item>
         <el-button type="primary" @click="submitForm(formRef)">保存</el-button>
-        <!--      <el-button @click="preview">预览</el-button>-->
         <el-button @click="resetForm(formRef)">取消</el-button>
       </el-form-item>
     </el-form>
@@ -22,38 +22,22 @@
 </template>
 
 <script lang="ts" setup>
-import { watch, ref, toRefs, inject, reactive } from "vue";
+import { ref, reactive } from "vue";
 import type { FormInstance } from "element-plus";
 import { ElMessage } from "element-plus";
 import { get, post } from "@/utils/request";
 const emit = defineEmits(['handle']);
 let props = defineProps({
   formConfig:{
-    type: Object,
-    default: ()=>[]
-  }
+    type: Object
+  },
 });
-const formConfig1 = inject('formConfig1');
-console.log('formConfig111', formConfig1);
-let formConfig = reactive(props.formConfig);
-watch(
-    () => props.formConfig,
-    (val, prevVal) => {
-      console.log('formConfig', formConfig);
-        formConfig =  val;
-    }
-)
-
+const state = reactive(props);
+console.log('state----', state.formConfig);
 const formData = {};
-// watch(
-//     () => props.formConfig,
-//     (val, prevVal) => {
-//         valueHtml.value =  val;
-//     }
-// )
 const formRef = ref<FormInstance>();
 const submitForm = (formEl: FormInstance | undefined) => {
-  formConfig.forEach((v) => {
+  state.formConfig.forEach((v) => {
     formData[v.prop] = v.value;
   });
   emit('handle', formData);
