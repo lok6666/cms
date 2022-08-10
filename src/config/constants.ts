@@ -4,7 +4,7 @@ export const constantRouterComponents = {
     // 你需要动态引入的页面组件
     'message': () => Layout, // 信息发布
     'essay': () => import('@/views/contentManage/inline-edit-table.vue'), // 信息发布-内容管理-文章发布
-    'sensitiveManage': () => import('@/views/other/editor.vue'), // 信息发布-推荐管理-敏感词管理
+    'sensitiveManage': () => import('@/views/contentManage/sensitive-manage.vue'), // 信息发布-内容管理-敏感词管理
     'service': () => Layout, // 服务管理
     'systemManage': () => Layout, // 系统管理
     'businessUse': () => import('@/views/systemManage/inline-edit-table.vue'), // 系统管理-企业用户

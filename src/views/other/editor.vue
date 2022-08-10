@@ -171,25 +171,7 @@ const editorConfig = {
         axios.defaults.headers.common["Access-Control-Allow-Origin"] = "*";
         axios(config)
           .then(function (res) {
-            debugger;
-            let url = res.data; //拼接成可浏览的图片地址
-            insertFn(url, "使用说明", url); //插入图片
-          })
-          .catch(function (error) {
-            console.log(error);
-          });
-        axios({
-          method: "get",
-          url: "http://172.16.12.8:28182/trzUser/getUser", //上传图片地址
-          headers: {
-            "Content-Type": "application/json",
-            "Access-Control-Allow-Origin": "*",
-            Authorization: "Bearer " + localStorage.getItem("token"),
-          },
-        })
-          .then(function (res) {
-            debugger;
-            let url = res.data; //拼接成可浏览的图片地址
+            let url = res; //拼接成可浏览的图片地址
             insertFn(url, "使用说明", url); //插入图片
           })
           .catch(function (error) {

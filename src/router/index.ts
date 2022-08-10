@@ -46,7 +46,42 @@ export const constantRoutes: Array<RouteRecordRaw & extendRoute> = [
       }
     ]
   },
-
+  {
+    path: '/charts',
+    component: Layout,
+    redirect: 'noRedirect',
+    name: 'Charts',
+    meta: {
+      title: '招商服务',
+      roles: ['other']
+    },
+    children: [
+      {
+        path: 'migration',
+        component: () => import('@/views/charts/migration.vue'),
+        name: 'migration',
+        meta: { title: '入驻申请', roles: ['other'], requiresAuth: false }
+      },
+      {
+        path: 'simple',
+        component: () => import('@/views/charts/simple.vue'),
+        name: 'charts-simple',
+        meta: { title: '企业评估', roles: ['other'] }
+      },
+      {
+        path: 'complex',
+        component: () => import('@/views/charts/complex.vue'),
+        name: 'charts-complex',
+        meta: { title: '招商效果', roles: ['other'] }
+      },
+      {
+        path: 'animation',
+        component: () => import('@/views/charts/animation.vue'),
+        name: 'charts-animation',
+        meta: { title: '信息录入', roles: ['other'] }
+      },
+    ]
+  }
 ]
 
 const clipboardTable = {

@@ -10,8 +10,13 @@ export  const articleDelete = `${host}/article/deleteAll` // 文章删除
 export  const articleRecycle = `${host}/article/selectRecycleBin` // 文章删除
 export  const articleSelectById = `${host}/article/selectById` // 文章内容
 export  const articleUpdateOne = `${host}/article/updateOne` // 文章内容
-export  const articleArticleAelectCircle = `${host}/articletype/selectType` // 文章类型
+export  const articleArticleAelectCircle = `${host}/articletype/selectType` // 文章类型 
+export  const articleArticleAddOne = `${host}/article/addOne` // 新增
 
+/*信息发布-敏感词*/
+export  const sensitiveSelectAll = `http://172.16.110.101:81/assoication_sjs/trzSensitive/selectAll` //  文章列表
+export const sensitiveAddOne = `http://172.16.110.101:81/assoication_sjs/trzSensitive/addOne`//  敏感词添加
+export const sensitiveUpdateOne = `http://172.16.110.101:81/assoication_sjs/trzSensitive/updateOne`//  敏感词添加
 // menu路由
 export const getMenuByUserId = `${host}/sysResource/getMenuByUserId`
 // 上传附件,图片,视频

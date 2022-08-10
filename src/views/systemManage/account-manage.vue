@@ -210,7 +210,6 @@ const beforeAvatarUpload: UploadProps["beforeUpload"] = (rawFile) => {
             "Access-Control-Allow-Origin": "*",
             Authorization: "Bearer " + localStorage.getItem("token"),
           },
-          userId: ruleForm.value.id,
           type: "image",
           data: data,
         };
@@ -219,7 +218,7 @@ const beforeAvatarUpload: UploadProps["beforeUpload"] = (rawFile) => {
         axios(config)
         .then(function (res) {
           ruleForm.value.picture = res;
-          getSysUserSelectAll();
+          // getSysUserSelectAll();
         })
         .catch(function (error) {
           console.log(error);

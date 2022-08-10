@@ -37,12 +37,10 @@ watch(
     () => props.content,
     (val, prevVal) => {
         valueHtml.value =  val;
-        console.log(`text is: ---------------------------------` + val)
     }
 )
 
 const state = reactive(props);
-const data = toRefs(state);
 // 编辑器实例，必须用 shallowRef，重要！
 const editorRef = shallowRef();
 const url = ref("");
@@ -84,9 +82,7 @@ const editorConfig = {
         data.append("type", "file");
         // 插入节点
         const editor = editorRef.value;
-        const node = { type: 'link', url: 'https://www.baidu.com/img/PCtm_d9c8750bed0b3c7d089fa7d55720d6cf.png', children: [{ text: 'simple text' }] }
-        editor.insertNode(node);
-/*         var config = {
+         var config = {
           method: "post",
           url: "http://172.16.12.8:28182/upload", //上传图片地址
           headers: {
@@ -95,22 +91,15 @@ const editorConfig = {
           },
           data,
         };
-        // post(`http://172.16.12.8:28182/upload`, {
-        //   headers: {
-        //     "Access-Control-Allow-Origin": "*",
-        //     Authorization: "Bearer " + localStorage.getItem("token"),
-        //   },
-        //   data: data
-        // })
         axios(config)
           .then(function (res) {
             debugger;
-            let url = res.data; //拼接成可浏览的图片地址
-            insertFn(url, "使用说明", url); //插入图片
+            const node = { type: 'link', url: res, children: [{ text: 'simple text' }] }
+            editor.insertNode(node);
           })
           .catch(function (error) {
             console.log(error);
-          }); */
+          });
       },
     },
     uploadImage: {
@@ -139,7 +128,6 @@ const editorConfig = {
         axios.defaults.headers.common["Access-Control-Allow-Origin"] = "*";
         axios(config)
         .then(function (res) {
-          debugger;
           let url = res; //拼接成可浏览的图片地址
           insertFn(url, "使用说明", url); //插入图片
         })
@@ -171,25 +159,7 @@ const editorConfig = {
         axios.defaults.headers.common["Access-Control-Allow-Origin"] = "*";
         axios(config)
           .then(function (res) {
-            debugger;
-            let url = res.data; //拼接成可浏览的图片地址
-            insertFn(url, "使用说明", url); //插入图片
-          })
-          .catch(function (error) {
-            console.log(error);
-          });
-        axios({
-          method: "get",
-          url: "http://172.16.12.8:28182/trzUser/getUser", //上传图片地址
-          headers: {
-            "Content-Type": "application/json",
-            "Access-Control-Allow-Origin": "*",
-            Authorization: "Bearer " + localStorage.getItem("token"),
-          },
-        })
-          .then(function (res) {
-            debugger;
-            let url = res.data; //拼接成可浏览的图片地址
+            let url = res; //拼接成可浏览的图片地址
             insertFn(url, "使用说明", url); //插入图片
           })
           .catch(function (error) {

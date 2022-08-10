@@ -42,7 +42,7 @@
       </el-tabs>
       <el-form :inline="true" :model="formInline" class="demo-form-inline">
         <el-form-item label="标题">
-          <el-input v-model="formInline.username" placeholder="请输入标题" />
+          <el-input v-model="formInline.title" placeholder="请输入标题" />
         </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="onSubmit">搜索</el-button>
@@ -123,8 +123,8 @@
           class="demo-ruleForm"
           :size="formSize"
         >
-          <el-form-item label="栏目" prop="username">
-            <el-input v-model="ruleForm.username" />
+          <el-form-item label="栏目" prop="articleType">
+            <el-input v-model="ruleForm.articleType" />
           </el-form-item>
           <el-form-item label="标题" prop="title">
             <el-input v-model="ruleForm.title" />
@@ -148,13 +148,11 @@
               <img
                 v-if="ruleForm.picture"
                 :src="ruleForm.picture"
+                style="width: 50px; height: 50px;"
                 class="avatar"
               />
               <el-icon v-else class="avatar-uploader-icon"><Plus /></el-icon>
             </el-upload>
-          </el-form-item>
-          <el-form-item label="发布日期" prop="releaseDate">
-            <el-input v-model="ruleForm.releaseDate" />
           </el-form-item>
           <el-form-item label="文章内容" prop="content">
             <editor
@@ -200,6 +198,7 @@ export default { name: "inline-table" };
 import { computed, ref, reactive, onMounted, toRefs } from "vue";
 import editor from "@/components/editor/index.vue";
 import {
+  articleArticleAddOne,
   articleUpdateOne,
   articleRecycle,
   login,
@@ -208,7 +207,7 @@ import {
   articleArticleAelectCircle,
   articleSelectById,
 } from "@/config/api";
-import { ElMessage, ElMessageBox, FormRules } from "element-plus";
+import { ElMessage, ElMessageBox, FormRules, UploadProps } from "element-plus";
 import { get, post } from "@/utils/request";
 
 interface baseData {
@@ -224,6 +223,7 @@ interface baseData {
 interface selectAllConfig {
   title?: string
 }
+
 const rules = reactive<FormRules>({
   title: {
     required: true,
@@ -244,6 +244,9 @@ const rules = reactive<FormRules>({
     required: true,
   },
 });
+const formInline = reactive({
+  title: ""
+});
 const state = reactive({
   currentPage: 0,
   tableData: [],
@@ -263,9 +266,9 @@ const state = reactive({
 });
 const ruleFormRef = ref();
 const title = ref("新增");
-const baseData = {
+let ruleForm: baseData = reactive({
   title: "",
-  username: "1",
+  articleType: "",
   operator: "",
   picture: "",
   articletype: 1,
@@ -275,8 +278,7 @@ const baseData = {
   id: "",
   releaseDate: "",
   content: "",
-};
-let ruleForm: baseData = reactive(baseData);
+});
 
 // 获取文章类型
 const getOPtionList = () => {
@@ -313,7 +315,7 @@ const handleClose = async (done: () => void) => {
         ...ruleForm,
       };
       if (title.value === "新增") {
-        post(`${articleUpdateOne}`, {
+        post(`${articleArticleAddOne}`, {
           ...obj,
           headers: {
             "Access-Control-Allow-Origin": "*",
@@ -349,12 +351,47 @@ const handleClose = async (done: () => void) => {
     }
   });
 };
-
+const beforeAvatarUpload: UploadProps["beforeUpload"] = (rawFile) => {
+  debugger;
+  if (rawFile.type !== "image/jpeg") {
+    ElMessage.error("Avatar picture must be JPG format!");
+    return false;
+  } else if (rawFile.size / 1024 / 1024 > 2) {
+    ElMessage.error("Avatar picture size can not exceed 2MB!");
+    return false;
+  }
+        var axios = require("axios");
+        var FormData = require("form-data");
+        var data = new FormData();
+        data.append("file", rawFile); // file 即选中的文件
+        data.append("userId", 1);
+        data.append("type", "image");
+        var config = {
+          method: "post",
+          url: "http://172.16.12.8:28182/upload", //上传图片地址
+          headers: {
+            "Content-Type": "multipart/form-data",
+            "Access-Control-Allow-Origin": "*",
+            Authorization: "Bearer " + localStorage.getItem("token"),
+          },
+          type: "image",
+          data: data
+        };
+        axios.defaults.crossDomain = true;
+        axios.defaults.headers.common["Access-Control-Allow-Origin"] = "*";
+        axios(config)
+        .then(function (res) {
+          ruleForm.picture = res
+        })
+        .catch(function (error) {
+          console.log(error);
+        });
+};
 // todo 改写法
 const closeDialog = async (done: () => void) => {
   Object.assign(ruleForm, {
     title: "",
-    username: "1",
+    articleType: "",
     operator: "",
     picture: "",
     dataSources: "",
@@ -440,28 +477,16 @@ const handleClick = (tab, event) => {
 const handleSizeChange = (val: number) => {
   console.log(`${val} items per page`);
   state.pageSize = val;
-  getArticleSelectAll({ title: formInline.username});
+  getArticleSelectAll({ title: formInline.title});
 };
 
 // 换页数
 const handleCurrentChange = (val: number) => {
   console.log(`current page: ${val}`);
   state.currentPage = val;
-  getArticleSelectAll({ title: formInline.username});
+  getArticleSelectAll({ title: formInline.title});
 };
 const loading = ref(false);
-
-const confirmEdit = (row) => {
-  row.edit = false;
-};
-
-const cancelEdit = (row) => {
-  row.edit = false;
-};
-
-const formInline = reactive({
-  username: "",
-});
 
 // 搜索
 const onSubmit = () => {
@@ -469,7 +494,7 @@ const onSubmit = () => {
   loading.value = true;
   setTimeout(() => {
     loading.value = false;
-    getArticleSelectAll({ title: formInline.username});
+    getArticleSelectAll({ title: formInline.title});
   }, 500);
 };
 
@@ -576,5 +601,10 @@ const resume = (row) => {
   width: 178px;
   height: 178px;
   text-align: center;
+}
+.avatar-uploader .avatar {
+  width: 178px;
+  height: 178px;
+  display: block;
 }
 </style>

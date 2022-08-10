@@ -1,0 +1,286 @@
+<template>
+  <u-container-layout>
+    <div class="inline-edit-table">
+      <div style="display: flex; justify-content: flex-end">
+        <el-button type="primary" @click="add">
+            <el-icon><plus /></el-icon>添加
+        </el-button>
+      </div>
+      <el-table :data="state.tableData" style="width: 100%" :border="true" v-loading="loading">
+<!--         <el-table-column prop="id" label="序号" />
+        <el-table-column prop="sensitiveword" label="敏感词" /> -->
+        <el-table-column
+          v-for="(item, index) in tableHeaderConfig"
+          :key="index"
+          :prop="item.prop"
+          :label="item.label"
+        >
+        </el-table-column>
+        <el-table-column prop="operator" label="操作" width="200" fixed="right">
+          <template #default="scope">
+            <el-button
+              type="primary"
+              size="small"
+              icon="Edit"
+              @click="edit(scope.row)"
+            >修改</el-button>
+            <el-button
+              type="danger"
+              size="small"
+              icon="Delete"
+              @click="deleteAction(scope.row, state.isResume)"
+            >删除</el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+      <el-dialog
+        v-model="state.dialogVisible"
+        :title="title"
+        width="50%"
+        @closed="closeDialog()"
+      > <formConpoent :formConfig="state.formConfig" @handle="changeFormData"></formConpoent>
+        <template #footer>
+          <span class="dialog-footer">
+            <el-button @click="state.dialogVisible = false">取消</el-button>
+            <el-button type="primary" @click="handleClose(ruleFormRef)"
+              >确定</el-button
+            >
+          </span>
+        </template>
+      </el-dialog>
+      <div
+        style="width: 100%;
+          display: flex;
+          justify-content: center;
+          padding-top: 20px;
+        "
+      >
+        <el-pagination
+          v-model:currentPage="currentPage"
+          :page-size="state.pageSize"
+          background
+          layout="total, sizes, prev, pager, next, jumper"
+          :total="state.total"
+          @size-change="handleSizeChange"
+          @current-change="handleCurrentChange"
+        />
+      </div>
+    </div>
+  </u-container-layout>
+</template>
+<script lang="ts">
+export default { name: "sensitive-manage" }
+</script>
+<script lang="ts" setup >
+import {ref, reactive,provide } from "vue";
+import formConpoent from "./form.vue";
+import { sensitiveSelectAll, sensitiveAddOne, sensitiveUpdateOne } from "@/config/api";
+import { ElMessage, ElMessageBox, FormRules } from "element-plus";
+import { get, post } from "@/utils/request";
+
+// 表头
+const tableHeaderConfig = [
+  {
+    prop: "id",
+    label: "序号",
+  },
+  {
+    prop: "sensitiveword",
+    label: "敏感词",
+    showInput: true,
+  }
+];
+
+const rules = reactive<FormRules>({
+  title: {
+    required: true
+  },
+  sensitiveword: {
+    required: true
+  },
+});
+const state = reactive({
+  currentPage: 0,
+  pageSize: 10,
+  formConfig: [[
+   {
+    prop: "sensitiveword",
+    label: "敏感词",
+    showInput: true,
+    value: ''
+  }
+]],
+  tableData: [
+    {
+      createdate: null,
+      deletestate: "",
+      files: [],
+      id: 1,
+      images: [],
+      lastupdatatime: null,
+      operator: "",
+      pageNum: 0,
+      pageSize: 0,
+      sensitiveword: "造反有理,打到共产党",
+      storagetime: "2021-07-16 16:56:30",
+    },
+    {
+      createdate: null,
+      deletestate: "",
+      files: [],
+      id: 2,
+      images: [],
+      lastupdatatime: null,
+      operator: "",
+      pageNum: 0,
+      pageSize: 0,
+      sensitiveword: "法轮功",
+      storagetime: "2021-07-16 17:01:08",
+    },
+  ],
+  total: 0,
+  sensitiveword: "",
+  dialogVisible: false,
+  isResume: false
+});
+const ruleFormRef = ref();
+const eleTable = ref();
+const title = ref("新增");
+
+// 添加
+const add = () => {
+  title.value = "新增";
+  state.dialogVisible = true;
+};
+
+// 关闭弹窗
+const handleClose = async (done: () => void) => {
+  await ruleFormRef.value.validate((valid, fields) => {
+    if (valid) {
+      let obj = {
+        ...ruleForm
+      };
+      if (title.value === "新增") {
+        // todo 调接口 sensitiveAddOne
+        ElMessage.success("添加成功");
+      } else {
+        // todo 调接口 sensitiveUpdateOne
+      }
+      state.dialogVisible = false;
+      console.log("submit!", obj);
+    } else {
+      console.log("error submit!", fields);
+    }
+  });
+};
+
+// todo 改写法
+const closeDialog = async (done: () => void) => {
+  Object.assign(ruleForm, {
+    id: "",
+    sensitiveword: ""
+  });
+};
+// 修改
+const edit = (row) => {
+  title.value = "修改";
+  state.dialogVisible = true;
+  state.formConfig = state.formConfig.map(el => {
+    return {...el, value: row[el.prop]};
+  });
+  provide('formConfig1', 1111);
+  setTimeout(() => {
+     provide('formConfig1', 1111);
+  }, 2000);
+  console.log('formConfig', state.formConfig);
+};
+//  文章内容列表
+const getSensitiveSelectAll = () => {
+  post(`${sensitiveSelectAll}`, {
+    headers: {
+      "Access-Control-Allow-Origin": "*",
+    },
+    pageNum: state.currentPage,
+    pageSize: state.pageSize,
+  }).then(function (data) {
+    state.tableData = data.list;
+    state.total = data.total;
+  });
+};
+getSensitiveSelectAll();
+
+// 切换每页显示数
+const handleSizeChange = (val: number) => {
+  console.log(`${val} items per page`);
+  state.pageSize = val;
+  getSensitiveSelectAll({ title: formInline.username });
+};
+
+// 换页数
+const handleCurrentChange = (val: number) => {
+  console.log(`current page: ${val}`);
+  state.currentPage = val;
+  getSensitiveSelectAll({ title: formInline.username });
+};
+const loading = ref(false);
+
+const formInline = reactive({
+  username: "",
+});
+// 删除
+const deleteAction = (row, isResume) => {
+  let obj = {
+    ...row
+  };
+  ElMessageBox.confirm("你确定要删除当前项吗?", "温馨提示", {
+    confirmButtonText: "确定",
+    cancelButtonText: "取消",
+    type: "warning",
+    draggable: true,
+  })
+    .then(() => {
+      ElMessage.success("删除成功");
+    })
+    .catch(() => {});
+};
+
+const changeFormData = (formData) => {
+  console.log('changeFormData', formData);
+};
+</script>
+
+<style scoped>
+.edit-input {
+  padding-right: 100px;
+}
+.cancel-btn {
+  position: absolute;
+  right: 15px;
+  top: 10px;
+}
+.inline-edit-table {
+  width: 100%;
+}
+</style>
+<style>
+.avatar-uploader .el-upload {
+  border: 1px dashed var(--el-border-color);
+  border-radius: 6px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: var(--el-transition-duration-fast);
+}
+
+.avatar-uploader .el-upload:hover {
+  border-color: var(--el-color-primary);
+}
+
+.el-icon.avatar-uploader-icon {
+  font-size: 28px;
+  color: #8c939d;
+  width: 178px;
+  height: 178px;
+  text-align: center;
+}
+</style>
