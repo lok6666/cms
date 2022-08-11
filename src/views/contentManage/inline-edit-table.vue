@@ -256,12 +256,7 @@ const state = reactive({
   editableTabsValue: "1",
   dialogVisible: false,
   articletype: 1,
-  optionsList: [
-    {
-      label: "User",
-      name: "User",
-    },
-  ],
+  optionsList: [],
   isResume: false,
 });
 const ruleFormRef = ref();

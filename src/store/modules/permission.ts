@@ -98,6 +98,7 @@ const actions = {
                 }
             })
             .then(function (data) {
+                console.log('data----', data);
                 const routers = generator(data);
                 commit('SET_ROUTES', routers);
                 resolve(routers);

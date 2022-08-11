@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<script src="./mqttws31.js">
+</script>
+<script>
+console.log(111);
+        var brokerIp = '172.16.130.92';
+        // mqtt协议端口号
+        var port = 15675;
+        // 接受推送消息的主题
+        var topic = "push_message_topic";
+        // mqtt连接
+        var client = new Paho.MQTT.Client(brokerIp, port, "/ws", "clientId_1" + parseInt(Math.random() * 100, 10));
+
+        var options = {
+            timeout: 3, //超时时间
+            keepAliveInterval: 30,//心跳时间
+            userName: 'admin',
+            password: 'Ip0s0cKw2p1ua0wugyUkmHkTIlQ6tjsQ',
+            onSuccess: function () {
+                console.log(("连接成功~"));
+                client.subscribe(topic, {qos: 1});
+            },
+            onFailure: function (message) {
+                console.log(("连接失败~" + message.errorMessage));
+            }
+        };
+        // 考虑到https的情况
+        if (location.protocol == "https:") {
+            options.useSSL = true;
+        }
+        client.connect(options);
+        console.log(("已经连接到" + brokerIp + ":" + port));
+
+        // 连接断开事件
+        client.onConnectionLost = function (responseObject) {
+            console.log("失去连接 - " + responseObject.errorMessage);
+        };
+
+        // 接收消息事件
+        client.onMessageArrived = function (message) {
+            console.log("接受主题： " + message.destinationName + "的消息： " + message.payloadString);
+            // $("#arrivedDiv").append("<br/>"+message.payloadString);
+            // var count = $("#count").text();
+            // count = Number(count) + 1;
+            // $("#count").text(count);
+        };
+
+        // 推送给指定主题
+        function sendMessage() {
+            var a = $("#message").val();
+            if (client.isConnected()) {
+                var message = new Paho.MQTT.Message(a);
+                message.destinationName = topic;
+                client.send(message);
+            }
+        }
+</script>
+
+<body>
+ 11   
+</body>
+
+</html>

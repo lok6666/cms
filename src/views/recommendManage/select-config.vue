@@ -1,10 +1,40 @@
 <template>
   <u-container-layout>
     <div class="inline-edit-table">
+      <el-tabs
+        type="card"
+        class="demo-tabs"
+        style="width: 100%"
+        @tab-click="articleHandleClick"
+        v-model="state.editableTabsValue"
+      >
+        <el-tab-pane
+          v-for="item in state.optionsList"
+          :key="item.id"
+          :label="item.title"
+          :name="item.id"
+        >
+          <el-tabs
+            type="card"
+            class="demo-tabs"
+            style="width: 100%"
+            v-model="state.activeName"
+            @tab-click="articleHandleClick"
+          >
+            <el-tab-pane
+              v-for="i in item.children"
+              :key="i.id"
+              :label="i.title"
+              :name="i.id"
+            >
+            </el-tab-pane>
+          </el-tabs>
+        </el-tab-pane>
+      </el-tabs>
       <div style="display: flex; justify-content: flex-end">
-        <el-button type="primary" @click="add">
-          <el-icon><plus /></el-icon>添加
-        </el-button>
+        <el-button type="primary" @click="add"
+          ><el-icon><plus /></el-icon> 添加</el-button
+        >
       </div>
       <el-table
         :data="state.tableData"
@@ -26,15 +56,17 @@
               size="small"
               icon="Edit"
               @click="edit(scope.row)"
-              >修改</el-button
             >
+              编辑
+            </el-button>
             <el-button
               type="danger"
               size="small"
               icon="Delete"
-              @click="deleteAction(scope.row, state.isResume)"
-              >删除</el-button
+              @click="deleteAction(scope.row)"
             >
+              {{ "删除" }}
+            </el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -44,7 +76,7 @@
         width="50%"
         @closed="closeDialog()"
       >
-       <formConpoent
+        <formConpoent
           v-model:formConfig="state.formConfig"
           @handle="postFormData"
           @dialogClose="closeDialog"
@@ -72,15 +104,21 @@
   </u-container-layout>
 </template>
 <script lang="ts">
-import { ref, reactive, provide } from "vue";
-import formConpoent from "@/components/form/form.vue";
+import { computed, ref, reactive, onMounted, toRefs } from "vue";
 import {
-  sensitiveSelectAll,
-  sensitiveAddOne,
-  sensitiveUpdateOne,
+  SelectGetTree,
+  SelectGetDataByTypeId,
+  selectByIdType,
+  selectAddOne,
+  articleArticleAelectCircle,
+  selectUpdateOne,
+  selectDeleteOne,
+  selectOptionList
 } from "@/config/api";
-import { ElMessage, ElMessageBox, FormRules } from "element-plus";
+import formConpoent from "@/components/form/form.vue";
+import { ElMessage, ElMessageBox, FormRules, UploadProps } from "element-plus";
 import { get, post } from "@/utils/request";
+import { tr } from "element-plus/es/locale";
 export default {
   name: "sensitive-manage",
   data() {
@@ -91,85 +129,139 @@ export default {
           label: "序号",
         },
         {
-          prop: "sensitiveword",
-          label: "敏感词",
-          showInput: true
+          prop: "typeName",
+          label: "类型名称",
+        },
+        {
+          prop: "name",
+          label: "名称",
         },
       ],
     };
   },
 };
 </script>
-<script lang="ts" setup>
-const rules = reactive<FormRules>({
-  title: {
-    required: true,
-  },
-  sensitiveword: {
-    required: true,
-  },
-});
+<script lang="ts" setup >
 const formConfig = [
   {
-    prop: "sensitiveword",
-    label: "敏感词",
-    showInput: true
+    prop: "typeName",
+    label: "请选择类型名称",
+    showSelect: true,
+    required: true,
+    options: []
+  },
+  {
+    prop: "name",
+    label: "下拉框、复选框名称",
+    showInput: true,
+    required: true
   },
 ];
 const state = reactive({
   currentPage: 0,
+  total: 0,
   pageSize: 10,
+  activeName: "content",
+  editableTabsValue: "1",
+  dialogVisible: false,
+  articletype: 1,
   formConfig: formConfig,
   tableData: [
     {
-      createdate: null,
-      deletestate: "",
+      code: "",
       files: [],
       id: 1,
       images: [],
-      lastupdatatime: null,
-      operator: "",
+      name: "投资机构",
       pageNum: 0,
       pageSize: 0,
-      sensitiveword: "造反有理,打到共产党",
-      storagetime: "2021-07-16 16:56:30",
+      typeName: "机构类型",
+      typeid: 1,
     },
     {
-      createdate: null,
-      deletestate: "",
+      code: "",
       files: [],
       id: 2,
       images: [],
-      lastupdatatime: null,
-      operator: "",
+      name: "文化企业",
       pageNum: 0,
       pageSize: 0,
-      sensitiveword: "法轮功",
-      storagetime: "2021-07-16 17:01:08",
+      typeName: "机构类型",
+      typeid: 1,
     },
   ],
-  total: 0,
-  sensitiveword: "",
-  dialogVisible: false,
-  isResume: false,
+  optionsList: [],
 });
-const ruleFormRef = ref();
-const eleTable = ref();
 const title = ref("新增");
 
-// 添加
+/**
+ * 获取下拉选项列表
+ */
+const getSelectOptionList = () => {
+/*   get(`${selectOptionList}`)
+    .then(function (data) {
+      state.optionsList = data;
+    })
+    .catch((e) => {
+      console.log("e", e);
+    }); */
+    return [
+  {
+    value: 'Option1',
+    label: 'Option1',
+  },
+  {
+    value: 'Option2',
+    label: 'Option2',
+    disabled: true,
+  },
+  {
+    value: 'Option3',
+    label: 'Option3',
+  },
+  {
+    value: 'Option4',
+    label: 'Option4',
+  },
+  {
+    value: 'Option5',
+    label: 'Option5',
+  },
+];
+};
+
+// 获取文章列表
+const getOPtionList = () => {
+  get(`${articleArticleAelectCircle}`)
+    .then(function (data) {
+      state.optionsList = data;
+    })
+    .catch((e) => {
+      console.log("e", e);
+    });
+};
+getOPtionList();
+
+const articleHandleClick = (tab, event) => {
+  state.articletype = tab.props.name;
+  getArticleSelectAll();
+};
+
+/**
+ * 添加
+ */
 const add = () => {
   title.value = "新增";
   state.dialogVisible = true;
+  state.formConfig[0].options = getSelectOptionList();
 };
-
 
 /**
  * 提交表单数据
  */
 const postFormData = (formData) => {
   if (title.value === "新增") {
-    post(`${sensitiveAddOne}`, {
+    post(`${selectAddOne}`, {
       ...formData,
       headers: {
         "Access-Control-Allow-Origin": "*",
@@ -184,7 +276,7 @@ const postFormData = (formData) => {
       });
     ElMessage.success("添加成功");
   } else {
-    post(`${sensitiveUpdateOne}`, {
+    post(`${selectUpdateOne}`, {
       ...formData,
       headers: {
         "Access-Control-Allow-Origin": "*",
@@ -209,56 +301,71 @@ const closeDialog = async (done: () => void) => {
   state.formConfig = formConfig;
 };
 
-
-// 修改
+/**
+ * 编辑表单
+ */
 const edit = (row) => {
-  title.value = "修改";
-  state.dialogVisible = true;
-  state.formConfig = state.formConfig
-    .map((e, b) => {
-        console.log('row, row', row, e, row[e.prop]);
-        // value 替换成 e.prop
-      return { ...e, value: row[e.prop] }
+  title.value = "编辑";
+  post(`${selectByIdType}`, {
+    id: row.id,
+    headers: {
+      "Access-Control-Allow-Origin": "*",
+      "Content-Type": "application/json",
+    },
+  })
+    .then(function (data) {
+      state.dialogVisible = true;
     })
-    .splice(0);
+    .catch((e) => {
+      console.log("e", e);
+    });
 };
-//  文章内容列表
-const getSensitiveSelectAll = () => {
-  post(`${sensitiveSelectAll}`, {
+
+/**
+ * 提交表单数据
+ */
+const getArticleSelectAll = (config?: selectAllConfig) => {
+  post(`${SelectGetDataByTypeId}`, {
     headers: {
       "Access-Control-Allow-Origin": "*",
     },
     pageNum: state.currentPage,
     pageSize: state.pageSize,
+    articletype: state.articletype,
+    ...config,
   }).then(function (data) {
     state.tableData = data.list;
     state.total = data.total;
   });
 };
-getSensitiveSelectAll();
+getArticleSelectAll();
 
-// 切换每页显示数
+/**
+ * 切换每页显示数
+ */
 const handleSizeChange = (val: number) => {
   console.log(`${val} items per page`);
   state.pageSize = val;
-  getSensitiveSelectAll({ title: formInline.username });
+  getArticleSelectAll({ title: formInline.title });
 };
 
-// 换页数
+/**
+ * 跳转xx页
+ */
 const handleCurrentChange = (val: number) => {
   console.log(`current page: ${val}`);
   state.currentPage = val;
-  getSensitiveSelectAll({ title: formInline.username });
+  getArticleSelectAll({ title: formInline.title });
 };
 const loading = ref(false);
 
-const formInline = reactive({
-  username: "",
-});
-// 删除
-const deleteAction = (row, isResume) => {
+/**
+ * 删除表格内容
+ */
+const deleteAction = (row) => {
   let obj = {
     ...row,
+    deleteState: 1,
   };
   ElMessageBox.confirm("你确定要删除当前项吗?", "温馨提示", {
     confirmButtonText: "确定",
@@ -267,18 +374,21 @@ const deleteAction = (row, isResume) => {
     draggable: true,
   })
     .then(() => {
+      post(`${selectDeleteOne}`, {
+        ...obj,
+        headers: {
+          "Access-Control-Allow-Origin": "*",
+          "Content-Type": "application/json",
+        },
+      }).then(function (data) {
+        getArticleSelectAll();
+      });
       ElMessage.success("删除成功");
     })
     .catch(() => {});
 };
 
-/**
- * 提交表单数据
- */
-const changeFormData = (formData) => {
-  state.dialogVisible = false;
-  console.log("changeFormData", formData);
-};
+
 </script>
 
 <style scoped>
@@ -314,5 +424,10 @@ const changeFormData = (formData) => {
   width: 178px;
   height: 178px;
   text-align: center;
+}
+.avatar-uploader .avatar {
+  width: 178px;
+  height: 178px;
+  display: block;
 }
 </style>

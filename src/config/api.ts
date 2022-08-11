@@ -17,6 +17,25 @@ export  const articleArticleAddOne = `${host}/article/addOne` // 新增
 export  const sensitiveSelectAll = `http://172.16.110.101:81/assoication_sjs/trzSensitive/selectAll` //  文章列表
 export const sensitiveAddOne = `http://172.16.110.101:81/assoication_sjs/trzSensitive/addOne`//  敏感词添加
 export const sensitiveUpdateOne = `http://172.16.110.101:81/assoication_sjs/trzSensitive/updateOne`//  敏感词添加
+
+/*信息发布-下拉框配置*/
+export  const SelectGetTree = `http://172.16.110.101:81/assoication_sjs/trzDictionaries/getTree` //  标题tabs
+export const SelectGetDataByTypeId = `http://172.16.110.101:81/assoication_sjs/trzDictionaries/getDataByTypeId`//  下拉框列表
+export const selectByIdType = `http://172.16.110.101:81/assoication_sjs/trzDictionaries/selectByIdType` // 单条下拉框查询
+export const selectAddOne = `http://172.16.110.101:81/assoication_sjs/trzDictionaries/addOneType` // 单条下拉框新增
+export const selectUpdateOne = `http://172.16.110.101:81/assoication_sjs/trzDictionaries/updateOneType` // 单条下拉框更新
+export const selectDeleteOne = `http://172.16.110.101:81/assoication_sjs/trzDictionaries/deleteOneType` // 单条下拉框删除
+export const selectOptionList = `http://172.16.110.101:81/assoication_sjs/trzDictionaries/deleteOneType` // 下拉框option列表
+
+/*信息发布-行业数据*/
+export const industryDataList = `IndustryData/list` //  数据表格
+/* export const SelectGetDataByTypeId = `http://172.16.110.101:81/assoication_sjs/trzDictionaries/getDataByTypeId`//  下拉框列表
+export const selectByIdType = `http://172.16.110.101:81/assoication_sjs/trzDictionaries/selectByIdType` // 单条下拉框查询*/
+export const industryDataAddOne = `http://172.16.110.101:81/assoication_sjs/trzDictionaries/addOneType` // 行业数据新增
+export const industryDataUpdateOne = `http://172.16.110.101:81/assoication_sjs/trzDictionaries/updateOneType` // 行业数据更新
+export const industryDataDeleteOne = `http://172.16.110.101:81/assoication_sjs/trzDictionaries/deleteOneType` // 行业数据删除
+export const industryDataOptionList = `http://172.16.110.101:81/assoication_sjs/trzDictionaries/deleteOneType` // 下拉框option列表
+
 // menu路由
 export const getMenuByUserId = `${host}/sysResource/getMenuByUserId`
 // 上传附件,图片,视频
