@@ -1,40 +1,10 @@
 <template>
   <u-container-layout>
     <div class="inline-edit-table">
-      <el-tabs
-        type="card"
-        class="demo-tabs"
-        style="width: 100%"
-        @tab-click="articleHandleClick"
-        v-model="state.editableTabsValue"
-      >
-        <el-tab-pane
-          v-for="item in state.optionsList"
-          :key="item.id"
-          :label="item.title"
-          :name="item.id"
-        >
-          <el-tabs
-            type="card"
-            class="demo-tabs"
-            style="width: 100%"
-            v-model="state.activeName"
-            @tab-click="articleHandleClick"
-          >
-            <el-tab-pane
-              v-for="i in item.children"
-              :key="i.id"
-              :label="i.title"
-              :name="i.id"
-            >
-            </el-tab-pane>
-          </el-tabs>
-        </el-tab-pane>
-      </el-tabs>
       <div style="display: flex; justify-content: flex-end">
-        <el-button type="primary" @click="add"
-          ><el-icon><plus /></el-icon> 添加</el-button
-        >
+        <el-button type="primary" @click="add">
+          <el-icon><plus /></el-icon>添加
+        </el-button>
       </div>
       <el-table
         :data="state.tableData"
@@ -48,6 +18,11 @@
           :prop="item.prop"
           :label="item.label"
         >
+          <img
+            v-if="item.showImg"
+            :src="item[item.prop]"
+            style="width: 50px; height: 50px"
+          />
         </el-table-column>
         <el-table-column prop="operator" label="操作" width="200" fixed="right">
           <template #default="scope">
@@ -56,17 +31,15 @@
               size="small"
               
               @click="edit(scope.row)"
+              >修改</el-button
             >
-              编辑
-            </el-button>
             <el-button
               type="danger"
               size="small"
               icon="Delete"
-              @click="deleteAction(scope.row)"
+              @click="deleteAction(scope.row, state.isResume)"
+              >删除</el-button
             >
-              {{ "删除" }}
-            </el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -104,19 +77,17 @@
   </u-container-layout>
 </template>
 <script lang="ts">
-import { computed, ref, reactive, onMounted, toRefs } from "vue";
-import {
-  SelectGetTree,
-  SelectGetDataByTypeId,
-  selectByIdType,
-  selectAddOne,
-  articleArticleAelectCircle,
-  selectUpdateOne,
-  selectDeleteOne,
-  selectOptionList
-} from "@/config/api";
+import { ref, reactive, provide } from "vue";
 import formConpoent from "@/components/form/form.vue";
-import { ElMessage, ElMessageBox, FormRules, UploadProps } from "element-plus";
+import {
+  swiperAll,
+  swiperAddOne,
+  swiperUpdateOne,
+  swiperDelete,
+  swiperArticleOption,
+  swiperVideoOption,
+} from "@/config/api";
+import { ElMessage, ElMessageBox, FormRules } from "element-plus";
 import { get, post } from "@/utils/request";
 import { tr } from "element-plus/es/locale";
 export default {
@@ -129,131 +100,139 @@ export default {
           label: "序号",
         },
         {
-          prop: "typeName",
-          label: "类型名称",
+          prop: "picture",
+          label: "轮播图",
+          showImg: true,
         },
         {
-          prop: "name",
-          label: "名称",
+          prop: "title",
+          label: "标题",
         },
+        {
+          prop: "urlname",
+          label: "链接文章",
+        },
+        {
+          prop: "type",
+          label: "位置",
+        },
+        {
+          prop: "order",
+          label: "顺序",
+        },
+        {
+          prop: "createdate",
+          label: "创建日期",
+        },
+        {
+          prop: "lastupdatatime",
+          label: "修改日期",
+        }
       ],
     };
   },
 };
 </script>
-<script lang="ts" setup >
+<script lang="ts" setup>
+const loading = ref(false);
+
+const formInline = reactive({
+  username: "",
+});
+const rules = reactive<FormRules>({
+  title: {
+    required: true,
+  },
+  swiper: {
+    required: true,
+  },
+});
 const formConfig = [
   {
-    prop: "typeName",
-    label: "请选择类型名称",
-    showSelect: true,
+    prop: "title",
+    label: "标题",
     required: true,
-    options: []
+    showInput: true,
   },
   {
-    prop: "name",
-    label: "下拉框、复选框名称",
+    prop: "type",
+    label: "位置",
+    showSelect: true,
+    required: true,
+    filterable: true,
+    options: [
+      {
+        value: 1,
+        label: "顶部",
+      },
+      {
+        value: 2,
+        label: "左侧",
+      },
+    ],
+  },
+  {
+    prop: "order",
+    label: "顺序",
+    required: true,
     showInput: true,
-    required: true
+  },
+  {
+    prop: "urlname",
+    label: "文章",
+    showSelect: true,
+    filterable: true,
+    options: [],
+  },
+  {
+    prop: "picture",
+    label: "轮播图",
+    upload: true,
+    filterable: true,
+    required: true,
+    options: [],
+    picture: ""
   },
 ];
 const state = reactive({
   currentPage: 0,
-  total: 0,
   pageSize: 10,
-  activeName: "content",
-  editableTabsValue: "1",
-  dialogVisible: false,
-  articletype: 1,
   formConfig: formConfig,
   tableData: [
     {
-      code: "",
+      createdate: "2020-05-25 14:11:17",
+      deletestate: "",
       files: [],
-      id: 1,
+      id: 15,
       images: [],
-      name: "投资机构",
-      pageNum: 0,
-      pageSize: 0,
-      typeName: "机构类型",
-      typeid: 1,
-    },
-    {
-      code: "",
-      files: [],
-      id: 2,
-      images: [],
-      name: "文化企业",
-      pageNum: 0,
-      pageSize: 0,
-      typeName: "机构类型",
-      typeid: 1,
+      lastupdatatime: "2021-04-29 14:17:32",
+      operator: "",
+      picture: "/images/81731bc9b43847bdab2ed5252893a98b.jpg",
+      storagetime: "2020-05-25 14:11:17",
+      title: "文创法务专委会“股权结构与激励的实务操作”线上主题沙龙活动成功举办",
+      type: 2,
+      url: "7_339.html",
+      urlname: "独树一帜 卓然而立11",
     },
   ],
-  optionsList: [],
+  total: 0,
+  sensitiveword: "",
+  dialogVisible: false,
+  isResume: false,
 });
+const ruleFormRef = ref();
 const title = ref("新增");
-
-/**
- * 获取下拉选项列表
- */
-const getSelectOptionList = () => {
-/*   get(`${selectOptionList}`)
-    .then(function (data) {
-      state.optionsList = data;
-    })
-    .catch((e) => {
-      console.log("e", e);
-    }); */
-    return [
-  {
-    value: 'Option1',
-    label: 'Option1',
-  },
-  {
-    value: 'Option2',
-    label: 'Option2',
-    disabled: true,
-  },
-  {
-    value: 'Option3',
-    label: 'Option3',
-  },
-  {
-    value: 'Option4',
-    label: 'Option4',
-  },
-  {
-    value: 'Option5',
-    label: 'Option5',
-  },
-];
-};
-
-// 获取文章列表
-const getOPtionList = () => {
-  get(`${articleArticleAelectCircle}`)
-    .then(function (data) {
-      state.optionsList = data;
-    })
-    .catch((e) => {
-      console.log("e", e);
-    });
-};
-getOPtionList();
-
-const articleHandleClick = (tab, event) => {
-  state.articletype = tab.props.name;
-  getArticleSelectAll();
-};
 
 /**
  * 添加
  */
-const add = () => {
+const add = async () => {
   title.value = "新增";
+  state.formConfig = formConfig;
+  //   let articleOption  = await get(`${swiperArticleOption}`);
+  //   let videoOption  = await get(`${swiperVideoOption}`);
   state.dialogVisible = true;
-  state.formConfig[0].options = getSelectOptionList();
+//   console.log("add=======", state.formConfig);
 };
 
 /**
@@ -261,7 +240,7 @@ const add = () => {
  */
 const postFormData = (formData) => {
   if (title.value === "新增") {
-    post(`${selectAddOne}`, {
+    post(`${swiperAddOne}`, {
       ...formData,
       headers: {
         "Access-Control-Allow-Origin": "*",
@@ -276,7 +255,7 @@ const postFormData = (formData) => {
       });
     ElMessage.success("添加成功");
   } else {
-    post(`${selectUpdateOne}`, {
+    post(`${swiperUpdateOne}`, {
       ...formData,
       headers: {
         "Access-Control-Allow-Origin": "*",
@@ -294,51 +273,44 @@ const postFormData = (formData) => {
   console.log("submit!", formData);
 };
 
-
 // todo 改写法
 const closeDialog = async (done: () => void) => {
   state.dialogVisible = false;
-  state.formConfig = formConfig;
 };
 
 /**
- * 编辑表单
+ * 修改
  */
 const edit = (row) => {
-  title.value = "编辑";
-  post(`${selectByIdType}`, {
-    id: row.id,
-    headers: {
-      "Access-Control-Allow-Origin": "*",
-      "Content-Type": "application/json",
-    },
-  })
-    .then(function (data) {
-      state.dialogVisible = true;
+  title.value = "修改";
+  state.dialogVisible = true;
+  // 修改传给表单初始值
+  state.formConfig = state.formConfig
+    .map((e, b) => {
+      // value 替换成 e.prop
+      let result = {...e};
+      result[e.prop] = row[e.prop];
+      return result;
     })
-    .catch((e) => {
-      console.log("e", e);
-    });
+    .splice(0);
 };
 
 /**
- * 提交表单数据
+ * 文章内容列表
  */
-const getArticleSelectAll = (config?: selectAllConfig) => {
-  post(`${SelectGetDataByTypeId}`, {
+const getswiperAll = () => {
+  post(`${swiperAll}`, {
     headers: {
       "Access-Control-Allow-Origin": "*",
     },
     pageNum: state.currentPage,
     pageSize: state.pageSize,
-    articletype: state.articletype,
-    ...config,
   }).then(function (data) {
     state.tableData = data.list;
     state.total = data.total;
   });
 };
-getArticleSelectAll();
+getswiperAll();
 
 /**
  * 切换每页显示数
@@ -346,26 +318,24 @@ getArticleSelectAll();
 const handleSizeChange = (val: number) => {
   console.log(`${val} items per page`);
   state.pageSize = val;
-  getArticleSelectAll({ title: formInline.title });
+  getswiperAll({ title: formInline.username });
 };
 
 /**
- * 跳转xx页
+ * 换页数
  */
 const handleCurrentChange = (val: number) => {
   console.log(`current page: ${val}`);
   state.currentPage = val;
-  getArticleSelectAll({ title: formInline.title });
+  getswiperAll({ title: formInline.username });
 };
-const loading = ref(false);
 
 /**
- * 删除表格内容
+ * 删除
  */
-const deleteAction = (row) => {
+const deleteAction = (row, isResume) => {
   let obj = {
     ...row,
-    deleteState: 1,
   };
   ElMessageBox.confirm("你确定要删除当前项吗?", "温馨提示", {
     confirmButtonText: "确定",
@@ -374,21 +344,13 @@ const deleteAction = (row) => {
     draggable: true,
   })
     .then(() => {
-      post(`${selectDeleteOne}`, {
-        ...obj,
-        headers: {
-          "Access-Control-Allow-Origin": "*",
-          "Content-Type": "application/json",
-        },
-      }).then(function (data) {
-        getArticleSelectAll();
+      post(`${swiperDelete}`, [row.id]).then(function (data) {
+        getswiperAll();
       });
       ElMessage.success("删除成功");
     })
     .catch(() => {});
 };
-
-
 </script>
 
 <style scoped>
@@ -424,10 +386,5 @@ const deleteAction = (row) => {
   width: 178px;
   height: 178px;
   text-align: center;
-}
-.avatar-uploader .avatar {
-  width: 178px;
-  height: 178px;
-  display: block;
 }
 </style>

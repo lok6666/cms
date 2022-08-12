@@ -318,7 +318,7 @@ const del = (row) => {
     confirmButtonText: "确定",
     cancelButtonText: "取消",
     type: "warning",
-    draggable: true,
+    draggable: true
   })
     .then(() => {
       businessUseList.value = businessUseList.value.filter(
@@ -331,12 +331,12 @@ const del = (row) => {
           "Content-Type": "application/json",
         },
       })
-        .then(function (data) {
-          console.log("data", data);
-        })
-        .catch((e) => {
-          console.log("e", e);
-        });
+      .then(function (data) {
+        console.log("data", data);
+      })
+      .catch((e) => {
+        console.log("e", e);
+      });
       ElMessage.success("删除成功");
       loading.value = true;
       setTimeout(() => {

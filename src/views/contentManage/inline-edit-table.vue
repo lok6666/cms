@@ -347,7 +347,6 @@ const handleClose = async (done: () => void) => {
   });
 };
 const beforeAvatarUpload: UploadProps["beforeUpload"] = (rawFile) => {
-  debugger;
   if (rawFile.type !== "image/jpeg") {
     ElMessage.error("Avatar picture must be JPG format!");
     return false;

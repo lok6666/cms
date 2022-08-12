@@ -45,7 +45,8 @@ const state = reactive(props);
 const editorRef = shallowRef();
 const url = ref("");
 // 内容 HTML
-const valueHtml = ref("<p>hello</p>");
+// const valueHtml = ref("<p>hello</p>");
+const valueHtml = ref("");
 
 // 模拟 ajax 异步获取内容
  onMounted(() => {
@@ -183,8 +184,6 @@ const handleCreated = (editor) => {
   editorRef.value = editor; // 记录 editor 实例，重要！
 };
 const handleChange = (editor) => {
-  // editor.insertText('handleChange');
-  console.log("change:", editor, editor.getHtml());
   emit('handle', editor.getHtml());
 };
 const handleDestroyed = (editor) => {

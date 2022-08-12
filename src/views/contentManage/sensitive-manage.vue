@@ -78,6 +78,7 @@ import {
   sensitiveSelectAll,
   sensitiveAddOne,
   sensitiveUpdateOne,
+  sensitiveDelete
 } from "@/config/api";
 import { ElMessage, ElMessageBox, FormRules } from "element-plus";
 import { get, post } from "@/utils/request";
@@ -267,17 +268,12 @@ const deleteAction = (row, isResume) => {
     draggable: true,
   })
     .then(() => {
+      post(`${sensitiveDelete}`, [row.id]).then(function (data) {
+        getSensitiveSelectAll();
+      });
       ElMessage.success("删除成功");
     })
     .catch(() => {});
-};
-
-/**
- * 提交表单数据
- */
-const changeFormData = (formData) => {
-  state.dialogVisible = false;
-  console.log("changeFormData", formData);
 };
 </script>
 
