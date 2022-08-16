@@ -94,7 +94,6 @@ const editorConfig = {
         };
         axios(config)
           .then(function (res) {
-            debugger;
             const node = { type: 'link', url: res, children: [{ text: 'simple text' }] }
             editor.insertNode(node);
           })

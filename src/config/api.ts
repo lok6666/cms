@@ -64,6 +64,18 @@ export const otherAll = `IndustryData/list` //  资金产品库数据
 export const otherUpdateOne = `http://172.16.110.101:81/assoication_sjs/trzDictionaries/updateOneType` // 其他服务
 export const otherDeleteOne = `http://172.16.110.101:81/assoication_sjs/trzDictionaries/deleteOneType` // 行业数据删除
 
+/*活动管理-活动发布*/
+export const actionAll = `${host}/activity/list` // 轮播图列表
+export const actionAddOne = `${host}/activity/insert`//  轮播图添加
+export const actionrUpdateOne = `${host}/activity/update`//  轮播图更新
+export const actionDelete = `${host}/activity/delete` // 轮播图删除
+
+/*活动管理-活动报名*/
+export const activityApplyAll = `${host}/activityApply/list` // 轮播图列表
+export const activityApplyAddOne = `${host}/activityApply/insert`//  轮播图添加
+export const activityApplyrUpdateOne = `${host}/activityApply/update`//  轮播图更新
+export const activityApplyDelete = `${host}/activityApply/delete` // 轮播图删除
+
 // menu路由
 export const getMenuByUserId = `${host}/sysResource/getMenuByUserId`
 // 上传附件,图片,视频

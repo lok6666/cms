@@ -132,7 +132,7 @@ export default { name: "inline-table" };
 </script>
 <script lang="ts" setup >
 import { computed, ref, reactive, onMounted } from "vue";
-import { treeTable, login } from "@/config/api";
+import { treeTable } from "@/config/api";
 import { ElMessage, ElMessageBox } from "element-plus";
 let tableData = ref([]);
 import { get, post } from "@/utils/request";
@@ -144,18 +144,6 @@ get(`${treeTable}`, {
   tableData.value = data;
 });
 
-// 登录接口
-post(`${login}`, {
-  headers: {
-    "Access-Control-Allow-Origin":"*"
-  },
-  data: {
-    name: 'admin',
-    passWord: '12345'
-  }
-}).then(function (data) {
-  console.log('tableData-----', data);
-});
 
 const data = [];
 for (let i = 0; i < 100; i++) {

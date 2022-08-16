@@ -18,7 +18,12 @@
         <el-table-column prop="id" label="id" />
         <el-table-column prop="picture" label="头像">
           <template #default="scope">
-            <img v-if="scope.row.picture" :src="scope.row.picture" alt=""  style="width: 50px; height: 50px;"/>
+            <img
+              v-if="scope.row.picture"
+              :src="scope.row.picture"
+              alt=""
+              style="width: 50px; height: 50px"
+            />
           </template>
         </el-table-column>
         <el-table-column prop="username" label="用户名" />
@@ -115,7 +120,11 @@
               :show-file-list="false"
               :before-upload="beforeAvatarUpload"
             >
-              <img v-if="ruleForm.picture" :src="ruleForm.picture" class="avatar" />
+              <img
+                v-if="ruleForm.picture"
+                :src="ruleForm.picture"
+                class="avatar"
+              />
               <el-icon v-else class="avatar-uploader-icon"><Plus /></el-icon>
             </el-upload>
           </el-form-item>
@@ -150,16 +159,11 @@ import { Delete, Download, Plus, ZoomIn } from "@element-plus/icons-vue";
 import { get, post } from "@/utils/request";
 import formData from "form-data";
 
-const formItem:[] = [];
 let businessUseList = ref([]);
 let currentPage = ref(1);
 let pageSize = ref(10);
 const ruleFormRef = ref();
 const rowObj = ref({});
-const formData1 = ref(new formData());
-const file = ref({
-  url: "",
-});
 const dialogVisible = ref(false);
 const title = ref("新增");
 const baseData = {
@@ -175,15 +179,10 @@ const baseData = {
 let ruleForm = ref(baseData);
 
 const getSysUserSelectAll = () => {
-post(`${sysUserSelectAll}`, {
+  post(`${sysUserSelectAll}`, {
     pageSize: pageSize.value,
-    pageNum: currentPage.value,
-    headers: {
-      "Access-Control-Allow-Origin": "*",
-      "Content-Type": "application/json",
-    },
+    pageNum: currentPage.value
   }).then(function ({ list }) {
-    console.log("data", list);
     businessUseList.value = list;
   });
 };
@@ -196,37 +195,32 @@ const beforeAvatarUpload: UploadProps["beforeUpload"] = (rawFile) => {
     ElMessage.error("Avatar picture size can not exceed 2MB!");
     return false;
   }
-        var axios = require("axios");
-        var FormData = require("form-data");
-        var data = new FormData();
-        data.append("file", rawFile); // file 即选中的文件
-        data.append("userId", 1);
-        data.append("type", "image");
-        var config = {
-          method: "post",
-          url: "http://172.16.12.8:28182/upload", //上传图片地址
-          headers: {
-            "Content-Type": "multipart/form-data",
-            "Access-Control-Allow-Origin": "*",
-            Authorization: "Bearer " + localStorage.getItem("token"),
-          },
-          type: "image",
-          data: data,
-        };
-        axios.defaults.crossDomain = true;
-        axios.defaults.headers.common["Access-Control-Allow-Origin"] = "*";
-        axios(config)
-        .then(function (res) {
-          ruleForm.value.picture = res;
-          // getSysUserSelectAll();
-        })
-        .catch(function (error) {
-          console.log(error);
-        });
+  var axios = require("axios");
+  var FormData = require("form-data");
+  var data = new FormData();
+  data.append("file", rawFile); // file 即选中的文件
+  data.append("userId", 1);
+  data.append("type", "image");
+  var config = {
+    method: "post",
+    url: "http://172.16.12.8:28182/upload", //上传图片地址
+    type: "image",
+    data: data,
+  };
+  axios.defaults.crossDomain = true;
+  axios.defaults.headers.common["Access-Control-Allow-Origin"] = "*";
+  axios(config)
+    .then(function (res) {
+      ruleForm.value.picture = res;
+      // getSysUserSelectAll();
+    })
+    .catch(function (error) {
+      console.log(error);
+    });
 };
 
 // todo 改写法
-const closeDialog = async (done: () => void) => {
+const closeDialog = ():void => {
   ruleForm.value.name = "";
   ruleForm.value.username = "";
   ruleForm.value.password = "";
@@ -237,14 +231,14 @@ const closeDialog = async (done: () => void) => {
   ruleForm.value.id = "";
 };
 // 添加
-const add = () => {
+const add = ():void => {
   title.value = "新增";
   dialogVisible.value = true;
   ruleForm.value = baseData;
 };
 
 // 编辑
-const edit = (row) => {
+const edit = (row):void => {
   title.value = "编辑";
   rowObj.value = row;
   dialogVisible.value = true;
@@ -267,11 +261,7 @@ const handleClose = async (done: () => void) => {
       };
       if (title.value === "新增") {
         post(`${sysUserAddOne}`, {
-          ...obj,
-          headers: {
-            "Access-Control-Allow-Origin": "*",
-            "Content-Type": "application/json",
-          },
+          ...obj
         })
           .then(function (data) {
             businessUseList.value = [data, ...businessUseList.value];
@@ -282,11 +272,7 @@ const handleClose = async (done: () => void) => {
         ElMessage.success("添加成功");
       } else {
         post(`${sysUserUpdateOne}`, {
-          ...obj,
-          headers: {
-            "Access-Control-Allow-Origin": "*",
-            "Content-Type": "application/json",
-          },
+          ...obj
         })
           .then(function (data) {
             businessUseList.value.forEach((item) => {
@@ -318,25 +304,21 @@ const del = (row) => {
     confirmButtonText: "确定",
     cancelButtonText: "取消",
     type: "warning",
-    draggable: true
+    draggable: true,
   })
     .then(() => {
       businessUseList.value = businessUseList.value.filter(
         (item) => item.id !== row.id
       );
       get(`${sysUserDeleteOne}`, {
-        id: row.id,
-        headers: {
-          "Access-Control-Allow-Origin": "*",
-          "Content-Type": "application/json",
-        },
+        id: row.id
       })
-      .then(function (data) {
-        console.log("data", data);
-      })
-      .catch((e) => {
-        console.log("e", e);
-      });
+        .then(function (data) {
+          console.log("data", data);
+        })
+        .catch((e) => {
+          console.log("e", e);
+        });
       ElMessage.success("删除成功");
       loading.value = true;
       setTimeout(() => {
@@ -351,10 +333,6 @@ const handleSizeChange = (val) => {
   post(`${sysUserSelectAll}`, {
     pageSize: pageSize.value,
     pageNum: currentPage.value,
-    headers: {
-      "Access-Control-Allow-Origin": "*",
-      "Content-Type": "application/json",
-    },
   }).then(function ({ list }) {
     console.log("data", list);
     businessUseList.value = list;
@@ -365,10 +343,6 @@ const handleCurrentChange = (val) => {
   post(`${sysUserSelectAll}`, {
     pageSize: pageSize.value,
     pageNum: currentPage.value,
-    headers: {
-      "Access-Control-Allow-Origin": "*",
-      "Content-Type": "application/json",
-    },
   }).then(function ({ list }) {
     console.log("data", list);
     businessUseList.value = list;
@@ -376,7 +350,6 @@ const handleCurrentChange = (val) => {
 };
 </script>
 <style>
-
 .avatar-uploader .el-upload {
   border: 1px dashed var(--el-border-color);
   border-radius: 6px;

@@ -4,7 +4,8 @@ import { asyncRoutes, constantRoutes } from '@/router/index';
 import { constantRouterComponents } from '@/config/constants';
 import { getMenuByUserId } from '@/config/api';
 import { el } from "element-plus/es/locale";
-
+import router from '../../router'
+import { setToken } from '@/utils/auth'
 /**
  * 使用 meta.role 来确定当前用户是否具有权限
  * @param roles
@@ -92,17 +93,12 @@ const mutations = {
 const actions = {
     getRoutes({ commit }, roles) {
         return new Promise(resolve => {
-            post(`${getMenuByUserId}`, {
-                headers: {
-                    "Access-Control-Allow-Origin": "*",
-                }
-            })
+            post(`${getMenuByUserId}`, {})
             .then(function (data) {
-                console.log('data----', data);
                 const routers = generator(data);
                 commit('SET_ROUTES', routers);
                 resolve(routers);
-            })
+            });
         })
     },
     generateRoutes({ commit }, roles) {

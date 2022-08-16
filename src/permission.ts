@@ -22,9 +22,9 @@ router.beforeEach(async(to, from, next) => {
 
   if (hasToken) {
     if (to.path === '/login') {
-      // 如果已登录，请重定向到主页
-      next({ path: '/' })
-         NProgress.done()
+      // 如果已登录，请重定向到主页       
+        next({ path: '/' })
+        NProgress.done()
     } else {
         try {
             // 路由添加进去了没有及时更新 需要重新进去一次拦截

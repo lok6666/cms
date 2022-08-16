@@ -42,7 +42,7 @@ export const constantRoutes: Array<RouteRecordRaw & extendRoute> = [
         path: '/home',
         component: () => import('@/views/home/index.vue'),
         name: 'home',
-        meta: { title: '首页', icon: 'film', affix: true, role: ['other'] }
+        meta: { title: '首页', affix: true, role: ['other'] }
       }
     ]
   },
@@ -81,7 +81,32 @@ export const constantRoutes: Array<RouteRecordRaw & extendRoute> = [
         meta: { title: '信息录入', roles: ['other'] }
       },
     ]
-  }
+  },
+  {
+    path: '/action',
+    component: Layout,
+    redirect: 'noRedirect',
+    name: 'action',
+    meta: {
+      title: '活动管理',
+      roles: ['other']
+    },
+    children: [
+      {
+        path: 'publish',
+        component: () => import('@/views/action/publish.vue'),
+        name: 'publish',
+        meta: { title: '活动发布', roles: ['other'], requiresAuth: false }
+      },
+      {
+        path: 'enroll',
+        component: () => import('@/views/action/enroll.vue'),
+        name: 'enroll',
+        meta: { title: '活动报名', roles: ['other'] }
+      }
+    ]
+  },
+  permissionRouter
 ]
 
 const clipboardTable = {

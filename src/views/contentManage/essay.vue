@@ -201,7 +201,6 @@ import {
   articleArticleAddOne,
   articleUpdateOne,
   articleRecycle,
-  login,
   articleSelectAll,
   articleDelete,
   articleArticleAelectCircle,
@@ -445,17 +444,6 @@ const getArticleRecycle = (config?: selectAllConfig) => {
   });
 };
 
-// 登录接口
-post(`${login}`, {
-  headers: {
-    "Access-Control-Allow-Origin": "*",
-  },
-  data: {
-    name: "admin",
-    passWord: "12345",
-  },
-}).then(function (data) {});
-
 // 切换tab
 const handleClick = (tab, event) => {
   if (tab.props.name === "resume") {
@@ -508,7 +496,6 @@ const deleteAction = (row, isResume) => {
     ...row,
     deleteState: 1,
   };
-  debugger;
   ElMessageBox.confirm("你确定要删除当前项吗?", "温馨提示", {
     confirmButtonText: "确定",
     cancelButtonText: "取消",
