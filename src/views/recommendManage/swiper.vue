@@ -285,14 +285,12 @@ const edit = (row) => {
   title.value = "修改";
   state.dialogVisible = true;
   // 修改传给表单初始值
-  state.formConfig = state.formConfig
-    .map((e, b) => {
-      // value 替换成 e.prop
-      let result = {...e};
-      result[e.prop] = row[e.prop];
-      return result;
-    })
-    .splice(0);
+  state.formConfig = Object.assign({}, state.formConfig
+  .map((e, b) => {
+    let result = { ...e };
+    result[e.prop] = row[e.prop];
+    return result;
+  }));
 };
 
 /**

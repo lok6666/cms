@@ -215,13 +215,12 @@ const closeDialog = async (done: () => void) => {
 const edit = (row) => {
   title.value = "修改";
   state.dialogVisible = true;
-  state.formConfig = state.formConfig
+  state.formConfig = Object.assign({}, state.formConfig
     .map((e, b) => {
-        console.log('row, row', row, e, row[e.prop]);
-        // value 替换成 e.prop
-      return { ...e, value: row[e.prop] }
-    })
-    .splice(0);
+      let result = { ...e };
+      result[e.prop] = row[e.prop];
+      return result;
+    }));
 };
 //  文章内容列表
 const getSensitiveSelectAll = () => {

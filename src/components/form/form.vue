@@ -96,6 +96,8 @@ import type { FormInstance } from "element-plus";
 import { ElMessage, UploadProps } from "element-plus";
 import editor from "@/components/editor/index.vue";
 import { upLoad } from "@/config/api";
+import { de } from "element-plus/es/locale";
+import { debugWarn } from "element-plus/es/utils";
 
 /* const mqtt = require("mqtt");
 const clientId = 'mqttjs_' + Math.random().toString(16).substr(2, 8)
@@ -156,7 +158,6 @@ let props = defineProps({
 const state = reactive(props);
 const itemIndex = ref();
 const content = ref("");
-console.log("state----", state);
 watch(
   () => props.formConfig,
   (val, prevVal) => {
@@ -166,12 +167,34 @@ watch(
 );
 const formData = {};
 const formRef = ref<FormInstance>();
-const submitForm = (formEl: FormInstance | undefined) => {
-  state.formConfig.forEach((v) => {
-    formData[v.prop] = v[v.prop];
+// 校验表单
+const validateForm = (formEl: FormInstance | undefined) => {
+  let add: number = 0;
+  return new Promise((resolve, reject) => {
+    formEl.forEach(async (el) => {
+      el.validate((v) => {
+        ++add;
+        // 当存在校验失败的情况直接返回
+        if (!v) {
+          resolve(false);
+        }
+        // 遍历结束返回
+        else if (add === formEl.length) {
+          resolve(true);
+        }
+      });
+    });
   });
-  emit("handle", formData);
-  ElMessage.success("保存成功");
+};
+const submitForm = async (formEl: FormInstance | undefined) => {
+  let valid: boolean = await validateForm(formEl);
+  if (valid) {
+    state.formConfig.forEach((v) => {
+      formData[v.prop] = v[v.prop];
+    });
+    emit("handle", formData);
+    ElMessage.success("保存成功");
+  }
 };
 
 const preview = () => {};

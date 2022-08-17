@@ -396,15 +396,12 @@ const edit = (row) => {
   })
     .then(function (data) { */
   state.dialogVisible = true;
-  state.formConfig = state.formConfig
-    .map((e, b) => {
-      // value 替换成 e.prop
-      let result = { ...e };
-      result[e.prop] = row[e.prop];
-      return result;
-    })
-    .splice(0);
-  console.log("state.formConfig", state.formConfig);
+  state.formConfig = Object.assign({}, state.formConfig
+  .map((e, b) => {
+    let result = { ...e };
+    result[e.prop] = row[e.prop];
+    return result;
+  }));
   /*     })
     .catch((e) => {
       console.log("e", e);

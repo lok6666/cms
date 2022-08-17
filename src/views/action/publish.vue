@@ -92,24 +92,52 @@ export default {
           label: "序号",
         },
         {
-          prop: "activityName",
-          label: "活动名称",
-        },
-        {
           prop: "activityAddress",
           label: "活动地址",
         },
         {
-          prop: "	applyTimeFrom",
+          prop: "activityDateFrom",
+          label: "活动开始时间",
+        },
+        {
+          prop: "activityDateTo",
+          label: "活动结束时间",
+        },
+        {
+          prop: "activityName",
+          label: "企业名称",
+        },
+        {
+          prop: "activityNumber",
+          label: "参加人数",
+        },
+        {
+          prop: "activityStatus",
+          label: "活动状态",
+        },
+        {
+          prop: "applyTimeFrom",
           label: "活动报名开始日期",
         },
         {
-          prop: "	applyTimeTo",
+          prop: "applyTimeTo",
           label: "活动报名结束日期",
         },
         {
           prop: "lastUpdataTime",
           label: "最后一次更新时间",
+        },
+        {
+          prop: "operator",
+          label: "操作人",
+        },
+        {
+          prop: "phone",
+          label: "联络人电话",
+        },
+        {
+          prop: "telName",
+          label: "联络人名称",
         },
       ],
     };
@@ -119,26 +147,85 @@ export default {
 <script lang="ts" setup>
 const formConfig = [
   {
-    prop: "activityName",
-    label: "活动名称",
-    showInput: true,
-  },
-  {
     prop: "activityAddress",
     label: "活动地址",
-    showInput: true,
+    required: true,
+    showInput: true
   },
   {
     prop: "activityDateFrom",
+    label: "活动开始时间",
+    placeholder: "活动开始时间",
+    required: true,
+    showDatePicker: true
+  },
+  {
+    prop: "activityDateTo",
+    label: "活动结束时间",
+    required: true,
+    showDatePicker: true
+  },
+  {
+    prop: "activityName",
+    label: "企业名称",
+    required: true,
+    showInput: true
+  },
+  {
+    prop: "activityNumber",
+    label: "参加人数",
+    required: true,
+    showInput: true
+  },
+  {
+    prop: "activityStatus",
+    label: "活动状态",
+    options: [
+      {
+        label: '报名中',
+        value: '1'
+      },
+      {
+        label: '报名结束，进行中',
+        value: '2'
+      },
+      {
+        label: '已结束',
+        value: '3'
+      }
+    ],
+    required: true,
+    showSelect: true
+  },
+  {
+    prop: "applyTimeFrom",
     label: "活动报名开始日期",
-    placeholder: "请选择开始日期",
-    showDatePicker: true,
+    required: true,
+    showDatePicker: true
   },
   {
     prop: "applyTimeTo",
     label: "活动报名结束日期",
-    placeholder: "请选择结束日期",
-    showDatePicker: true,
+    required: true,
+    showDatePicker: true
+  },
+  {
+    prop: "operator",
+    label: "操作人",
+    required: true,
+    showInput: true
+  },
+  {
+    prop: "phone",
+    label: "联络人电话",
+    required: true,
+    showInput: true
+  },
+  {
+    prop: "telName",
+    label: "联络人名称",
+    required: true,
+    showInput: true
   },
 ];
 const state = reactive({
@@ -152,7 +239,7 @@ const state = reactive({
   isResume: false,
 });
 const title = ref("新增");
-let currentRoleId = ref('');
+let currentRoleId = ref("");
 // 添加
 const add = () => {
   title.value = "新增";
@@ -178,7 +265,7 @@ const postFormData = (formData) => {
     // 所有设置更新的都要加id
     post(`${actionrUpdateOne}`, {
       id: currentRoleId.value,
-      ...formData
+      ...formData,
     })
       .then(function () {
         getactionAll();
@@ -198,7 +285,7 @@ const closeDialog = async (done: () => void) => {
 };
 
 // 修改
-const edit = (row):void => {
+const edit = (row): void => {
   title.value = "修改";
   currentRoleId.value = row.id;
   state.dialogVisible = true;

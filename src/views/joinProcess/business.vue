@@ -230,14 +230,12 @@ const closeDialog = async (done: () => void) => {
 const edit = (row) => {
   title.value = "编辑";
   state.dialogVisible = true;
-  state.formConfig = state.formConfig
-    .map((e, b) => {
-      // value 替换成 e.prop
-      let result = { ...e };
-      result[e.prop] = row[e.prop];
-      return result;
-    })
-    .splice(0);
+  state.formConfig = Object.assign({}, state.formConfig
+  .map((e, b) => {
+    let result = { ...e };
+    result[e.prop] = row[e.prop];
+    return result;
+  }));
   console.log("state.formConfig", state.formConfig);
 };
 

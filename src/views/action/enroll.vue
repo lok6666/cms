@@ -88,8 +88,16 @@ export default {
     return {
       tableHeaderConfig: [
         {
+          prop: "id",
+          label: '序号'
+        },
+        {
           prop: "actId",
           label: "活动id",
+        },
+        {
+          prop: "companyid",
+          label: "企业id",
         },
         {
           prop: "duties",
@@ -98,10 +106,6 @@ export default {
         {
           prop: "operator",
           label: "操作人",
-        },
-        {
-          prop: "order",
-          label: "排序",
         },
         {
           prop: "startTime",
@@ -127,23 +131,66 @@ export default {
 <script lang="ts" setup>
 const formConfig = [
   {
+    prop: "actId",
+    label: "活动id",
+    required: true,
+    showInput: true
+  },
+  {
+    prop: "companyid",
+    label: "企业id",
+    required: true,
+    showInput: true
+  },
+  {
+    prop: "duties",
+    label: "职务",
+    required: true,
+    showInput: true
+  },
+  {
     prop: "operator",
     label: "操作人",
-    showInput: true,
+    required: true,
+    showInput: true
+  },
+  {
+    prop: "startTime",
+    label: "开始时间",
+    required: true,
+    showDatePicker: true
+  },
+  {
+    prop: "endTime",
+    label: "结束时间",
+    required: true,
+    showDatePicker: true
+  },
+  {
+    prop: "personName",
+    label: "联系人",
+    required: true,
+    showInput: true
+  },
+  {
+    prop: "telPhone",
+    label: "人员电话",
+    required: true,
+    showInput: true
   },
 ];
 const state = reactive({
   currentPage: 0,
   pageSize: 10,
-  formConfig: formConfig,
+  formConfig: Object.assign([], formConfig),
   tableData: [],
   total: 0,
   sensitiveword: "",
   dialogVisible: false,
   isResume: false,
 });
-const ruleFormRef = ref();
-const eleTable = ref();
+
+let currentRoleId = ref("");
 const title = ref("新增");
 
 // 添加
@@ -156,6 +203,7 @@ const add = () => {
  * 提交表单数据
  */
 const postFormData = (formData) => {
+  console.log('postFormData', formConfig);
   if (title.value === "新增") {
     post(`${activityApplyAddOne}`, {
       ...formData
@@ -169,7 +217,8 @@ const postFormData = (formData) => {
     ElMessage.success("添加成功");
   } else {
     post(`${activityApplyrUpdateOne}`, {
-      ...formData
+      id: currentRoleId.value,
+      ...formData,
     })
       .then(function (data) {
         getactivityApplyAll();
@@ -192,13 +241,13 @@ const closeDialog = async (done: () => void) => {
 const edit = (row) => {
   title.value = "修改";
   state.dialogVisible = true;
-  state.formConfig = state.formConfig
-    .map((e, b) => {
-      console.log("row, row", row, e, row[e.prop]);
-      // value 替换成 e.prop
-      return { ...e, value: row[e.prop] };
-    })
-    .splice(0);
+  currentRoleId.value = row.id;
+  state.formConfig = Object.assign({}, state.formConfig
+  .map((e, b) => {
+    let result = { ...e };
+    result[e.prop] = row[e.prop];
+    return result;
+  }));
 };
 //  文章内容列表
 const getactivityApplyAll = () => {
@@ -234,7 +283,7 @@ const formInline = reactive({
   username: "",
 });
 // 删除
-const deleteAction = (row, isResume) => {
+const deleteAction = (row) => {
   ElMessageBox.confirm("你确定要删除当前项吗?", "温馨提示", {
     confirmButtonText: "确定",
     cancelButtonText: "取消",
