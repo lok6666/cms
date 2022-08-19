@@ -76,6 +76,18 @@ export const activityApplyAddOne = `${host}/activityApply/insert`//  轮播图�
 export const activityApplyrUpdateOne = `${host}/activityApply/update`//  轮播图更新
 export const activityApplyDelete = `${host}/activityApply/delete` // 轮播图删除
 
+/*招商服务-入住申请*/
+export const businessApplyAll = `${host}/activityApply/list` // 轮播图列表
+export const businessApplyAddOne = `${host}/activityApply/insert`//  轮播图添加
+export const businessApplyUpdateOne = `${host}/activityApply/update`//  轮播图更新
+export const businessApplyDelete = `${host}/activityApply/delete` // 轮播图删除
+
+/*招商服务-企业评估*/
+export const businessEstimateAll = `${host}/activityApply/list` // 轮播图列表
+export const businessEstimateAddOne = `${host}/activityApply/insert`//  轮播图添加
+export const businessEstimatUpdateOne = `${host}/activityApply/update`//  轮播图更新
+export const businessEstimatDelete = `${host}/activityApply/delete` // 轮播图删除
+
 // menu路由
 export const getMenuByUserId = `${host}/sysResource/getMenuByUserId`
 // 上传附件,图片,视频

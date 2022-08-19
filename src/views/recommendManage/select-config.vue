@@ -262,11 +262,7 @@ const add = () => {
 const postFormData = (formData) => {
   if (title.value === "新增") {
     post(`${selectAddOne}`, {
-      ...formData,
-      headers: {
-        "Access-Control-Allow-Origin": "*",
-        "Content-Type": "application/json",
-      },
+      ...formData
     })
       .then(function (data) {
         console.log("data-----", data);
@@ -277,11 +273,7 @@ const postFormData = (formData) => {
     ElMessage.success("添加成功");
   } else {
     post(`${selectUpdateOne}`, {
-      ...formData,
-      headers: {
-        "Access-Control-Allow-Origin": "*",
-        "Content-Type": "application/json",
-      },
+      ...formData
     })
       .then(function (data) {
         console.log("data----", data);
@@ -307,11 +299,7 @@ const closeDialog = async (done: () => void) => {
 const edit = (row) => {
   title.value = "编辑";
   post(`${selectByIdType}`, {
-    id: row.id,
-    headers: {
-      "Access-Control-Allow-Origin": "*",
-      "Content-Type": "application/json",
-    },
+    id: row.id
   })
     .then(function (data) {
       state.dialogVisible = true;
@@ -326,9 +314,6 @@ const edit = (row) => {
  */
 const getArticleSelectAll = (config?: selectAllConfig) => {
   post(`${SelectGetDataByTypeId}`, {
-    headers: {
-      "Access-Control-Allow-Origin": "*",
-    },
     pageNum: state.currentPage,
     pageSize: state.pageSize,
     articletype: state.articletype,
@@ -346,7 +331,7 @@ getArticleSelectAll();
 const handleSizeChange = (val: number) => {
   console.log(`${val} items per page`);
   state.pageSize = val;
-  getArticleSelectAll({ title: formInline.title });
+  getArticleSelectAll();
 };
 
 /**
@@ -355,7 +340,7 @@ const handleSizeChange = (val: number) => {
 const handleCurrentChange = (val: number) => {
   console.log(`current page: ${val}`);
   state.currentPage = val;
-  getArticleSelectAll({ title: formInline.title });
+  getArticleSelectAll();
 };
 const loading = ref(false);
 
@@ -375,11 +360,7 @@ const deleteAction = (row) => {
   })
     .then(() => {
       post(`${selectDeleteOne}`, {
-        ...obj,
-        headers: {
-          "Access-Control-Allow-Origin": "*",
-          "Content-Type": "application/json",
-        },
+        ...obj
       }).then(function (data) {
         getArticleSelectAll();
       });

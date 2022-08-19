@@ -311,10 +311,6 @@ const handleClose = async (done: () => void) => {
       if (title.value === "新增") {
         post(`${articleArticleAddOne}`, {
           ...obj,
-          headers: {
-            "Access-Control-Allow-Origin": "*",
-            "Content-Type": "application/json",
-          },
         })
           .then(function (data) {
             console.log("data-----", data);
@@ -326,10 +322,6 @@ const handleClose = async (done: () => void) => {
       } else {
         post(`${articleUpdateOne}`, {
           ...obj,
-          headers: {
-            "Access-Control-Allow-Origin": "*",
-            "Content-Type": "application/json",
-          },
         })
           .then(function (data) {
             console.log("data----", data);
@@ -399,10 +391,6 @@ const closeDialog = async (done: () => void) => {
 const edit = (row) => {
   title.value = "编辑";
   post(`${articleSelectById}?id=${row.id}`, {
-    headers: {
-      "Access-Control-Allow-Origin": "*",
-      "Content-Type": "application/json",
-    },
   })
     .then(function (data) {
       state.dialogVisible = true;
@@ -415,9 +403,6 @@ const edit = (row) => {
 //  文章内容列表
 const getArticleSelectAll = (config?: selectAllConfig) => {
   post(`${articleSelectAll}`, {
-    headers: {
-      "Access-Control-Allow-Origin": "*",
-    },
     pageNum: state.currentPage,
     pageSize: state.pageSize,
     articletype: state.articletype,
@@ -432,9 +417,6 @@ getArticleSelectAll();
 // 回收站·
 const getArticleRecycle = (config?: selectAllConfig) => {
   post(`${articleRecycle}`, {
-    headers: {
-      "Access-Control-Allow-Origin": "*",
-    },
     pageNum: state.currentPage,
     pageSize: state.pageSize,
     ...config,
@@ -505,11 +487,7 @@ const deleteAction = (row, isResume) => {
     .then(() => {
       !isResume
         ? post(`${articleUpdateOne}`, {
-            ...obj,
-            headers: {
-              "Access-Control-Allow-Origin": "*",
-              "Content-Type": "application/json",
-            },
+            ...obj
           }).then(function (data) {
             getArticleSelectAll();
           })
@@ -535,11 +513,7 @@ const resume = (row) => {
   })
     .then(() => {
       post(`${articleUpdateOne}`, {
-        ...obj,
-        headers: {
-          "Access-Control-Allow-Origin": "*",
-          "Content-Type": "application/json",
-        },
+        ...obj
       }).then(function (data) {
         getArticleRecycle();
       });

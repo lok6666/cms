@@ -205,11 +205,7 @@ const add = () => {
  */
 const postFormData = (formData) => {
   post(`${fundUpdateOne}`, {
-    ...formData,
-    headers: {
-      "Access-Control-Allow-Origin": "*",
-      "Content-Type": "application/json",
-    },
+    ...formData
   })
     .then(function (data) {
       console.log("data----", data);
@@ -233,12 +229,12 @@ const closeDialog = async (done: () => void) => {
 const edit = (row) => {
   title.value = "编辑";
   state.dialogVisible = true;
-  state.formConfig = Object.assign({}, state.formConfig
+  state.formConfig = state.formConfig
   .map((e, b) => {
     let result = { ...e };
     result[e.prop] = row[e.prop];
     return result;
-  }));
+  });
 };
 
 /**
@@ -246,9 +242,6 @@ const edit = (row) => {
  */
 const getfundAll = () => {
   post(`${fundAll}`, {
-    headers: {
-      "Access-Control-Allow-Origin": "*",
-    },
     pageNum: state.currentPage,
     pageSize: state.pageSize,
     name: state.name,
@@ -275,7 +268,7 @@ const chooseCulture = (val) => {
 const handleSizeChange = (val: number) => {
   console.log(`${val} items per page`);
   state.pageSize = val;
-  getfundAll({ title: formInline.title });
+  getfundAll();
 };
 
 /**
@@ -284,7 +277,7 @@ const handleSizeChange = (val: number) => {
 const handleCurrentChange = (val: number) => {
   console.log(`current page: ${val}`);
   state.currentPage = val;
-  getfundAll({ title: formInline.title });
+  getfundAll();
 };
 const loading = ref(false);
 

@@ -10,7 +10,6 @@
         :data="state.tableData"
         style="width: 100%"
         :border="true"
-        v-loading="loading"
       >
         <el-table-column
           v-for="(item, index) in tableHeaderConfig"
@@ -26,18 +25,14 @@
         </el-table-column>
         <el-table-column prop="operator" label="操作" width="200" fixed="right">
           <template #default="scope">
-            <el-button
-              type="primary"
-              size="small"
-              
-              @click="edit(scope.row)"
+            <el-button type="primary" size="small" @click="edit(scope.row)"
               >修改</el-button
             >
             <el-button
               type="danger"
               size="small"
               icon="Delete"
-              @click="deleteAction(scope.row, state.isResume)"
+              @click="deleteAction(scope.row)"
               >删除</el-button
             >
           </template>
@@ -52,6 +47,7 @@
         <formConpoent
           v-model:formConfig="state.formConfig"
           @handle="postFormData"
+          showBtn="true"
           @dialogClose="closeDialog"
         ></formConpoent>
       </el-dialog>
@@ -85,7 +81,8 @@ import {
   videoUpdateOne,
   videoDelete
 } from "@/config/api";
-import { ElMessage, ElMessageBox, FormRules } from "element-plus";
+import { ElMessage, ElMessageBox } from "element-plus";
+import { formConfigItem1 } from "@/utils/interface";
 import { get, post } from "@/utils/request";
 import { tr } from "element-plus/es/locale";
 export default {
@@ -100,7 +97,6 @@ export default {
         {
           prop: "picture",
           label: "轮播图",
-          showImg: true,
         },
         {
           prop: "title",
@@ -124,20 +120,19 @@ export default {
 };
 </script>
 <script lang="ts" setup>
-const loading = ref(false);
-
-const formInline = reactive({
-  username: "",
-});
-const rules = reactive<FormRules>({
-  title: {
-    required: true,
-  },
-  swiper: {
-    required: true,
-  },
-});
-const formConfig = [
+const title = ref<string>("新增");
+interface formConfigItem {
+    prop: string,
+    label: string,
+    required?: boolean,
+    showInput?: boolean,
+    showDatePicker?: boolean,
+    upload?: boolean,
+    uploadType?: string
+}
+// todo 解决接口引入问题
+console.log('a-----------------', formConfigItem1);
+const formConfig: Array<formConfigItem> = [
   {
     prop: "title",
     label: "标题",
@@ -146,137 +141,62 @@ const formConfig = [
   },
   {
     prop: "infomation",
-    label: "位置",
-    showSelect: true,
+    label: "简介",
     showInput: true
   },
   {
     prop: "picture",
     label: "轮播图",
     upload: true,
-    required: true,
-    picture: ""
+    uploadType: 'image',
+    required: true
   },
   // todo form模板增加视频
   {
     prop: "video",
     label: "视频",
     upload: true,
-    required: true,
-    picture: ""
+    uploadType: 'video',
+    required: true
   }
 ];
 const state = reactive({
   currentPage: 0,
   pageSize: 10,
   formConfig: formConfig,
-  tableData: [{
-    createdate: "2022-03-25 11:43:51",
-    deletestate: "",
-    files: [],
-    id: 46,
-    images: [],
-    infomation: "北京文投大数据有限公司",
-    lastupdatatime: "2022-03-25 15:20:31",
-    operator: "",
-    pageNum: 0,
-    pageSize: 0,
-    picture: "/images/89af238c85484ecab0b189b19126ad5b.jpg",
-    status: 0,
-    storagetime: "2022-03-25 11:43:51",
-    title: "环球影城5G消息案例(文投大数据)",
-    type: "",
-    url: "8_46.html",
-    video: "/images/0e6e9f471f424c948e883a891079842d.mp4"
-  }],
+  tableData: [
+    {
+      createdate: "2022-03-25 11:43:51",
+      deletestate: "",
+      files: [],
+      id: 46,
+      images: [],
+      infomation: "北京文投大数据有限公司",
+      lastupdatatime: "2022-03-25 15:20:31",
+      operator: "",
+      pageNum: 0,
+      pageSize: 0,
+      picture: "/images/89af238c85484ecab0b189b19126ad5b.jpg",
+      status: 0,
+      storagetime: "2022-03-25 11:43:51",
+      title: "环球影城5G消息案例(文投大数据)",
+      type: "",
+      url: "8_46.html",
+      video: "/images/0e6e9f471f424c948e883a891079842d.mp4",
+    },
+  ],
   total: 0,
   sensitiveword: "",
   dialogVisible: false,
-  isResume: false,
 });
-const ruleFormRef = ref();
-const title = ref("新增");
-
-/**
- * 添加
- */
-const add = async () => {
-  title.value = "新增";
-  state.formConfig = formConfig;
-  //   let articleOption  = await get(`${swiperArticleOption}`);
-  //   let videoOption  = await get(`${swiperVideoOption}`);
-  state.dialogVisible = true;
-//   console.log("add=======", state.formConfig);
-};
-
-/**
- * 提交表单数据
- */
-const postFormData = (formData) => {
-  if (title.value === "新增") {
-    post(`${videoAddOne}`, {
-      ...formData,
-      headers: {
-        "Access-Control-Allow-Origin": "*",
-        "Content-Type": "application/json",
-      },
-    })
-      .then(function (data) {
-        console.log("data-----", data);
-      })
-      .catch((e) => {
-        console.log("e", e);
-      });
-    ElMessage.success("添加成功");
-  } else {
-    post(`${videoUpdateOne}`, {
-      ...formData,
-      headers: {
-        "Access-Control-Allow-Origin": "*",
-        "Content-Type": "application/json",
-      },
-    })
-      .then(function (data) {
-        console.log("data----", data);
-      })
-      .catch((e) => {
-        console.log("e", e);
-      });
-  }
-  state.dialogVisible = false;
-  console.log("submit!", formData);
-};
-
-// todo 改写法
-const closeDialog = async (done: () => void) => {
-  state.dialogVisible = false;
-};
-
-/**
- * 修改
- */
-const edit = (row) => {
-  title.value = "修改";
-  state.dialogVisible = true;
-  // 修改传给表单初始值
-  state.formConfig = Object.assign({}, state.formConfig
-  .map((e, b) => {
-    let result = { ...e };
-    result[e.prop] = row[e.prop];
-    return result;
-  }));
-};
 
 /**
  * 文章内容列表
  */
-const getvideoAll = () => {
+const getvideoAll = ():void => {
   post(`${videoAll}`, {
-    headers: {
-      "Access-Control-Allow-Origin": "*",
-    },
     pageNum: state.currentPage,
-    pageSize: state.pageSize,
+    pageSize: state.pageSize
   }).then(function (data) {
     state.tableData = data.list;
     state.total = data.total;
@@ -285,12 +205,80 @@ const getvideoAll = () => {
 getvideoAll();
 
 /**
+ * 添加
+ */
+const add = async () => {
+  title.value = "新增";
+  state.formConfig = formConfig;
+  state.dialogVisible = true;
+};
+
+/**
+ * 修改
+ */
+const edit = (row) => {
+  title.value = "修改";
+  state.dialogVisible = true;
+  state.formConfig = Object.assign({}, state.formConfig
+  .map((e, b) => {
+      let result = { ...e };
+      result[e.prop] = row[e.prop];
+      return result;
+    })
+  );
+};
+
+/**
+ * 删除
+ */
+const deleteAction = (row) => {
+  ElMessageBox.confirm("你确定要删除当前项吗?", "温馨提示", {
+    confirmButtonText: "确定",
+    cancelButtonText: "取消",
+    type: "warning",
+    draggable: true,
+  })
+  .then(() => {
+    post(`${videoDelete}`, [row.id]).then(function () {
+      getvideoAll();
+    });
+    ElMessage.success("删除成功");
+  })
+  .catch(() => {});
+};
+
+/**
+ * 提交表单数据
+ */
+const postFormData = (formData) => {
+  post(title.value === "新增" ? `${videoAddOne}` : `${videoUpdateOne}`,
+  {
+    ...formData
+  })
+  .then(function () {
+    getvideoAll();
+  })
+  .catch((e) => {
+    console.log("e", e);
+  });
+  state.dialogVisible = false;
+  console.log("submit!", formData);
+};
+
+/**
+ * 弹窗关闭时触发
+ */
+const closeDialog = async (done: () => void) => {
+  state.dialogVisible = false;
+};
+
+/**
  * 切换每页显示数
  */
 const handleSizeChange = (val: number) => {
   console.log(`${val} items per page`);
   state.pageSize = val;
-  getvideoAll({ title: formInline.username });
+  getvideoAll();
 };
 
 /**
@@ -299,30 +287,9 @@ const handleSizeChange = (val: number) => {
 const handleCurrentChange = (val: number) => {
   console.log(`current page: ${val}`);
   state.currentPage = val;
-  getvideoAll({ title: formInline.username });
+  getvideoAll();
 };
 
-/**
- * 删除
- */
-const deleteAction = (row, isResume) => {
-  let obj = {
-    ...row,
-  };
-  ElMessageBox.confirm("你确定要删除当前项吗?", "温馨提示", {
-    confirmButtonText: "确定",
-    cancelButtonText: "取消",
-    type: "warning",
-    draggable: true,
-  })
-    .then(() => {
-      post(`${videoDelete}`, [row.id]).then(function (data) {
-        getvideoAll();
-      });
-      ElMessage.success("删除成功");
-    })
-    .catch(() => {});
-};
 </script>
 
 <style scoped>

@@ -252,9 +252,6 @@ const detail = (row) => {
  */
 const getfundAll = () => {
   post(`${fundAll}`, {
-    headers: {
-      "Access-Control-Allow-Origin": "*",
-    },
     pageNum: state.currentPage,
     pageSize: state.pageSize,
 
@@ -272,7 +269,7 @@ getfundAll();
 const handleSizeChange = (val: number) => {
   console.log(`${val} items per page`);
   state.pageSize = val;
-  getfundAll({ title: formInline.title });
+  getfundAll();
 };
 
 /**
@@ -281,7 +278,7 @@ const handleSizeChange = (val: number) => {
 const handleCurrentChange = (val: number) => {
   console.log(`current page: ${val}`);
   state.currentPage = val;
-  getfundAll({ title: formInline.title });
+  getfundAll();
 };
 const loading = ref(false);
 

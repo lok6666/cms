@@ -171,11 +171,7 @@ const add = () => {
 const postFormData = (formData) => {
   if (title.value === "新增") {
     post(`${sensitiveAddOne}`, {
-      ...formData,
-      headers: {
-        "Access-Control-Allow-Origin": "*",
-        "Content-Type": "application/json",
-      },
+      ...formData
     })
       .then(function (data) {
         console.log("data-----", data);
@@ -215,19 +211,16 @@ const closeDialog = async (done: () => void) => {
 const edit = (row) => {
   title.value = "修改";
   state.dialogVisible = true;
-  state.formConfig = Object.assign({}, state.formConfig
+  state.formConfig = state.formConfig
     .map((e, b) => {
       let result = { ...e };
       result[e.prop] = row[e.prop];
       return result;
-    }));
+    });
 };
 //  文章内容列表
 const getSensitiveSelectAll = () => {
   post(`${sensitiveSelectAll}`, {
-    headers: {
-      "Access-Control-Allow-Origin": "*",
-    },
     pageNum: state.currentPage,
     pageSize: state.pageSize,
   }).then(function (data) {
@@ -241,14 +234,14 @@ getSensitiveSelectAll();
 const handleSizeChange = (val: number) => {
   console.log(`${val} items per page`);
   state.pageSize = val;
-  getSensitiveSelectAll({ title: formInline.username });
+  getSensitiveSelectAll();
 };
 
 // 换页数
 const handleCurrentChange = (val: number) => {
   console.log(`current page: ${val}`);
   state.currentPage = val;
-  getSensitiveSelectAll({ title: formInline.username });
+  getSensitiveSelectAll();
 };
 const loading = ref(false);
 

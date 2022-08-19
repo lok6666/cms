@@ -344,11 +344,7 @@ const add = () => {
 const postFormData = (formData) => {
   if (title.value === "新增") {
     post(`${industryDataAddOne}`, {
-      ...formData,
-      headers: {
-        "Access-Control-Allow-Origin": "*",
-        "Content-Type": "application/json",
-      },
+      ...formData
     })
       .then(function (data) {
         console.log("data-----", data);
@@ -359,11 +355,7 @@ const postFormData = (formData) => {
     ElMessage.success("添加成功");
   } else {
     post(`${industryDataUpdateOne}`, {
-      ...formData,
-      headers: {
-        "Access-Control-Allow-Origin": "*",
-        "Content-Type": "application/json",
-      },
+      ...formData
     })
       .then(function (data) {
         console.log("data----", data);
@@ -396,12 +388,12 @@ const edit = (row) => {
   })
     .then(function (data) { */
   state.dialogVisible = true;
-  state.formConfig = Object.assign({}, state.formConfig
+  state.formConfig = state.formConfig
   .map((e, b) => {
     let result = { ...e };
     result[e.prop] = row[e.prop];
     return result;
-  }));
+  });
   /*     })
     .catch((e) => {
       console.log("e", e);
@@ -413,9 +405,6 @@ const edit = (row) => {
  */
 const getIndustryDataAll = () => {
   post(`${industryDataList}`, {
-    headers: {
-      "Access-Control-Allow-Origin": "*",
-    },
     pageNum: state.currentPage,
     pageSize: state.pageSize,
     year: state.year,
@@ -443,7 +432,7 @@ const chooseCulture = (val) => {
 const handleSizeChange = (val: number) => {
   console.log(`${val} items per page`);
   state.pageSize = val;
-  getIndustryDataAll({ title: formInline.title });
+  getIndustryDataAll();
 };
 
 /**
@@ -452,7 +441,7 @@ const handleSizeChange = (val: number) => {
 const handleCurrentChange = (val: number) => {
   console.log(`current page: ${val}`);
   state.currentPage = val;
-  getIndustryDataAll({ title: formInline.title });
+  getIndustryDataAll();
 };
 const loading = ref(false);
 
@@ -471,13 +460,9 @@ const deleteAction = (row) => {
   })
     .then(() => {
       post(`${industryDataDeleteOne}`, {
-        ...obj,
-        headers: {
-          "Access-Control-Allow-Origin": "*",
-          "Content-Type": "application/json",
-        },
+        ...obj
       }).then(function (data) {
-        getArticleSelectAll();
+        getIndustryDataAll();
       });
       ElMessage.success("删除成功");
     })

@@ -21,19 +21,12 @@
         </el-table-column>
         <el-table-column prop="operator" label="操作" width="200" fixed="right">
           <template #default="scope">
-            <el-button
-              type="primary"
-              size="small"
-              icon="Edit"
-              @click="edit(scope.row)"
-              >修改</el-button
+            <el-button type="primary" size="small" icon="Edit" @click="edit(scope.row)">修改</el-button
             >
-            <el-button
-              type="danger"
-              size="small"
-              icon="Delete"
-              @click="deleteAction(scope.row, state.isResume)"
-              >删除</el-button
+            <el-button type="primary" size="small" @click="detail(scope.row)">
+              查看详情
+            </el-button>
+            <el-button type="danger" size="small" icon="Delete" @click="deleteAction(scope.row)">删除</el-button
             >
           </template>
         </el-table-column>
@@ -76,10 +69,10 @@
 import { ref, reactive, provide } from "vue";
 import formConpoent from "@/components/form/form.vue";
 import {
-  activityApplyAll,
-  activityApplyAddOne,
-  activityApplyrUpdateOne,
-  activityApplyDelete,
+  businessEstimateAll,
+  businessEstimateAddOne,
+  businessEstimatUpdateOne,
+  businessEstimatDelete,
 } from "@/config/api";
 import { ElMessage, ElMessageBox } from "element-plus";
 // import { formConfigItem } from "@/utils/interface";
@@ -197,8 +190,7 @@ const state = reactive({
   tableData: [],
   total: 0,
   sensitiveword: "",
-  dialogVisible: false,
-  isResume: false,
+  dialogVisible: false
 });
 
 let currentRoleId = ref<string>("");
@@ -211,27 +203,44 @@ const add = () => {
 };
 
 /**
+ * 表单详情
+ */
+// todo 单独封装
+const detail = (row) => {
+  title.value = "查看详情";
+//   state.dialogVisible = true;
+//   state.formConfig = state.formConfig
+//     .map((e, b) => {
+//       // value 替换成 e.prop
+//       let result = { ...e };
+//       result[e.prop] = row[e.prop];
+//       return result;
+//     })
+//     .splice(0);
+};
+
+/**
  * 提交表单数据
  */
 const postFormData = (formData) => {
   if (title.value === "新增") {
-    post(`${activityApplyAddOne}`, {
+    post(`${businessEstimateAddOne}`, {
       ...formData
     })
       .then(function (data) {
-        getactivityApplyAll();
+        getbusinessEstimateAll();
       })
       .catch((e) => {
         console.log("e", e);
       });
     ElMessage.success("添加成功");
   } else {
-    post(`${activityApplyrUpdateOne}`, {
+    post(`${businessEstimatUpdateOne}`, {
       id: currentRoleId.value,
       ...formData,
     })
       .then(function (data) {
-        getactivityApplyAll();
+        getbusinessEstimateAll();
       })
       .catch((e) => {
         console.log("e", e);
@@ -260,8 +269,8 @@ const edit = (row) => {
   });
 };
 //  文章内容列表
-const getactivityApplyAll = () => {
-  post(`${activityApplyAll}`, {
+const getbusinessEstimateAll = () => {
+  post(`${businessEstimateAll}`, {
     pageNum: state.currentPage,
     pageSize: state.pageSize,
   }).then(function (data) {
@@ -269,20 +278,20 @@ const getactivityApplyAll = () => {
     state.total = data.total;
   });
 };
-getactivityApplyAll();
+getbusinessEstimateAll();
 
 // 切换每页显示数
 const handleSizeChange = (val: number) => {
   console.log(`${val} items per page`);
   state.pageSize = val;
-  getactivityApplyAll();
+  getbusinessEstimateAll();
 };
 
 // 换页数
 const handleCurrentChange = (val: number) => {
   console.log(`current page: ${val}`);
   state.currentPage = val;
-  getactivityApplyAll();
+  getbusinessEstimateAll();
 };
 const loading = ref(false);
 
@@ -298,10 +307,10 @@ const deleteAction = (row) => {
     draggable: true,
   })
     .then(() => {
-      deleteItem(`${activityApplyDelete}`, {
+      deleteItem(`${businessEstimatDelete}`, {
         data: [row.id],
       }).then(function (data) {
-        getactivityApplyAll();
+        getbusinessEstimateAll();
       });
       ElMessage.success("删除成功");
     })

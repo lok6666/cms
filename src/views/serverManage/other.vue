@@ -195,11 +195,7 @@ const title = ref("新增");
  */
 const postFormData = (formData) => {
   post(`${otherUpdateOne}`, {
-    ...formData,
-    headers: {
-      "Access-Control-Allow-Origin": "*",
-      "Content-Type": "application/json",
-    },
+    ...formData
   })
     .then(function (data) {
       console.log("data----", data);
@@ -223,12 +219,12 @@ const closeDialog = async (done: () => void) => {
 const edit = (row) => {
   title.value = "编辑";
   state.dialogVisible = true;
-  state.formConfig = Object.assign({}, state.formConfig
+  state.formConfig = state.formConfig
   .map((e, b) => {
     let result = { ...e };
     result[e.prop] = row[e.prop];
     return result;
-  }));
+  });
 };
 
 /**
@@ -293,9 +289,6 @@ ElMessageBox.confirm("你确定要上架当前项吗?", "温馨提示", {
  */
 const getotherAll = () => {
   post(`${otherAll}`, {
-    headers: {
-      "Access-Control-Allow-Origin": "*",
-    },
     pageNum: state.currentPage,
     pageSize: state.pageSize,
     name: state.name,
@@ -322,7 +315,7 @@ const chooseCulture = (val) => {
 const handleSizeChange = (val: number) => {
   console.log(`${val} items per page`);
   state.pageSize = val;
-  getotherAll({ title: formInline.title });
+  getotherAll();
 };
 
 /**
@@ -331,7 +324,7 @@ const handleSizeChange = (val: number) => {
 const handleCurrentChange = (val: number) => {
   console.log(`current page: ${val}`);
   state.currentPage = val;
-  getotherAll({ title: formInline.title });
+  getotherAll();
 };
 const loading = ref(false);
 

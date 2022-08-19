@@ -58,13 +58,14 @@ export const constantRoutes: Array<RouteRecordRaw & extendRoute> = [
     children: [
       {
         path: 'migration',
-        component: () => import('@/views/charts/migration.vue'),
+        component: () => import('@/views/business/apply.vue'),
         name: 'migration',
-        meta: { title: '入驻申请', roles: ['other'], requiresAuth: false }
+        meta: { title: '入驻申请', roles: ['other']}
       },
       {
         path: 'simple',
-        component: () => import('@/views/charts/simple.vue'),
+        // component: () => import('@/views/business/estimate.vue'),
+        component: () => import('@/views/business/essay.vue'),
         name: 'charts-simple',
         meta: { title: '企业评估', roles: ['other'] }
       },
@@ -76,7 +77,7 @@ export const constantRoutes: Array<RouteRecordRaw & extendRoute> = [
       },
       {
         path: 'animation',
-        component: () => import('@/views/charts/animation.vue'),
+        component: () => import('@/views/business/enterMessage.vue'),
         name: 'charts-animation',
         meta: { title: '信息录入', roles: ['other'] }
       },

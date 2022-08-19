@@ -241,11 +241,7 @@ const add = async () => {
 const postFormData = (formData) => {
   if (title.value === "新增") {
     post(`${swiperAddOne}`, {
-      ...formData,
-      headers: {
-        "Access-Control-Allow-Origin": "*",
-        "Content-Type": "application/json",
-      },
+      ...formData
     })
       .then(function (data) {
         console.log("data-----", data);
@@ -256,11 +252,7 @@ const postFormData = (formData) => {
     ElMessage.success("添加成功");
   } else {
     post(`${swiperUpdateOne}`, {
-      ...formData,
-      headers: {
-        "Access-Control-Allow-Origin": "*",
-        "Content-Type": "application/json",
-      },
+      ...formData
     })
       .then(function (data) {
         console.log("data----", data);
@@ -285,12 +277,12 @@ const edit = (row) => {
   title.value = "修改";
   state.dialogVisible = true;
   // 修改传给表单初始值
-  state.formConfig = Object.assign({}, state.formConfig
+  state.formConfig = state.formConfig
   .map((e, b) => {
     let result = { ...e };
     result[e.prop] = row[e.prop];
     return result;
-  }));
+  });
 };
 
 /**
@@ -298,9 +290,6 @@ const edit = (row) => {
  */
 const getswiperAll = () => {
   post(`${swiperAll}`, {
-    headers: {
-      "Access-Control-Allow-Origin": "*",
-    },
     pageNum: state.currentPage,
     pageSize: state.pageSize,
   }).then(function (data) {
@@ -316,7 +305,7 @@ getswiperAll();
 const handleSizeChange = (val: number) => {
   console.log(`${val} items per page`);
   state.pageSize = val;
-  getswiperAll({ title: formInline.username });
+  getswiperAll();
 };
 
 /**
@@ -325,7 +314,7 @@ const handleSizeChange = (val: number) => {
 const handleCurrentChange = (val: number) => {
   console.log(`current page: ${val}`);
   state.currentPage = val;
-  getswiperAll({ title: formInline.username });
+  getswiperAll();
 };
 
 /**

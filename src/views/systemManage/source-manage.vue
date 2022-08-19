@@ -131,10 +131,7 @@ let ruleForm = ref(baseData);
 
 const getTree = () => {
   get(`${treeTable}`, {
-    url: `${treeTable}`,
-    headers: {
-      "Access-Control-Allow-Origin": "*"
-    },
+    url: `${treeTable}`
   }).then(function (data) {
     tableData.value = data;
     console.log('data--', data);
@@ -162,21 +159,13 @@ const handleClose = async (done: () => void) => {
   dialogVisible.value = false;
   if(title.value === '新增') {
       post(`${sysResourceInsert}`, {
-        ...ruleForm.value,
-        headers: {
-          "Access-Control-Allow-Origin": "*",
-          "Content-Type": "application/json",
-        },
+        ...ruleForm.value
       }).then(function (data) {
         getTree();
       });
   } else {
     post(`${sysResourceUpdate}`, {
-      ...ruleForm.value,
-      headers: {
-        "Access-Control-Allow-Origin": "*",
-        "Content-Type": "application/json",
-      },
+      ...ruleForm.value
     }).then(function (data) {
       getTree();
     });
@@ -201,11 +190,7 @@ const deleteAction = (row) => {
       deleteItem(`${sysResourceDelete}`, {
           data: [
             row.resourceId
-          ],
-          headers: {
-            "Access-Control-Allow-Origin": "*",
-            "Content-Type": "application/json"
-          }
+          ]
       })
       .then(function (data) {
         console.log('data', data);

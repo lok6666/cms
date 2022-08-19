@@ -78,11 +78,7 @@ const pageSize = ref(100)
 
 post(`${sysLogSelectAll}`, {
   pageSize: 5,
-  pageNum: 1,
-  headers: {
-    "Access-Control-Allow-Origin": "*",
-    "Content-Type": "application/json",
-  },
+  pageNum: 1
 }).then(function ({list}) {
   console.log("data", list);
   businessUseList.value = list;

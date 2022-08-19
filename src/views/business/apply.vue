@@ -1,11 +1,6 @@
 <template>
   <u-container-layout>
     <div class="inline-edit-table">
-      <div style="display: flex; justify-content: flex-end">
-        <el-button type="primary" @click="add">
-          <el-icon><plus /></el-icon>添加
-        </el-button>
-      </div>
       <el-table
         :data="state.tableData"
         style="width: 100%"
@@ -21,20 +16,12 @@
         </el-table-column>
         <el-table-column prop="operator" label="操作" width="200" fixed="right">
           <template #default="scope">
-            <el-button
-              type="primary"
-              size="small"
-              icon="Edit"
-              @click="edit(scope.row)"
-              >修改</el-button
-            >
-            <el-button
-              type="danger"
-              size="small"
-              icon="Delete"
-              @click="deleteAction(scope.row, state.isResume)"
-              >删除</el-button
-            >
+            <el-button type="primary" size="small" @click="detail(scope.row)">
+              查看详情
+            </el-button>
+            <el-button type="primary" size="small" @click="examine(scope.row)">
+              审核
+            </el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -45,11 +32,16 @@
         @closed="closeDialog()"
       >
         <formConpoent
-          v-if="state.dialogVisible"
+          v-if="state.showForm"
           v-model:formConfig="state.formConfig"
           @handle="postFormData"
           @dialogClose="closeDialog"
         ></formConpoent>
+        <examineFormConpoent
+          v-if="state.showExamineForm"
+          @handle="postFormData"
+          @dialogClose="closeDialog"
+        ></examineFormConpoent>
       </el-dialog>
       <div
         style="
@@ -75,15 +67,17 @@
 <script lang="ts">
 import { ref, reactive, provide } from "vue";
 import formConpoent from "@/components/form/form.vue";
+import examineFormConpoent from "@/components/form/examineForm.vue";
 import {
-  activityApplyAll,
-  activityApplyAddOne,
-  activityApplyrUpdateOne,
-  activityApplyDelete,
+  businessApplyAll,
+  businessApplyAddOne,
+  businessApplyUpdateOne,
+  businessApplyDelete,
 } from "@/config/api";
 import { ElMessage, ElMessageBox } from "element-plus";
 // import { formConfigItem } from "@/utils/interface";
 import { deleteItem, post } from "@/utils/request";
+import { fa } from "element-plus/es/locale";
 export default {
   name: "sensitive-manage",
   data() {
@@ -91,7 +85,7 @@ export default {
       tableHeaderConfig: [
         {
           prop: "id",
-          label: '序号'
+          label: "序号",
         },
         {
           prop: "actId",
@@ -132,136 +126,142 @@ export default {
 </script>
 <script lang="ts" setup>
 interface formConfigItem {
-    prop: string,
-    label: string,
-    required?: boolean,
-    showInput?: boolean,
-    showDatePicker?: boolean,
-    upload?: boolean,
-    uploadType?: string
+  prop: string;
+  label: string;
+  required?: boolean;
+  showInput?: boolean;
+  showDatePicker?: boolean;
+  upload?: boolean;
+  uploadType?: string;
+  disabled?: true;
 }
 const formConfig: formConfigItem[] = [
   {
     prop: "actId",
     label: "活动id",
     required: true,
-    showInput: true
+    showInput: true,
+    disabled: true,
   },
   {
     prop: "companyid",
     label: "企业id",
     required: true,
-    showInput: true
+    showInput: true,
+    disabled: true,
   },
   {
     prop: "duties",
     label: "职务",
     required: true,
-    showInput: true
+    showInput: true,
+    disabled: true,
   },
   {
     prop: "operator",
     label: "操作人",
     required: true,
-    showInput: true
+    showInput: true,
+    disabled: true,
   },
   {
     prop: "startTime",
     label: "开始时间",
     required: true,
-    showDatePicker: true
+    showDatePicker: true,
+    disabled: true,
   },
   {
     prop: "endTime",
     label: "结束时间",
     required: true,
-    showDatePicker: true
+    showDatePicker: true,
+    disabled: true,
   },
   {
     prop: "personName",
     label: "联系人",
     required: true,
-    showInput: true
+    showInput: true,
+    disabled: true,
   },
   {
     prop: "telPhone",
     label: "人员电话",
     required: true,
-    showInput: true
+    showInput: true,
+    disabled: true,
   },
 ];
 const state = reactive({
   currentPage: 0,
   pageSize: 10,
-  formConfig: Object.assign([], formConfig),
+  formConfig: formConfig,
   tableData: [],
   total: 0,
   sensitiveword: "",
   dialogVisible: false,
+  showForm: false,
+  showExamineForm: false,
   isResume: false,
 });
 
 let currentRoleId = ref<string>("");
 const title = ref<string>("新增");
 
-// 添加
-const add = () => {
-  title.value = "新增";
+/**
+ * 表单详情
+ */
+const detail = (row) => {
+  title.value = "查看详情";
   state.dialogVisible = true;
+  state.showForm = true;
+  state.formConfig = state.formConfig
+    .map((e, b) => {
+      // value 替换成 e.prop
+      let result = { ...e };
+      result[e.prop] = row[e.prop];
+      return result;
+    })
+    .splice(0);
+};
+
+/**
+ * 审核
+ */
+const examine = (row) => {
+  state.dialogVisible = true;
+  state.showExamineForm = true;
 };
 
 /**
  * 提交表单数据
  */
 const postFormData = (formData) => {
-  if (title.value === "新增") {
-    post(`${activityApplyAddOne}`, {
-      ...formData
+  post(`${businessApplyUpdateOne}`, {
+    id: currentRoleId.value,
+    ...formData
+  })
+    .then(function (data) {
+      getbusinessApplyAll();
     })
-      .then(function (data) {
-        getactivityApplyAll();
-      })
-      .catch((e) => {
-        console.log("e", e);
-      });
-    ElMessage.success("添加成功");
-  } else {
-    post(`${activityApplyrUpdateOne}`, {
-      id: currentRoleId.value,
-      ...formData,
-    })
-      .then(function (data) {
-        getactivityApplyAll();
-      })
-      .catch((e) => {
-        console.log("e", e);
-      });
-  }
+    .catch((e) => {
+      console.log("e", e);
+    });
   state.dialogVisible = false;
-  console.log("submit!", formData);
+  state.showExamineForm = false;
 };
 
 // todo 改写法
 const closeDialog = async (done: () => void) => {
   state.dialogVisible = false;
-  state.formConfig = formConfig;
+  state.showExamineForm = false;
+  state.showForm = false;
 };
 
-// 修改
-const edit = (row) => {
-  title.value = "修改";
-  state.dialogVisible = true;
-  currentRoleId.value = row.id;
-  state.formConfig = state.formConfig
-  .map((e, b) => {
-    let result = { ...e };
-    result[e.prop] = row[e.prop];
-    return result;
-  });
-};
 //  文章内容列表
-const getactivityApplyAll = () => {
-  post(`${activityApplyAll}`, {
+const getbusinessApplyAll = () => {
+  post(`${businessApplyAll}`, {
     pageNum: state.currentPage,
     pageSize: state.pageSize,
   }).then(function (data) {
@@ -269,20 +269,20 @@ const getactivityApplyAll = () => {
     state.total = data.total;
   });
 };
-getactivityApplyAll();
+getbusinessApplyAll();
 
 // 切换每页显示数
 const handleSizeChange = (val: number) => {
   console.log(`${val} items per page`);
   state.pageSize = val;
-  getactivityApplyAll();
+  getbusinessApplyAll();
 };
 
 // 换页数
 const handleCurrentChange = (val: number) => {
   console.log(`current page: ${val}`);
   state.currentPage = val;
-  getactivityApplyAll();
+  getbusinessApplyAll();
 };
 const loading = ref(false);
 
@@ -298,10 +298,10 @@ const deleteAction = (row) => {
     draggable: true,
   })
     .then(() => {
-      deleteItem(`${activityApplyDelete}`, {
+      deleteItem(`${businessApplyDelete}`, {
         data: [row.id],
       }).then(function (data) {
-        getactivityApplyAll();
+        getbusinessApplyAll();
       });
       ElMessage.success("删除成功");
     })

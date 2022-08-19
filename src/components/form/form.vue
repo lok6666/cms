@@ -63,15 +63,22 @@
           action="#"
           :show-file-list="false"
           v-if="item.upload"
-          @click="getIndex(i)"
+          @click="getIndex(i, item)"
           :before-upload="beforeAvatarUpload"
         >
           <img
             v-if="item.picture"
             :src="item.picture"
-            style="width: 50px; height: 50px"
+            style="width: 178px; height: 178px"
             class="avatar"
           />
+          <video
+            v-else-if="item.video"
+            :src="item.video"
+            controls
+            style="width: 178px; height: 178px"
+            class="avatar"
+          ></video>
           <el-icon v-else class="avatar-uploader-icon"><Plus /></el-icon>
         </el-upload>
         <!--富文本编辑-->
@@ -140,11 +147,9 @@ client.on("packetsend", function (topic, message) {
  console.log('topic', topic, message);
   // client.end();
 }); */
-
-const emit = defineEmits(["handle", "dialogClose"]);
-let props = defineProps({
-  formConfig: {
-    type: Object,
+interface prop{
+   formConfig: {
+    type: Array<Object>
   },
   title: {
     type: String,
@@ -152,11 +157,14 @@ let props = defineProps({
   },
   showBtn: {
     type: Boolean,
-    default: true,
-  },
-});
+    default: true
+  }
+}
+const emit = defineEmits(["handle", "dialogClose"]);
+let props = defineProps<prop>();
 const state = reactive(props);
-const itemIndex = ref();
+const itemIndex = ref<number>();
+const uploadType = ref<string>();
 const content = ref("");
 watch(
   () => props.formConfig,
@@ -167,7 +175,10 @@ watch(
 );
 const formData = {};
 const formRef = ref<FormInstance>();
-// 校验表单
+
+/**
+ * 表单校验
+ */
 const validateForm = (formEl: FormInstance | undefined) => {
   let add: number = 0;
   return new Promise((resolve, reject) => {
@@ -186,9 +197,12 @@ const validateForm = (formEl: FormInstance | undefined) => {
     });
   });
 };
+
+/**
+ * 提交表单
+ */
 const submitForm = async (formEl: FormInstance | undefined) => {
-  let valid: boolean = await validateForm(formEl);
-  if (valid) {
+  if (await validateForm(formEl)) {
     state.formConfig.forEach((v) => {
       formData[v.prop] = v[v.prop];
     });
@@ -197,22 +211,27 @@ const submitForm = async (formEl: FormInstance | undefined) => {
   }
 };
 
-const preview = () => {};
-
+/**
+ * 关闭弹窗
+ */
 const resetForm = (formEl: FormInstance | undefined) => {
   emit("dialogClose");
 };
 
-//富文本编辑emit事件
+/**
+ * 富文本编辑e
+ */
 const changeContent = (HTML: String) => {
   // todo 记得封装一下
-  console.log("changeContent", HTML);
   state.formConfig[itemIndex.value].sersynopsis = HTML;
 };
 
-const getIndex = (i: Number) => {
+// 获取索引
+const getIndex = (i: Number, item) => {
   itemIndex.value = i;
+  uploadType.value = item.uploadType;
 };
+
 /**
  * 上传图片
  */
@@ -236,16 +255,17 @@ const beforeAvatarUpload: UploadProps["beforeUpload"] = (rawFile) => {
     headers: {
       "Content-Type": "multipart/form-data",
       "Access-Control-Allow-Origin": "*",
-      Authorization: "Bearer " + localStorage.getItem("token"),
+      Authorization: "Bearer " + localStorage.getItem("token")
     },
-    type: "image",
-    data: data,
+    type: uploadType.value,
+    data: data
   };
   axios.defaults.crossDomain = true;
   axios.defaults.headers.common["Access-Control-Allow-Origin"] = "*";
   axios(config)
     .then(function (res) {
-      state.formConfig[itemIndex.value].picture = res;
+      debugger;
+      state.formConfig[itemIndex.value][uploadType.value === 'image' ? 'picture': 'video'] = 'http://' + res;
     })
     .catch(function (error) {
       console.log(error);

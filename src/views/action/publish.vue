@@ -315,14 +315,14 @@ getactionAll();
 const handleSizeChange = (val: number) => {
   console.log(`${val} items per page`);
   state.pageSize = val;
-  getactionAll({ title: formInline.username });
+  getactionAll();
 };
 
 // 换页数
 const handleCurrentChange = (val: number) => {
   console.log(`current page: ${val}`);
   state.currentPage = val;
-  getactionAll({ title: formInline.username });
+  getactionAll();
 };
 const loading = ref(false);
 

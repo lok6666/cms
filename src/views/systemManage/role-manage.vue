@@ -128,11 +128,7 @@ const title = ref("新增");
 const getSysRoleList = () => {
   post(`${sysRoleList}`, {
     pageSize: 5,
-    pageNum: 1,
-    headers: {
-      "Access-Control-Allow-Origin": "*",
-      "Content-Type": "application/json",
-    },
+    pageNum: 1
   }).then(function ({list}) {
     roleList.value = list;
   });
@@ -143,10 +139,6 @@ const add = () => {
   title.value = "新增";
   dialogVisible.value = true;
   post(`${sysRoleParent}`, {
-    headers: {
-      "Access-Control-Allow-Origin": "*",
-      "Content-Type": "application/json",
-    },
   }).then(function (data) {
     treeTable.value = data.parent;
     defaultCheckedKeys.value = [];
@@ -178,11 +170,7 @@ const edit = (row) => {
   roleName.value = row.roleName;
   title.value === '编辑';
   post(`${sysRoleParent}`, {
-    roleId: row.roleId,
-    headers: {
-      "Access-Control-Allow-Origin": "*",
-      "Content-Type": "application/json",
-    },
+    roleId: row.roleId
   }).then(function (data) {
     treeTable.value = data.parent;
     defaultCheckedKeys.value = data.children.map(el => el.resourceId);
@@ -207,11 +195,7 @@ const handleClose = async (done: () => void) => {
   if(title.value === '新增') {
       post(`${sysRoleInsert}`, {
         roleName: formInline.value.username,
-        tree: updateList.value,
-        headers: {
-          "Access-Control-Allow-Origin": "*",
-          "Content-Type": "application/json",
-        },
+        tree: updateList.value
       }).then(function (data) {
         getSysRoleList();
       });
@@ -219,11 +203,7 @@ const handleClose = async (done: () => void) => {
     post(`${sysRoleUpdate}`, {
       roleId: currentRoleId.value,
       roleName: formInline.value.username || roleName.value,
-      tree: updateList.value,
-      headers: {
-        "Access-Control-Allow-Origin": "*",
-        "Content-Type": "application/json",
-      },
+      tree: updateList.value
     }).then(function (data) {
       getSysRoleList();
     });
@@ -242,11 +222,7 @@ const deleteAction = (row) => {
       deleteItem(`${sysRoleDelete}`, {
           data: [
             row.roleId
-          ],
-          headers: {
-            "Access-Control-Allow-Origin": "*",
-            "Content-Type": "application/json"
-          }
+          ]
       })
       .then(function (data) {
         console.log('data', data);
@@ -262,9 +238,6 @@ const handleSizeChange = (val: number) => {
   console.log(`${val} items per page`);
   pageSize.value = val;
   post(`${sysRoleList}`, {
-    headers: {
-      "Access-Control-Allow-Origin": "*",
-    },
     pageNum: currentPage.value,
     pageSize: pageSize.value
   }).then(function (data) {
@@ -276,9 +249,6 @@ const handleCurrentChange = (val: number) => {
   console.log(`current page: ${val}`);
   currentPage.value = val;
   post(`${sysRoleList}`, {
-    headers: {
-      "Access-Control-Allow-Origin": "*",
-    },
     pageNum: currentPage.value,
     pageSize: pageSize.value,
     articletype: "5"
