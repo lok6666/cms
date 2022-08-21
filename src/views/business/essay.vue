@@ -1,71 +1,65 @@
 <template>
   <u-container-layout>
-    <div class="inline-edit-table">
-      <el-tabs
-        type="card"
-        class="demo-tabs"
-        style="width: 100%"
-        @tab-click="articleHandleClick"
-        v-model="state.editableTabsValue"
+     <el-button type="primary" size="small" icon="close" @click="close">
+          关闭
+      </el-button>
+    <el-tabs
+      class="demo-tabs"
+      style="position: absolute;right: 40px;"
+      tab-position="right"
+      @tab-click="articleHandleClick"
+      v-model="state.activeName"
+    >
+      <el-tab-pane
+        v-for="item in state.optionsList"
+        :key="item.id"
+        :label="item.title"
+        :name="item.title"
       >
-        <el-tab-pane
-          v-for="item in state.optionsList"
-          :key="item.id"
-          :label="item.title"
-          :name="item.id"
-        >
-          <el-descriptions title="User Info" :border="true"
-              :column="2">
-            <el-descriptions-item
-              v-for="(value, key) in state.businessMessag"
-              :key="key"
-              :label="key"
-              >{{ value }}</el-descriptions-item>
-          </el-descriptions>
-        </el-tab-pane>
-      </el-tabs>
-      <el-table
-        :data="state.tableData"
-        style="width: 100%"
-        :border="true"
-        v-loading="loading"
-      >
-        <el-table-column prop="id" label="序号" />
-        <el-table-column prop="title" label="文章标题" />
-        <el-table-column prop="articleTypeName" label="文章栏目" />
-        <el-table-column prop="dataSources" label="文章来源" />
-        <el-table-column prop="releaseDate" label="发布日期" />
-        <el-table-column prop="createDate" label="创建时间" />
-        <el-table-column prop="status" label="发布状态" />
-        <el-table-column prop="operator" label="文章作者" />
-        <el-table-column prop="isTop" label="置顶">
-          <template #default="scope">
-            {{ scope.row.isTop === "0 " ? "不置顶" : "置顶" }}
-          </template>
-        </el-table-column>
-        <el-table-column prop="recommend" label="推荐">
-          <template #default="scope">
-            {{ scope.row.recommend === "0 " ? "不推荐" : "推荐" }}
-          </template>
-        </el-table-column>
-      </el-table>
+      </el-tab-pane>
+    </el-tabs>
+    <div class="business-essay-inline-edit-table" style="max-width: 1500px;">
       <div
-        style="
-          width: 100%;
-          display: flex;
-          justify-content: center;
-          padding-top: 20px;
-        "
+        v-for="item in state.optionsList"
+        :key="item.id"
       >
-        <el-pagination
-          v-model:currentPage="currentPage"
-          :page-size="state.pageSize"
-          background
-          layout="total, sizes, prev, pager, next, jumper"
-          :total="state.total"
-          @size-change="handleSizeChange"
-          @current-change="handleCurrentChange"
-        />
+        <h3 :id="item.title">{{item.title}}</h3>
+        <el-descriptions
+          :border="true"
+          :column="2"
+          v-if="item.useComType === 'desc'"
+        >
+          <el-descriptions-item
+            v-for="(value, key) in item.businessMessage"
+            :key="key"
+            :label="item.businessConfig[key]"
+            >{{ value }}</el-descriptions-item
+          >
+        </el-descriptions>
+        <el-descriptions
+          :border="true"
+          :column="2"
+          v-if="item.useComType === 'spDesc'"
+        >
+          <el-descriptions-item
+            v-for="(i, index) in item.businessMessage"
+            :key="index"
+            :label="i.position"
+            >{{ i.personName }}</el-descriptions-item
+          >
+        </el-descriptions>
+        <el-table
+          v-if="item.useComType === 'table'"
+          :data="item.businessMessage"
+          style="width: 100%"
+          :border="true"
+          v-loading="loading"
+        >
+          <el-table-column prop="changeDate" label="修改日期" />
+          <el-table-column prop="changeItem" label="修改事项" />
+          <el-table-column prop="contentBefore" label="修改前" />
+          <el-table-column prop="contentAfter" label="修改后" />
+        </el-table>
       </div>
     </div>
   </u-container-layout>
@@ -75,152 +69,62 @@ export default { name: "inline-table" };
 </script>
 <script lang="ts" setup >
 import { computed, ref, reactive, onMounted, toRefs } from "vue";
-import editor from "@/components/editor/index.vue";
 import {
-  articleArticleAddOne,
-  articleUpdateOne,
-  articleRecycle,
-  articleSelectAll,
-  articleDelete,
   articleSelectById,
 } from "@/config/api";
-import { ElMessage, ElMessageBox, FormRules } from "element-plus";
+import { businessConfig } from "@/config/constants";
 import { get, post } from "@/utils/request";
-
-interface selectAllConfig {
-  title?: string;
+interface prop{
+   optionsList: {
+    type: Array<Object>
+  }
 }
-
-const rules = reactive<FormRules>({
-  title: {
-    required: true,
-  },
-  operator: {
-    required: true,
-  },
-  dataSources: {
-    required: true,
-  },
-  picture: {
-    required: true,
-  },
-  releaseDate: {
-    required: true,
-  },
-  content: {
-    required: true,
-  },
-});
+let props = defineProps<prop>();
+const emit = defineEmits(['dialogClose'])
 const state = reactive({
   currentPage: 0,
-  tableData: [],
   total: 0,
   pageSize: 10,
-  activeName: "content",
+  activeName: 0,
   editableTabsValue: "1",
   dialogVisible: false,
   articletype: 1,
-  businessMessage: {
-    actualCapital: "600616万人民币",
-    actualCapitalCurrency: "人民币",
-  },
-  optionsList: [
-    {
-      id: 0,
-      title: "工商信息",
-    },
-    {
-      id: 1,
-      title: "变更信息",
-    },
-    {
-      id: 2,
-      title: "任职信息",
-    },
-    {
-      id: 3,
-      title: "股东信息",
-    },
-    {
-      id: 4,
-      title: "年报信息",
-    },
-  ],
+  businessConfig,
+  optionsList: props.optionsList
 });
-const ruleFormRef = ref();
-const title = ref("新增");
-let ruleForm = reactive({});
-console.log("ruleForm", ruleForm);
+
 const articleHandleClick = (tab, event) => {
-  state.articletype = tab.props.name;
-  getArticleSelectAll();
+  state.activeName = tab.props.title;
+  document.querySelector(`#${tab.props.label}`).scrollIntoView({
+      behavior: "smooth",
+      block: 'start'
+  });           
 };
 
-// 编辑
-const edit = (row) => {
-  title.value = "编辑";
-  post(`${articleSelectById}?id=${row.id}`, {})
-    .then(function (data) {
-      state.dialogVisible = true;
-      Object.assign(ruleForm, data);
-    })
-    .catch((e) => {
-      console.log("e", e);
-    });
+// 关闭弹窗
+const close = (): void => {
+  emit('dialogClose');
 };
 
-//  文章内容列表
-const getArticleSelectAll = (config?: selectAllConfig) => {
-  post(`${articleSelectAll}`, {
-    pageNum: state.currentPage,
-    pageSize: state.pageSize,
-    articletype: state.articletype,
-    ...config,
-  }).then(function (data) {
-    state.tableData = data.list;
-    state.total = data.total;
+// Mounted 生命周期 querySelectorAll 才生效
+onMounted(() => {
+  var Observer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+          // 进入可视区域 
+          if (entry.isIntersecting) {
+              state.activeName = entry.target.innerHTML;
+          }
+      });
   });
-};
-getArticleSelectAll();
+  // 观察标题元素
+  document.querySelectorAll('h3').forEach(function (ele) {
+      Observer.observe(ele);
+});
 
-// 回收站·
-const getArticleRecycle = (config?: selectAllConfig) => {
-  post(`${articleRecycle}`, {
-    pageNum: state.currentPage,
-    pageSize: state.pageSize,
-    ...config,
-  }).then(function (data) {
-    state.tableData = data.list;
-    state.total = data.total;
-  });
-};
-
-// 切换tab
-const handleClick = (tab, event) => {
-  if (tab.props.name === "resume") {
-    getArticleRecycle();
-  } else {
-    getArticleSelectAll();
-  }
-};
-
-// 切换每页显示数
-const handleSizeChange = (val: number) => {
-  console.log(`${val} items per page`);
-  state.pageSize = val;
-  getArticleSelectAll();
-};
-
-// 换页数
-const handleCurrentChange = (val: number) => {
-  console.log(`current page: ${val}`);
-  state.currentPage = val;
-  getArticleSelectAll();
-};
-const loading = ref(false);
+});
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .edit-input {
   padding-right: 100px;
 }
@@ -229,11 +133,19 @@ const loading = ref(false);
   right: 15px;
   top: 10px;
 }
-.inline-edit-table {
-  width: 100%;
+.business-essay-inline-edit-table {
+  width: 95%;
+  h3 {
+    height: 26px;
+    border-left: 4px solid #3085d5;
+    padding-left: 10px;
+    color: #333;
+    line-height: 24px;
+    margin: 22px 0 22px 0;
+  }
 }
 </style>
-<style>
+<style lang="scss">
 .avatar-uploader .el-upload {
   border: 1px dashed var(--el-border-color);
   border-radius: 6px;

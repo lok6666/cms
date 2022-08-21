@@ -64,8 +64,8 @@ export const constantRoutes: Array<RouteRecordRaw & extendRoute> = [
       },
       {
         path: 'simple',
-        // component: () => import('@/views/business/estimate.vue'),
-        component: () => import('@/views/business/essay.vue'),
+        component: () => import('@/views/business/estimate.vue'),
+        // component: () => import('@/views/business/essay.vue'),
         name: 'charts-simple',
         meta: { title: '企业评估', roles: ['other'] }
       },

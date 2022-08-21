@@ -1,4 +1,4 @@
-const host:string = 'http://172.16.12.8:28182';
+const host:string = 'http://172.16.4.62:28182';
 // const host:string = 'http://172.16.110.101:28191';
 // 登录接口
 export const login = `${host}/auth/login`

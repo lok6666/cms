@@ -28,3 +28,19 @@ export const constantRouterComponents = {
     'businessCheck': () => Layout, // 企业监测
     'choose': () => Layout, // 优化筛选
   };
+
+  export const businessConfig = {
+    creditNo: '统一社会信用代码',
+    regNo: '工商注册号',
+    orgNo: '组织机构代码',
+    entType: '企业类型',
+    legalRepName: '法定代表人',
+    authDate: '成立日期',
+    regCapital: '注册资本',
+    regStatus: '登记状态',
+    opTermFrom: '营业期限起始日期',
+    opTermTo: '营业期限截止日期',
+    regAuthority: '登记机关',
+    regAddress: '注册地址',
+    busScope: '经营范围'
+  };
