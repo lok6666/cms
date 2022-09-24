@@ -1,19 +1,20 @@
 <template>
   <u-container-layout>
+    服务商
     <div style="display: flex; justify-content: flex-end">
       <el-button type="primary" @click="add">
         <el-icon><plus /></el-icon>添加
       </el-button>
     </div>
     <el-form :inline="true" :model="state" class="demo-form-inline">
-      <el-form-item label="项目名称">
-        <el-input v-model="state.name" placeholder="请输入项目名称" />
+      <el-form-item label="资金名称">
+        <el-input v-model="state.name" placeholder="请输入资金名称" />
       </el-form-item>
       <el-form-item label="企业名称">
           <el-input v-model="state.username" placeholder="请输入企业名称" />
       </el-form-item>
       <el-form-item>
-       <el-button type="primary" @click="gettrainingServicesAll">查询</el-button>
+       <el-button type="primary" @click="getsuppliersAll">查询</el-button>
       </el-form-item>
     </el-form>
     
@@ -32,30 +33,18 @@
         >
         <template #default="scope" v-if="item.showImg">
           <img
-            :src="scope.row.serviceImages"
-            style="width: 50px; height: 50px"
-          />
+              :src="scope.row.serviceImages"
+              style="width: 50px; height: 50px"
+            />
         </template>
-        <template #default="scope" v-if="item.showSwitch">
-          <p>{{state.tableData[scope.$index].serviceStatus}}-----{{scope.$index}}</p>
-          <el-switch
-          @click="changeStatus(scope.row, state.tableData[scope.$index].serviceStatus)"
-            v-model="state.tableData[scope.$index].serviceStatus"
-            :active-value="activeValue"
-            :inactive-value="inactiveValue"
-          />
-        </template>
-          
         </el-table-column>
         <el-table-column prop="operator" label="操作" width="200" fixed="right">
           <template #default="scope">
-            <el-button
-              type="primary"
-              size="small"           
-              @click="edit(scope.row)"
-            >
-              编辑
-            </el-button>
+            <el-button type="primary" size="small"  @click="edit(scope.row)">编辑</el-button>
+            <el-button type="success" size="small"  @click="edit(scope.row)">审批</el-button>
+            <el-button type="info" size="small"  @click="deleteAction(scope.row)">删除</el-button>
+            <el-button type="warning" size="small"  @click="upItem(scope.row)">上架</el-button>
+            <el-button type="danger" size="small"  @click="downItem(scope.row)">下架</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -95,79 +84,116 @@
 </template>
 <script lang="ts">
 import { computed, ref, reactive, onMounted, toRefs } from "vue";
-import { trainingServicesAll, trainingServicesInsert, trainingServicesDeleteOne, trainingServicesUpdateOne } from "@/config/api";
+import { suppliersAll, suppliersInsert, suppliersUpdateOne, suppliersDeleteOne } from "@/config/api";
 import formConpoent from "@/components/form/form.vue";
 import { ElMessage, ElMessageBox, FormRules, UploadProps } from "element-plus";
-import { get, post } from "@/utils/request";
+import { get, deleteItem, post } from "@/utils/request";
 import { tr } from "element-plus/es/locale";
 export default {
   name: "sensitive-manage",
   data() {
     return {
       tableHeaderConfig: [
-      {
-        prop: "serviceName",
-        label: "课程名称"
-      }, {
-        prop: "serviceImages",
-        label: "课程缩略图",
-        showImg: true
-      },{
-        prop: "bigType",
-        label: "课程大类"
-      }, {
-        prop: "smallType",
-        label: "课程小类"
-      },{
-        prop: "serviceContent",
-        label: "课程简介"
-      },{
-        prop: "publicDate",
-        label: "发布日期"
-      },{
-        prop: "serviceStatus",
-        label: "课程状态",
-        showSwitch: true
-      },
-      {
-        prop: "serviceUrl",
-        label: "课程链接"
-      }
-      ],
-    };
+        {
+          prop: "supplierName",
+          label: "供应商名称",
+        },
+        
+        {
+          prop: "supplierType",
+          label: "供应商类别",
+        },
+        {
+          prop: "supplierPerson",
+          label: "供应商联系人",
+        },
+        {
+          prop: "supplierContact",
+          label: "联系方式",
+        },
+        {
+          prop: "supplierLogo",
+          label: "供应商logo",
+          showImg: true
+        },
+        {
+          prop: "supplierAddress",
+          label: "供应商地址"
+        }
+      ]
+    }
   },
 };
 </script>
 <script lang="ts" setup >
-let currentRoleId = ref<string>("");
-const activeValue = 1;
-const inactiveValue = 0;
-const formConfig = [{
-    prop: "serviceName",
-    label: "课程名称",
-    required: true,
-    showInput: true
-  }, {
-    prop: "serviceImages",
-    label: "课程缩略图",
-    required: true,
-    upload: true
-  },{
-    prop: "bigType",
-    label: "课程大类",
-    required: true,
-    showInput: true
-  }, {
-    prop: "smallType",
-    label: "课程小类",
+const formConfig = [
+  {
+    prop: "supplierName",
+    label: "供应商名称",
     required: true,
     showInput: true
   },
   {
-    prop: "serviceUrl",
-    label: "课程链接",
+    prop: "supplierType",
+    label: "供应商类别",
+    options: [
+      {
+        label: '不限',
+        value: '0'
+      },
+      {
+        label: '文化/互联网科技资讯',
+        value: '1'
+      },
+      {
+        label: '法律服务',
+        value: '2'
+      },
+      {
+        label: '政策资质',
+        value: '3'
+      },
+      {
+        label: '知识产权',
+        value: '4'
+      },
+      {
+        label: '工商财税',
+        value: '5'
+      }
+    ],
+    required: true,
+    showSelect: true
+  },
+  {
+    prop: "supplierPerson",
+    label: "供应商联系人",
     required: true,
     showInput: true
+  },
+  {
+    prop: "supplierContact",
+    label: "联系方式",
+    required: true,
+    showInput: true
+  },
+  {
+    prop: "supplierAddress",
+    label: "供应商地址",
+    required: true,
+    showInput: true
+  },
+  {
+    prop: "supplierLogo",
+    label: "供应商logo",
+    required: true,
+    upload: true
+  },
+  {
+    prop: "supplierContent",
+    label: "供应商简介",
+    required: true,
+    showWangEditor: true
   }
 ];
 const state = reactive({
@@ -179,45 +205,44 @@ const state = reactive({
   username: '',
   culName: "",
   formConfig: formConfig,
-  tableData: [
-  ],
+  tableData: [],
   optionsList: [],
   levelOptions: [],
 });
 const title = ref("新增");
-
-
+let currentRoleId = ref<string>("");
 /**
  * 添加
  */
-const add = (row) => {
+ const add = (row) => {
   title.value = "新增";
-  currentRoleId.value = row.id;
+  currentRoleId.value = row.supplierId;
   state.dialogVisible = true;
 };
+
 
 /**
  * 提交表单数据
  */
-const postFormData = (formData) => {
+ const postFormData = (formData) => {
   if (title.value === "新增") {
-    post(`${trainingServicesInsert}`, {
+    post(`${suppliersInsert}`, {
       ...formData
     })
       .then(function (data) {
-        gettrainingServicesAll();
+        getsuppliersAll();
       })
       .catch((e) => {
         console.log("e", e);
       });
     ElMessage.success("添加成功");
   } else {
-    post(`${trainingServicesUpdateOne}`, {
-      id: currentRoleId.value,
+    post(`${suppliersUpdateOne}`, {
+      supplierId: currentRoleId.value,
       ...formData,
     })
       .then(function (data) {
-        gettrainingServicesAll();
+        getsuppliersAll();
       })
       .catch((e) => {
         console.log("e", e);
@@ -226,35 +251,19 @@ const postFormData = (formData) => {
   state.dialogVisible = false;
   console.log("submit!", formData);
 };
-
 // todo 改写法
 const closeDialog = async (done: () => void) => {
   state.dialogVisible = false;
   state.formConfig = formConfig;
 };
 
-// todo 课程状态
-// 上架或者下架
-const changeStatus = (row, status) => {
-  debugger;
-   post(`${trainingServicesUpdateOne}`, {
-       id: row.id,
-       serviceStatus: status
-     })
-   .then(function (data) {
-     gettrainingServicesAll();
-   })
-   .catch((e) => {
-     console.log("e", e);
-   });
-};
 /**
  * 编辑表单
  */
 const edit = (row) => {
   title.value = "编辑";
   state.dialogVisible = true;
-  currentRoleId.value = row.id;
+  currentRoleId.value = row.supplierId;
   state.formConfig = state.formConfig
   .map((e, b) => {
     let result = { ...e };
@@ -264,10 +273,70 @@ const edit = (row) => {
 };
 
 /**
+ * 删除
+ */
+const deleteAction = (row) => {
+  debugger;
+ElMessageBox.confirm("你确定要删除当前项吗?", "温馨提示", {
+    confirmButtonText: "确定",
+    cancelButtonText: "取消",
+    type: "warning",
+    draggable: true,
+  })
+    .then(() => {
+      deleteItem(`${suppliersDeleteOne}`, {
+        data: [row.supplierId],
+      }).then(function (data) {
+        getsuppliersAll();
+      });
+      ElMessage.success("删除成功");
+    })
+    .catch(() => {});
+};
+
+/**
+ * 上架
+ */
+const upItem = (row) => {
+ElMessageBox.confirm("你确定要上架当前项吗?", "温馨提示", {
+    confirmButtonText: "确定",
+    cancelButtonText: "取消",
+    type: "warning",
+    draggable: true,
+  })
+    .then(() => {
+      post(`${suppliersDeleteOne}`, {id: row.id, sersxj: 0}).then(function (data) {
+        getsuppliersAll();
+      });
+      ElMessage.success("删除成功");
+    })
+    .catch(() => {});
+};
+
+/**
+ * 下架
+ */
+const downItem = (row) => {
+ElMessageBox.confirm("你确定要上架当前项吗?", "温馨提示", {
+    confirmButtonText: "确定",
+    cancelButtonText: "取消",
+    type: "warning",
+    draggable: true,
+  })
+    .then(() => {
+      post(`${suppliersDeleteOne}`, {id: row.id, sersxj: 1}).then(function (data) {
+        getsuppliersAll();
+      });
+      ElMessage.success("删除成功");
+    })
+    .catch(() => {});
+};
+
+/**
  *  获取表格数据
  */
-const gettrainingServicesAll = () => {
-  post(`${trainingServicesAll}`, {
+const getsuppliersAll = () => {
+  post(`${suppliersAll}`, {
     pageNum: state.currentPage,
     pageSize: state.pageSize
   }).then(function (data) {
@@ -275,7 +344,7 @@ const gettrainingServicesAll = () => {
     state.total = data.total;
   });
 };
-gettrainingServicesAll();
+getsuppliersAll();
 
 /**
  * 选择文化领域
@@ -283,7 +352,7 @@ gettrainingServicesAll();
 const chooseCulture = (val) => {
   console.log("val", val);
   state.culName = val;
-  // gettrainingServicesAll();
+  // getsuppliersAll();
 };
 
 /**
@@ -292,7 +361,7 @@ const chooseCulture = (val) => {
 const handleSizeChange = (val: number) => {
   console.log(`${val} items per page`);
   state.pageSize = val;
-  gettrainingServicesAll();
+  getsuppliersAll();
 };
 
 /**
@@ -301,7 +370,7 @@ const handleSizeChange = (val: number) => {
 const handleCurrentChange = (val: number) => {
   console.log(`current page: ${val}`);
   state.currentPage = val;
-  gettrainingServicesAll();
+  getsuppliersAll();
 };
 const loading = ref(false);
 

@@ -67,7 +67,6 @@
           </template>
         </el-table-column>
       </el-table>
-      111
        <el-dialog v-model="dialogVisible" :title="title" width="50%" @closed="closeDialog()">
         <el-form
           ref="ruleFormRef"
@@ -85,6 +84,9 @@
           </el-form-item>
           <el-form-item label="资源编码" prop="resourceId">
             <el-input v-model="ruleForm.resourceId" />
+          </el-form-item>
+          <el-form-item label="资源链接" prop="href">
+            <el-input v-model="ruleForm.href" />
           </el-form-item>
           <el-form-item label="资源图标" prop="icon">
             <el-input v-model="ruleForm.icon　" />
@@ -123,6 +125,7 @@ const baseData = {
   password: "",
   role: "",
   phone: "",
+  href: "",
   picture: "" || 'https://www.baidu.com/img/flexible/logo/pc/result.png',
   type: "",
   id: "",
@@ -209,6 +212,7 @@ const closeDialog = async (done: () => void) => {
   ruleForm.value.resourceId = '';
   ruleForm.value.icon = '';
   ruleForm.value.target = '';
+  ruleForm.value.href = '';
 };
 const edit = (row) => {
   title.value = "编辑";
@@ -219,6 +223,7 @@ const edit = (row) => {
   ruleForm.value.resourceId = row.resourceId;
   ruleForm.value.icon = row.icon;
   ruleForm.value.target = row.target;
+  ruleForm.value.href = row.href;
 };
 </script>
 

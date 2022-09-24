@@ -1,5 +1,10 @@
 <template>
   <u-container-layout>
+    <div style="display: flex; justify-content: flex-end">
+      <el-button type="primary" @click="add">
+        <el-icon><plus /></el-icon>添加
+      </el-button>
+    </div>
     <el-form :inline="true" :model="state" class="demo-form-inline">
       <el-form-item label="资金名称">
         <el-input v-model="state.name" placeholder="请输入资金名称" />
@@ -8,7 +13,7 @@
           <el-input v-model="state.username" placeholder="请输入企业名称" />
       </el-form-item>
       <el-form-item>
-       <el-button type="primary" @click="getfundAll">查询</el-button>
+       <el-button type="primary" @click="getfinancialServicesAll">查询</el-button>
       </el-form-item>
     </el-form>
     
@@ -25,11 +30,13 @@
           :prop="item.prop"
           :label="item.label"
         >
+        <template #default="scope" v-if="item.showImg">
          <img
             v-if="item.showImg"
-            :src="item[item.prop]"
+            :src="scope.row.serviceImages"
             style="width: 50px; height: 50px"
           />
+        </template>
         </el-table-column>
         <el-table-column prop="operator" label="操作" width="200" fixed="right">
           <template #default="scope">
@@ -41,6 +48,13 @@
             >
               编辑
             </el-button>
+              <el-button
+                type="danger"
+                size="small"
+                icon="Delete"
+                @click="deleteAction(scope.row, state.isResume)"
+                >删除</el-button
+              >
           </template>
         </el-table-column>
       </el-table>
@@ -51,8 +65,9 @@
         @closed="closeDialog()"
       >
         <formConpoent
+          :showBtn="true"
           v-model:formConfig="state.formConfig"
-          @handle="changeFormData"
+          @handle="postFormData"
           @dialogClose="closeDialog"
         ></formConpoent>
       </el-dialog>
@@ -79,10 +94,10 @@
 </template>
 <script lang="ts">
 import { computed, ref, reactive, onMounted, toRefs } from "vue";
-import { fundAll, fundUpdateOne } from "@/config/api";
+import { financialServicesAll, financialServicesUpdateOne, financialServicesDeleteOne, financialServicesInsert } from "@/config/api";
 import formConpoent from "@/components/form/form.vue";
 import { ElMessage, ElMessageBox, FormRules, UploadProps } from "element-plus";
-import { get, post } from "@/utils/request";
+import { get, deleteItem, post } from "@/utils/request";
 import { tr } from "element-plus/es/locale";
 export default {
   name: "sensitive-manage",
@@ -90,33 +105,33 @@ export default {
     return {
       tableHeaderConfig: [
         {
-          prop: "id",
-          label: "序号",
+          prop: "serviceName",
+          label: "服务名称",
         },
         {
-          prop: "name",
-          label: "产品名称",
+          prop: "serviceQuota",
+          label: "额度范围",
         },
         {
-          prop: "picture",
-          label: "缩略图",
+          prop: "serviceImages",
+          label: "机构logo",
           showImg: true
         },
         {
-          prop: "username",
-          label: "企业名称",
+          prop: "serviceTerm",
+          label: "期限",
         },
         {
-          prop: "",
-          label: "审核状态",
+          prop: "serviceRange",
+          label: "利率范围",
         },
         {
-          prop: "",
-          label: "状态",
+          prop: "serviceType",
+          label: "担保方式"
         },
         {
-          prop: "createdate",
-          label: "创建日期",
+          prop: "supplierId",
+          label: "服务商ID"
         }
       ],
     };
@@ -124,27 +139,69 @@ export default {
 };
 </script>
 <script lang="ts" setup >
+let currentRoleId = ref<string>("");
 const formConfig = [
   {
-    prop: "name",
-    label: "产品名称",
-    showInput: true
-  }, {
-    prop: "definition",
-    label: "定义",
-    showInput: true
-  }, {
-    prop: "investmentindustry",
-    label: "特征",
-    showInput: true
-  }, {
-    prop: "entryconditions",
-    label: "准入条件",
-    showInput: true
-  }, {
-    prop: "describe",
-    label: "描述",
-    showInput: true
+    prop: "serviceName",
+    label: "服务名称",
+    showInput: true,
+    required: true
+  },
+  {
+    prop: "serviceContent",
+    label: "服务详情",
+    showWangEditor: true,
+    required: true
+  },
+  {
+    prop: "serviceImages",
+    label: "机构logo",
+    upload: true,
+    required: true
+  },
+  {
+    prop: "serviceQuota",
+    label: "额度范围",
+    showInput: true,
+    required: true
+  },
+  {
+    prop: "serviceTerm",
+    label: "期限",
+    showInput: true,
+    required: true
+  },
+  {
+    prop: "serviceRange",
+    label: "利率范围",
+    showInput: true,
+    required: true,
+  },
+  {
+    prop: "serviceType",
+    label: "担保方式",
+    showInput: true,
+    required: true,
+  },
+  {
+    prop: "supplierId",
+    label: "服务商ID",
+    options: [
+      {
+        label: '报名中',
+        value: '1'
+      },
+      {
+        label: '报名结束，进行中',
+        value: '2'
+      },
+      {
+        label: '已结束',
+        value: '3'
+      }
+    ],
+    required: true,
+    showSelect: true
   }
 ];
 const state = reactive({
@@ -195,27 +252,12 @@ const title = ref("新增");
 /**
  * 添加
  */
-const add = () => {
+const add = (row) => {
   title.value = "新增";
+  currentRoleId.value = row.id;
   state.dialogVisible = true;
 };
 
-/**
- * 提交表单数据
- */
-const postFormData = (formData) => {
-  post(`${fundUpdateOne}`, {
-    ...formData
-  })
-    .then(function (data) {
-      console.log("data----", data);
-    })
-    .catch((e) => {
-      console.log("e", e);
-    });
-  state.dialogVisible = false;
-  console.log("submit!", formData);
-};
 
 // todo 改写法
 const closeDialog = async (done: () => void) => {
@@ -229,6 +271,7 @@ const closeDialog = async (done: () => void) => {
 const edit = (row) => {
   title.value = "编辑";
   state.dialogVisible = true;
+  currentRoleId.value = row.id;
   state.formConfig = state.formConfig
   .map((e, b) => {
     let result = { ...e };
@@ -236,22 +279,41 @@ const edit = (row) => {
     return result;
   });
 };
+// todo 服务炸状态
+
+// 删除
+const deleteAction = (row, isResume) => {
+  ElMessageBox.confirm("你确定要删除当前项吗?", "温馨提示", {
+    confirmButtonText: "确定",
+    cancelButtonText: "取消",
+    type: "warning",
+    draggable: true,
+  })
+    .then(() => {
+      deleteItem(`${financialServicesDeleteOne}`, {
+        data: [row.id],
+      }).then(function (data) {
+        getfinancialServicesAll();
+      });
+      ElMessage.success("删除成功");
+    })
+    .catch(() => {});
+};
 
 /**
  *  获取表格数据
  */
-const getfundAll = () => {
-  post(`${fundAll}`, {
+const getfinancialServicesAll = () => {
+  post(`${financialServicesAll}`, {
     pageNum: state.currentPage,
-    pageSize: state.pageSize,
-    name: state.name,
-    username: state.username
+    pageSize: state.pageSize
   }).then(function (data) {
+    console.log('aaaaa---', data);
     state.tableData = data.list;
     state.total = data.total;
   });
 };
-getfundAll();
+getfinancialServicesAll();
 
 /**
  * 选择文化领域
@@ -259,7 +321,7 @@ getfundAll();
 const chooseCulture = (val) => {
   console.log("val", val);
   state.culName = val;
-  // getfundAll();
+  // getfinancialServicesAll();
 };
 
 /**
@@ -268,7 +330,7 @@ const chooseCulture = (val) => {
 const handleSizeChange = (val: number) => {
   console.log(`${val} items per page`);
   state.pageSize = val;
-  getfundAll();
+  getfinancialServicesAll();
 };
 
 /**
@@ -277,16 +339,40 @@ const handleSizeChange = (val: number) => {
 const handleCurrentChange = (val: number) => {
   console.log(`current page: ${val}`);
   state.currentPage = val;
-  getfundAll();
+  getfinancialServicesAll();
 };
 const loading = ref(false);
+
 
 /**
  * 提交表单数据
  */
-const changeFormData = (formData) => {
+ const postFormData = (formData) => {
+  if (title.value === "新增") {
+    post(`${financialServicesInsert}`, {
+      ...formData
+    })
+      .then(function (data) {
+        getfinancialServicesAll();
+      })
+      .catch((e) => {
+        console.log("e", e);
+      });
+    ElMessage.success("添加成功");
+  } else {
+    post(`${financialServicesUpdateOne}`, {
+      id: currentRoleId.value,
+      ...formData,
+    })
+      .then(function (data) {
+        getfinancialServicesAll();
+      })
+      .catch((e) => {
+        console.log("e", e);
+      });
+  }
   state.dialogVisible = false;
-  console.log("changeFormData", formData);
+  console.log("submit!", formData);
 };
 </script>
 

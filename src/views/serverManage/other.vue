@@ -1,5 +1,10 @@
 <template>
   <u-container-layout>
+    <div style="display: flex; justify-content: flex-end">
+      <el-button type="primary" @click="add">
+        <el-icon><plus /></el-icon>添加
+      </el-button>
+    </div>
     <el-form :inline="true" :model="state" class="demo-form-inline">
       <el-form-item label="资金名称">
         <el-input v-model="state.name" placeholder="请输入资金名称" />
@@ -8,7 +13,7 @@
           <el-input v-model="state.username" placeholder="请输入企业名称" />
       </el-form-item>
       <el-form-item>
-       <el-button type="primary" @click="getotherAll">查询</el-button>
+       <el-button type="primary" @click="getentServicesAll">查询</el-button>
       </el-form-item>
     </el-form>
     
@@ -25,11 +30,6 @@
           :prop="item.prop"
           :label="item.label"
         >
-         <img
-            v-if="item.showImg"
-            :src="item[item.prop]"
-            style="width: 50px; height: 50px"
-          />
         </el-table-column>
         <el-table-column prop="operator" label="操作" width="200" fixed="right">
           <template #default="scope">
@@ -48,8 +48,9 @@
         @closed="closeDialog()"
       >
         <formConpoent
+          :showBtn="true"
           v-model:formConfig="state.formConfig"
-          @handle="changeFormData"
+          @handle="postFormData"
           @dialogClose="closeDialog"
         ></formConpoent>
       </el-dialog>
@@ -76,49 +77,44 @@
 </template>
 <script lang="ts">
 import { computed, ref, reactive, onMounted, toRefs } from "vue";
-import { otherAll, otherUpdateOne, otherDeleteOne } from "@/config/api";
+import { entServicesAll, entServicesInsert, entServicesUpdateOne, entServicesDeleteOne } from "@/config/api";
 import formConpoent from "@/components/form/form.vue";
 import { ElMessage, ElMessageBox, FormRules, UploadProps } from "element-plus";
-import { get, post } from "@/utils/request";
+import { get, deleteItem, post } from "@/utils/request";
 import { tr } from "element-plus/es/locale";
 export default {
   name: "sensitive-manage",
   data() {
     return {
       tableHeaderConfig: [
-        {
-          prop: "id",
-          label: "序号",
-        },
-        {
-          prop: "sername",
-          label: "服务名称",
-        },
-        {
-          prop: "picture",
-          label: "缩略图",
-          showImg: true
-        },
-        {
-          prop: "sertype",
-          label: "服务类别",
-        },
-        {
-          prop: "sercompany",
-          label: "会员单位",
-        },
-        {
-          prop: "",
-          label: "审核状态",
-        },
-        {
-          prop: "",
-          label: "状态",
-        },
-        {
-          prop: "storgetime",
-          label: "创建日期",
-        }
+      {
+        prop: "serviceName",
+        label: "服务名称",
+      },
+      {
+        prop: "serviceStatus",
+        label: "审批状态",
+      },
+      {
+        prop: "serviceType",
+        label: "服务类型",
+      },
+      {
+        prop: "supplierName",
+        label: "服务商名称",
+      },
+      {
+        prop: "supplierId",
+        label: "服务商id",
+      },
+      {
+        prop: "supplierContact",
+        label: "服务商联系方式",
+      },
+      {
+        prop: "supplierPerson",
+        label: "服务商联系人",
+      }
       ],
     };
   },
@@ -127,31 +123,72 @@ export default {
 <script lang="ts" setup >
 const formConfig = [
   {
-    prop: "sername",
+    prop: "serviceName",
     label: "服务名称",
+    required: true,
     showInput: true
-  }, {
-    prop: "sertype",
-    label: "服务类型",
-    showInput: true
-  }, {
-    prop: "sercompany",
-    label: "会员单位",
-    showInput: true
-  }, {
-    prop: "serperson",
-    label: "负责人",
-    showInput: true
-  }, {
-    prop: "sercontact",
-    label: "联系方式",
-    showInput: true
-  }, {
-    // todo 封装审批
-    // todo 富文本编辑
-    prop: "sersynopsis",
+  },
+  {
+    prop: "serviceSynopsis",
     label: "服务简介",
+    required: true,
     showWangEditor: true
+  },
+  {
+    prop: "serviceType",
+    label: "服务类型",
+    options: [
+      {
+        label: '不限',
+        value: '0'
+      },
+      {
+        label: '文化/互联网科技资讯',
+        value: '1'
+      },
+      {
+        label: '法律服务',
+        value: '2'
+      },
+      {
+        label: '政策资质',
+        value: '3'
+      },
+      {
+        label: '知识产权',
+        value: '4'
+      },
+      {
+        label: '工商财税',
+        value: '5'
+      }
+    ],
+    required: true,
+    showSelect: true
+  },
+  {
+    prop: "supplierName",
+    label: "服务商名称",
+    required: true,
+    showInput: true
+  },
+  {
+    prop: "supplierId",
+    label: "服务商id",
+    required: true,
+    showInput: true
+  },
+  {
+    prop: "supplierContact",
+    label: "服务商联系方式",
+    required: true,
+    showInput: true
+  },
+  {
+    prop: "supplierPerson",
+    label: "服务商联系人",
+    required: true,
+    showInput: true
   }
 ];
 const state = reactive({
@@ -189,24 +226,47 @@ const state = reactive({
   levelOptions: [],
 });
 const title = ref("新增");
+let currentRoleId = ref<string>("");
+/**
+ * 添加
+ */
+ const add = (row) => {
+  title.value = "新增";
+  currentRoleId.value = row.id;
+  state.dialogVisible = true;
+};
+
 
 /**
  * 提交表单数据
  */
-const postFormData = (formData) => {
-  post(`${otherUpdateOne}`, {
-    ...formData
-  })
-    .then(function (data) {
-      console.log("data----", data);
+ const postFormData = (formData) => {
+  if (title.value === "新增") {
+    post(`${entServicesInsert}`, {
+      ...formData
     })
-    .catch((e) => {
-      console.log("e", e);
-    });
+      .then(function (data) {
+        getentServicesAll();
+      })
+      .catch((e) => {
+        console.log("e", e);
+      });
+    ElMessage.success("添加成功");
+  } else {
+    post(`${entServicesUpdateOne}`, {
+      id: currentRoleId.value,
+      ...formData,
+    })
+      .then(function (data) {
+        getentServicesAll();
+      })
+      .catch((e) => {
+        console.log("e", e);
+      });
+  }
   state.dialogVisible = false;
   console.log("submit!", formData);
 };
-
 // todo 改写法
 const closeDialog = async (done: () => void) => {
   state.dialogVisible = false;
@@ -219,6 +279,7 @@ const closeDialog = async (done: () => void) => {
 const edit = (row) => {
   title.value = "编辑";
   state.dialogVisible = true;
+  currentRoleId.value = row.id;
   state.formConfig = state.formConfig
   .map((e, b) => {
     let result = { ...e };
@@ -238,8 +299,8 @@ ElMessageBox.confirm("你确定要删除当前项吗?", "温馨提示", {
     draggable: true,
   })
     .then(() => {
-      post(`${otherDeleteOne}`, [row.id]).then(function (data) {
-        getotherAll();
+      deleteItem(`${entServicesDeleteOne}`, [row.id]).then(function (data) {
+        getentServicesAll();
       });
       ElMessage.success("删除成功");
     })
@@ -257,8 +318,8 @@ ElMessageBox.confirm("你确定要上架当前项吗?", "温馨提示", {
     draggable: true,
   })
     .then(() => {
-      post(`${otherDeleteOne}`, {id: row.id, sersxj: 0}).then(function (data) {
-        getotherAll();
+      post(`${entServicesDeleteOne}`, {id: row.id, sersxj: 0}).then(function (data) {
+        getentServicesAll();
       });
       ElMessage.success("删除成功");
     })
@@ -276,8 +337,8 @@ ElMessageBox.confirm("你确定要上架当前项吗?", "温馨提示", {
     draggable: true,
   })
     .then(() => {
-      post(`${otherDeleteOne}`, {id: row.id, sersxj: 1}).then(function (data) {
-        getotherAll();
+      post(`${entServicesDeleteOne}`, {id: row.id, sersxj: 1}).then(function (data) {
+        getentServicesAll();
       });
       ElMessage.success("删除成功");
     })
@@ -287,18 +348,16 @@ ElMessageBox.confirm("你确定要上架当前项吗?", "温馨提示", {
 /**
  *  获取表格数据
  */
-const getotherAll = () => {
-  post(`${otherAll}`, {
+const getentServicesAll = () => {
+  post(`${entServicesAll}`, {
     pageNum: state.currentPage,
-    pageSize: state.pageSize,
-    name: state.name,
-    username: state.username
+    pageSize: state.pageSize
   }).then(function (data) {
     state.tableData = data.list;
     state.total = data.total;
   });
 };
-getotherAll();
+getentServicesAll();
 
 /**
  * 选择文化领域
@@ -306,7 +365,7 @@ getotherAll();
 const chooseCulture = (val) => {
   console.log("val", val);
   state.culName = val;
-  // getotherAll();
+  // getentServicesAll();
 };
 
 /**
@@ -315,7 +374,7 @@ const chooseCulture = (val) => {
 const handleSizeChange = (val: number) => {
   console.log(`${val} items per page`);
   state.pageSize = val;
-  getotherAll();
+  getentServicesAll();
 };
 
 /**
@@ -324,17 +383,10 @@ const handleSizeChange = (val: number) => {
 const handleCurrentChange = (val: number) => {
   console.log(`current page: ${val}`);
   state.currentPage = val;
-  getotherAll();
+  getentServicesAll();
 };
 const loading = ref(false);
 
-/**
- * 提交表单数据
- */
-const changeFormData = (formData) => {
-  state.dialogVisible = false;
-  console.log("changeFormData", formData);
-};
 </script>
 
 <style scoped>

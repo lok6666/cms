@@ -10,9 +10,10 @@ export const constantRouterComponents = {
     'datasafeguard': () => import('@/views/recommendManage/data-safeguard.vue'), // 推荐管理-行业数据维护
     'swiper': () => import('@/views/recommendManage/data-safeguard.vue'), // 推荐管理-轮播图管理
     'videospecialcolumn': () => import('@/views/recommendManage/video-special-column.vue'), // 视频专栏
-    'servermanage': () => import('@/views/serverManage/project.vue'), // 服务管理-项目库
-    'fund': () => import('@/views/serverManage/fund.vue'), // 服务管理-资金产品库
-    'other': () => import('@/views/serverManage/other.vue'), // 服务管理-其他服务库
+    'servermanage': () => import('@/views/serverManage/project.vue'), // 服务管理-行业课程
+    'fund': () => import('@/views/serverManage/fund.vue'), // 服务管理-金融服务
+    // 'other': () => import('@/views/serverManage/other.vue'), // 服务管理-企业服务
+    'supplier': () => import('@/views/serverManage/other1.vue'), // 服务管理-供应商服务
     'invert': () => import('@/views/joinProcess/invert.vue'), // 对接进度服务-投融资对接管理
     'joinservice': () => import('@/views/joinProcess/join-service.vue'), // 对接进度服务-服务对接管理
     'business': () => import('@/views/joinProcess/business.vue'), // 对接进度服务-招商管理
@@ -30,17 +31,30 @@ export const constantRouterComponents = {
   };
 
   export const businessConfig = {
-    creditNo: '统一社会信用代码',
-    regNo: '工商注册号',
-    orgNo: '组织机构代码',
-    entType: '企业类型',
-    legalRepName: '法定代表人',
-    authDate: '成立日期',
-    regCapital: '注册资本',
-    regStatus: '登记状态',
-    opTermFrom: '营业期限起始日期',
-    opTermTo: '营业期限截止日期',
-    regAuthority: '登记机关',
-    regAddress: '注册地址',
-    busScope: '经营范围'
+    entime: '企业名称',
+    creditNo: "统一社会信用代码",
+    regNo: "工商注册号",
+    esDate: "成立日期",
+    apprDate: "核准日期",
+    entStatus: "登记状态",
+    nameKeyNo: "法人key",
+    name: "法人代表人",
+    nameIcon: "法人头像",
+    regCap: "注册资本",
+    recCap: "实缴资本",
+    entType: "企业类型",
+    regOrg: "登记机关",
+    opFrom: "营业期限自",
+    opTo: "营业期限至",
+    dom: "注册地址",
+    canDate: "注销日期",
+    revDate: "注销日期",
+    tax_vert: "纳税人资质",
+    nic_name: "所属行业",
+    region_name: "所属地区",
+    history_name: "曾用名",
+    phone: "电话",
+    email: "邮箱",
+    website: "官网",
+    opScope: "经营范围",
   };

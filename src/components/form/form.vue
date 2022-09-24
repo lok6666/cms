@@ -63,12 +63,11 @@
           action="#"
           :show-file-list="false"
           v-if="item.upload"
-          @click="getIndex(i, item)"
           :before-upload="beforeAvatarUpload"
         >
           <img
-            v-if="item.picture"
-            :src="item.picture"
+            v-if="item[item.prop]"
+            :src="item[item.prop]"
             style="width: 178px; height: 178px"
             class="avatar"
           />
@@ -79,7 +78,7 @@
             style="width: 178px; height: 178px"
             class="avatar"
           ></video>
-          <el-icon v-else class="avatar-uploader-icon"><Plus /></el-icon>
+          <el-icon v-else class="avatar-uploader-icon" @click="getIndex(i, item)"><Plus /></el-icon>
         </el-upload>
         <!--富文本编辑-->
         <editor
@@ -105,48 +104,6 @@ import editor from "@/components/editor/index.vue";
 import { upLoad } from "@/config/api";
 import { de } from "element-plus/es/locale";
 import { debugWarn } from "element-plus/es/utils";
-
-/* const mqtt = require("mqtt");
-const clientId = 'mqttjs_' + Math.random().toString(16).substr(2, 8)
-const host = 'ws://172.16.130.92:15675/ws'
-const topic = 'push_message_topic'
-const options = {
-keepalive: 60,
-  clientId: clientId,
-  protocolId: 'MQTT',
-  protocolVersion: 4,
-  username: 'admin',
-  password: 'Ip0s0cKw2p1ua0wugyUkmHkTIlQ6tjsQ',
-   clean: true,
-  reconnectPeriod: 1000,
-  connectTimeout: 30 * 1000,
-  will: {
-    topic: topic,
-    payload: 'Connection Closed abnormally..!',
-    qos: 0,
-    retain: false
-  },
-};
-const client = mqtt.connect(host, options);
-client.on("connect", function (e) {
-  console.log('e----------', e);
-  client.subscribe("push_message_topic", function (err) {
-    if (!err) {
-      console.log('presence');
-      client.publish("push_message_topic", "Hello mqtt");
-    }
-  });
-});
-client.on("message", function (topic, message) {
-  // message is Buffer
-  console.log('topic', topic, message.toString());
-  client.end();
-});
-client.on("packetsend", function (topic, message) {
-  // message is Buffer
- console.log('topic', topic, message);
-  // client.end();
-}); */
 interface prop{
    formConfig: {
     type: Array<Object>
@@ -223,13 +180,12 @@ const resetForm = (formEl: FormInstance | undefined) => {
  */
 const changeContent = (HTML: String) => {
   // todo 记得封装一下
-  state.formConfig[itemIndex.value].sersynopsis = HTML;
+  state.formConfig[itemIndex.value][state.formConfig[itemIndex.value].prop] = HTML;
 };
 
 // 获取索引
 const getIndex = (i: Number, item) => {
   itemIndex.value = i;
-  uploadType.value = item.uploadType;
 };
 
 /**
@@ -264,8 +220,7 @@ const beforeAvatarUpload: UploadProps["beforeUpload"] = (rawFile) => {
   axios.defaults.headers.common["Access-Control-Allow-Origin"] = "*";
   axios(config)
     .then(function (res) {
-      debugger;
-      state.formConfig[itemIndex.value][uploadType.value === 'image' ? 'picture': 'video'] = 'http://' + res;
+      state.formConfig[itemIndex.value][state.formConfig[itemIndex.value].prop] = res;
     })
     .catch(function (error) {
       console.log(error);

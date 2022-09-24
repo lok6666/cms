@@ -32,7 +32,7 @@
               type="danger"
               size="small"
               icon="Delete"
-              @click="deleteAction(scope.row, state.isResume)"
+              @click="deleteAction(scope.row)"
               >删除</el-button
             >
           </template>
@@ -235,8 +235,7 @@ const state = reactive({
   tableData: [],
   total: 0,
   sensitiveword: "",
-  dialogVisible: false,
-  isResume: false,
+  dialogVisible: false
 });
 const title = ref("新增");
 let currentRoleId = ref("");
@@ -330,7 +329,7 @@ const formInline = reactive({
   username: "",
 });
 // 删除
-const deleteAction = (row, isResume) => {
+const deleteAction = (row) => {
   ElMessageBox.confirm("你确定要删除当前项吗?", "温馨提示", {
     confirmButtonText: "确定",
     cancelButtonText: "取消",

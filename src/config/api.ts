@@ -1,4 +1,4 @@
-const host:string = 'http://172.16.4.62:28182';
+const host:string = 'http://172.16.12.8:28182';
 // const host:string = 'http://172.16.110.101:28191';
 // 登录接口
 export const login = `${host}/auth/login`
@@ -51,9 +51,30 @@ export const videoAddOne = `http://172.16.110.101:81/assoication_sjs/trzSensitiv
 export const videoUpdateOne = `http://172.16.110.101:81/assoication_sjs/trzSensitive/updateOne`//  轮播图更新
 export const videoDelete = `${host}/article/deleteAll` // 轮播图删除
 
-/*服务库管理-项目库*/
-export const proJectAll = `IndustryData/list` //  项目库数据
-export const proJectUpdateOne = `http://172.16.110.101:81/assoication_sjs/trzDictionaries/updateOneType` // 行业数据更新
+/*服务库管理-行业课程管理*/
+export const trainingServicesAll = `${host}/trainingServices/list` //  行业数据数据
+export const trainingServicesUpdateOne = `${host}/trainingServices/update` // 行业数据更新
+export const trainingServicesDeleteOne = `${host}/trainingServices/delete` // 行业数据删除
+export const trainingServicesInsert = `${host}/trainingServices/insert` // 行业新增
+
+/*服务库管理-金融服务管理*/
+export const financialServicesAll = `${host}/financialServices/list` //  金融数据
+export const financialServicesUpdateOne = `${host}/financialServices/update` // 金融更新
+export const financialServicesDeleteOne = `${host}/financialServices/delete` // 金融删除
+export const financialServicesInsert = `${host}/financialServices/insert` // 行业新增
+
+/*服务库管理-企业服务管理*/
+export const entServicesAll = `${host}/entServices/list` //  金融数据
+export const entServicesUpdateOne = `${host}/entServices/update` // 金融更新
+export const entServicesDeleteOne = `${host}/entServices/delete` // 金融删除
+export const entServicesInsert = `${host}/entServices/insert` // 行业新增
+
+
+/*服务库管理-供应商管理*/
+export const suppliersAll = `${host}/supplier/list` //  金融数据
+export const suppliersUpdateOne = `${host}/supplier/update` // 金融更新
+export const suppliersDeleteOne = `${host}/supplier/delete` // 金融删除
+export const suppliersInsert = `${host}/supplier/insert` // 行业新增
 
 /*服务库管理-资金产品库*/
 export const fundAll = `IndustryData/list` //  资金产品库数据

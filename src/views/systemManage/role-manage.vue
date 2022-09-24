@@ -67,7 +67,7 @@
               :props="props"
               show-checkbox
               node-key="id"
-              :check-strictly="false"
+              :check-strictly="true"
               @check-change="handleCheckChange"
               default-expand-all
               :default-checked-keys="defaultCheckedKeys"
