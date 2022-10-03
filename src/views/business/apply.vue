@@ -13,13 +13,16 @@
           :prop="item.prop"
           :label="item.label"
         >
+        <template #default="scope" v-if="item.prop === 'applyStatus'">
+            {{this.applyStatusObj[scope.row.applyStatus]}}
+          </template>
         </el-table-column>
         <el-table-column prop="operator" label="操作" width="200" fixed="right">
           <template #default="scope">
             <el-button type="primary" size="small" @click="detail(scope.row)">
               查看详情
             </el-button>
-            <el-button type="primary" size="small" @click="examine(scope.row)">
+            <el-button type="primary" size="small" @click="examine(scope.row)" :disabled="[scope.row.applyStatus !== 0]">
               审核
             </el-button>
           </template>
@@ -33,6 +36,7 @@
       >
         <formConpoent
           v-if="state.showForm"
+          :disabled="state.disabled"
           v-model:formConfig="state.formConfig"
           @handle="postFormData"
           @dialogClose="closeDialog"
@@ -40,6 +44,7 @@
         <examineFormConpoent
           v-if="state.showExamineForm"
           @handle="postFormData"
+          :status="state.formConfig.status"
           @dialogClose="closeDialog"
         ></examineFormConpoent>
       </el-dialog>
@@ -69,10 +74,10 @@ import { ref, reactive, provide } from "vue";
 import formConpoent from "@/components/form/form.vue";
 import examineFormConpoent from "@/components/form/examineForm.vue";
 import {
-  businessApplyAll,
-  businessApplyAddOne,
-  businessApplyUpdateOne,
-  businessApplyDelete,
+  entApplyAll,
+  entApplAddOne,
+  entApplyUpdateOne,
+  entApplyDelete,
 } from "@/config/api";
 import { ElMessage, ElMessageBox } from "element-plus";
 // import { formConfigItem } from "@/utils/interface";
@@ -82,43 +87,61 @@ export default {
   name: "sensitive-manage",
   data() {
     return {
+      applyStatusObj: {
+        0: '未审核',
+        1: '审核中',
+        2: '审核通过',
+        3: '审核未通过'
+      },
       tableHeaderConfig: [
-        {
-          prop: "id",
-          label: "序号",
-        },
-        {
-          prop: "actId",
-          label: "活动id",
-        },
-        {
-          prop: "companyid",
-          label: "企业id",
-        },
-        {
-          prop: "duties",
-          label: "职务",
-        },
-        {
-          prop: "operator",
-          label: "操作人",
-        },
-        {
-          prop: "startTime",
-          label: "开始时间",
-        },
-        {
-          prop: "endTime",
-          label: "结束时间",
-        },
-        {
-          prop: "personName",
-          label: "联系人",
-        },
-        {
-          prop: "telPhone",
-          label: "人员电话",
-        },
+      {
+        prop: "entName",
+        label: "企业名称",
+        required: true,
+      },
+      {
+        prop: "contactsName",
+        label: "联系人",
+        required: true,
+      },
+      {
+        prop: "contactsPhone",
+        label: "联系方式",
+        required: true,
+      },
+      {
+        prop: "legalPerson",
+        label: "法人",
+      },
+      {
+        prop: "legalId",
+        label: "法人身份证",
+      },
+      {
+        prop: "registerDistrict",
+        label: "公司地址",
+      },
+      {
+        prop: "entIndustry",
+        label: "所在行业",
+      },
+      {
+        prop: "entCode",
+        label: "企业社会统一代码",
+      },
+      {
+        prop: "applyInfo",
+        label: "备注",
+        showTextarea: true
+      },
+      {
+        prop: "businessIncome",
+        label: "营业收入",
+      },
+      {
+        prop: "applyStatus",
+        label: "审核状态",
+      }
       ],
     };
   },
@@ -133,65 +156,63 @@ interface formConfigItem {
   showDatePicker?: boolean;
   upload?: boolean;
   uploadType?: string;
-  disabled?: true;
+  disabled?: boolean;
+  showTextarea?: boolean;
 }
 const formConfig: formConfigItem[] = [
   {
-    prop: "actId",
-    label: "活动id",
+    prop: "entName",
+    label: "企业名称",
     required: true,
-    showInput: true,
-    disabled: true,
+    showInput: true
   },
   {
-    prop: "companyid",
-    label: "企业id",
-    required: true,
-    showInput: true,
-    disabled: true,
-  },
-  {
-    prop: "duties",
-    label: "职务",
-    required: true,
-    showInput: true,
-    disabled: true,
-  },
-  {
-    prop: "operator",
-    label: "操作人",
-    required: true,
-    showInput: true,
-    disabled: true,
-  },
-  {
-    prop: "startTime",
-    label: "开始时间",
-    required: true,
-    showDatePicker: true,
-    disabled: true,
-  },
-  {
-    prop: "endTime",
-    label: "结束时间",
-    required: true,
-    showDatePicker: true,
-    disabled: true,
-  },
-  {
-    prop: "personName",
+    prop: "contactsName",
     label: "联系人",
     required: true,
-    showInput: true,
-    disabled: true,
+    showInput: true
   },
   {
-    prop: "telPhone",
-    label: "人员电话",
+    prop: "contactsPhone",
+    label: "联系方式",
     required: true,
-    showInput: true,
-    disabled: true,
+    showInput: true
   },
+  {
+    prop: "legalPerson",
+    label: "法人",
+    showInput: true
+  },
+  {
+    prop: "legalId",
+    label: "法人身份证",
+    showInput: true
+  },
+  {
+    prop: "registerDistrict",
+    label: "公司地址",
+    showInput: true
+  },
+  {
+    prop: "entIndustry",
+    label: "所在行业",
+    showInput: true
+  },
+  {
+    prop: "entCode",
+    label: "企业社会统一代码",
+    showInput: true
+  },
+  {
+    prop: "applyInfo",
+    label: "备注",
+    showTextarea: true
+  },
+  {
+    prop: "businessIncome",
+    label: "营业收入",
+    showInput: true
+  }
 ];
 const state = reactive({
   currentPage: 0,
@@ -204,6 +225,7 @@ const state = reactive({
   showForm: false,
   showExamineForm: false,
   isResume: false,
+  disabled: true
 });
 
 let currentRoleId = ref<string>("");
@@ -230,6 +252,8 @@ const detail = (row) => {
  * 审核
  */
 const examine = (row) => {
+  state.formConfig.status = row.applyStatus;
+  currentRoleId.value = row.id;
   state.dialogVisible = true;
   state.showExamineForm = true;
 };
@@ -238,12 +262,12 @@ const examine = (row) => {
  * 提交表单数据
  */
 const postFormData = (formData) => {
-  post(`${businessApplyUpdateOne}`, {
+  post(`${entApplyUpdateOne}`, {
     id: currentRoleId.value,
-    ...formData
+    applyStatus: formData.status
   })
     .then(function (data) {
-      getbusinessApplyAll();
+      getentApplyAll();
     })
     .catch((e) => {
       console.log("e", e);
@@ -260,8 +284,8 @@ const closeDialog = async (done: () => void) => {
 };
 
 //  文章内容列表
-const getbusinessApplyAll = () => {
-  post(`${businessApplyAll}`, {
+const getentApplyAll = () => {
+  post(`${entApplyAll}`, {
     pageNum: state.currentPage,
     pageSize: state.pageSize,
   }).then(function (data) {
@@ -269,20 +293,20 @@ const getbusinessApplyAll = () => {
     state.total = data.total;
   });
 };
-getbusinessApplyAll();
+getentApplyAll();
 
 // 切换每页显示数
 const handleSizeChange = (val: number) => {
   console.log(`${val} items per page`);
   state.pageSize = val;
-  getbusinessApplyAll();
+  getentApplyAll();
 };
 
 // 换页数
 const handleCurrentChange = (val: number) => {
   console.log(`current page: ${val}`);
   state.currentPage = val;
-  getbusinessApplyAll();
+  getentApplyAll();
 };
 const loading = ref(false);
 
@@ -301,7 +325,7 @@ const deleteAction = (row) => {
       deleteItem(`${businessApplyDelete}`, {
         data: [row.id],
       }).then(function (data) {
-        getbusinessApplyAll();
+        getentApplyAll();
       });
       ElMessage.success("删除成功");
     })

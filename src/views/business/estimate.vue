@@ -1,9 +1,11 @@
 <template>
   <u-container-layout>
+    <el-input v-model="state.searchKey" placeholder="请输入" style="width: 300px; margin-bottom: 10px;" @change="handleChange"/>
     <div class="inline-edit-table">
       <formConpoent
         v-if="state.dialogVisible"
         :tabList="state.tabList"
+        v-model:baseInfo="state.baseInfo"
         v-model:formConfig="state.formConfig"
         @handle="postFormData"
         @dialogClose="closeDialog"
@@ -67,16 +69,19 @@
 </template>
 <script lang="ts">
 import { ref, reactive, provide } from "vue";
+// import { busneissData } from "./data";
+import { map } from "./constant";
 import formConpoent from "./essay.vue";
 import {
   businessEstimateAll,
-  businessEstimateAddOne,
-  businessEstimatUpdateOne,
-  businessEstimatDelete,
+  testAll
+  // businessEstimateAddOne,
+  // businessEstimatUpdateOne,
+  // businessEstimatDelete,
 } from "@/config/api";
 import { ElMessage, ElMessageBox } from "element-plus";
 // import { formConfigItem } from "@/utils/interface";
-import { deleteItem, post } from "@/utils/request";
+import { deleteItem, get, post } from "@/utils/request";
 export default {
   name: "sensitive-manage",
   data() {
@@ -183,442 +188,75 @@ const formConfig: formConfigItem[] = [
     showInput: true,
   },
 ];
+
+const map1 = {
+    '工商信息': [
+      'BASICINFO',
+      'RESULTTYPEINFO',
+      'MAINMANAGERINFO',
+      'SHAREHOLDERINFO',
+      'SIMPLECANCELINFO',
+      'CHANGEINFO'
+    ],
+    '处罚信息': [
+      'SERIOUSDISHONESTYINFO',
+      'LAWADMININFO',
+      'ABNORMALOPERATIONINFO',
+      'JUDICIALAIDEQUITYFREEZEINFO',
+      'EQUITYPLEDGEDDETAILZXINFO',
+      'CHATTELMORTGAGEDYQRINFO',
+      'EQUITYPLEDGEDDETAILBGINFO',
+      'SPOTCHECKINFO',
+      'CHATTELMORTGAGEINFO',
+      'CHATTELMORTGAGEBDBZQINFO',
+      'CHATTELMORTGAGEDYWINFO',
+      'CHATTELMORTGAGEBGINFO',
+      'CHATTELMORTGAGEZXINFO',
+      'JUDICIALAIDINFO',
+      'SETTLEACCOUNTINFO',
+      'JUDICIALAIDEQUITYCHANGEINFO',
+      'EQUITYPLEDGEDINFO'
+    ],
+    '企业年报': [
+    'ANNREPORTINFO',
+    'ANNREPORTINVINFO',
+    'ANNREPORTTOINVINFO',
+    'ANNREPORTWEBSITEINFO',
+    'ANNREPORTASSETSINFO',
+    'ANNREPORTFORGUARANTEEINFO',
+    'ANNREPORTSTOCKCHANAGEINFO',
+    'ANNREPORTSOCIALSECURITYINFO',
+    'ANNREPORTUPDATEINFO',
+    ],
+    '企业投资': [
+      'BRANCHINFO',
+      'INVESTMENTABROADINFO'
+    ],
+    '人员投资': [
+    'ASSOCIATEPERSONINVESTMENTINFO',
+    'ASSOCIATEPERSONOFFICEINFO',
+    'LAWPERSONTOOTHERINFO',
+    'LAWPERSONTOINVESTINFO',
+    ],
+    '上市公司': [
+      'LISTEDCOMPANYINFORMATIONINFO',
+      'LISTEDCOMPANYSHAREHOLDEINFO'
+    ]
+  };
+let list: Array = [];
+let baseInfo: Object = {};
+console.log('e---', list, baseInfo);
 const state = reactive({
   currentPage: 0,
   pageSize: 10,
   formConfig: Object.assign([], formConfig),
   tableData: [],
   total: 0,
+  searchKey: '',
   sensitiveword: "",
   dialogVisible: false,
-  tabList: [
-    {
-      tabName: "工商信息",
-      id: 0,
-      optionsList: [
-        {
-          id: 0,
-          title: "工商信息",
-          useComType: "desc",
-          businessMessage: {
-            entime: "北京文投大数据有限公司",
-            creditNo: "911100000592736444",
-            regNo: "110000015455463",
-            esDate: "2017-08-01",
-            apprDate: "2017-08-01",
-            entStatus: "登记",
-            nameKeyNo: "SDFDSFDSFSE13D23F4E2F",
-            name: "姬新军",
-            nameIcon: "asdas",
-            regCap: "600616万人民币",
-            recCap: "600616万人民币",
-            entType: "文化投资",
-            regOrg: "工商局",
-            opFrom: "2022-03-18",
-            opTo: "2022-03-18",
-            tax_vert: "bj",
-            nic_name: "北京市",
-            region_name: "石景山",
-            history_name: "北京九鼎",
-            phone: "17732236736",
-            email: "wtdsj@bjwcxf.com",
-            website: "www.baidu.com",
-            opScope:
-              "投资与投资管理；资产管理；组织企业资产重组、并购。（市场主体依法自主选择经营项目，开展经营活动；依法须经批准的项目，经相关部门批准后依批准的内容开展经营活动；不得从事国家和本市产业政策禁止和限制类项目的经营活动。）",
-          },
-          businessConfig: {
-            entime: "企业名称",
-            creditNo: "统一社会信用代码",
-            regNo: "工商注册号",
-            esDate: "成立日期",
-            apprDate: "核准日期",
-            entStatus: "登记状态",
-            nameKeyNo: "法人key",
-            name: "法人代表人",
-            nameIcon: "法人头像",
-            regCap: "注册资本",
-            recCap: "实缴资本",
-            entType: "企业类型",
-            regOrg: "登记机关",
-            opFrom: "营业期限自",
-            opTo: "营业期限至",
-            dom: "注册地址",
-            canDate: "注销日期",
-            revDate: "注销日期",
-            tax_vert: "纳税人资质",
-            nic_name: "所属行业",
-            region_name: "所属地区",
-            history_name: "曾用名",
-            phone: "电话",
-            email: "邮箱",
-            website: "官网",
-            opScope: "经营范围",
-          },
-        },
-        {
-          id: 1,
-          title: "变更信息",
-          useComType: "table",
-          businessMessage: [
-            {
-              changeDate: "2022-03-18",
-              changeItem: "董事（理事）、经理、监事",
-              contentAfter: "徐哲,阎晓东,杨锟,于爱晶,周茂非*,朱永利",
-              contentBefore: "肖蔚然,徐哲,阎晓东,于爱晶,周茂非*",
-              createTime: "2022-03-19",
-            },
-            {
-              changeDate: "2022-03-18",
-              changeItem: "董事（理事）、经理、监事",
-              contentAfter: "徐哲,阎晓东,杨锟,于爱晶,周茂非*,朱永利",
-              contentBefore: "肖蔚然,徐哲,阎晓东,于爱晶,周茂非*",
-              createTime: "2022-03-19",
-            },
-            {
-              changeDate: "2022-03-18",
-              changeItem: "董事（理事）、经理、监事",
-              contentAfter: "徐哲,阎晓东,杨锟,于爱晶,周茂非*,朱永利",
-              contentBefore: "肖蔚然,徐哲,阎晓东,于爱晶,周茂非*",
-              createTime: "2022-03-19",
-            },
-            {
-              changeDate: "2022-03-18",
-              changeItem: "董事（理事）、经理、监事",
-              contentAfter: "徐哲,阎晓东,杨锟,于爱晶,周茂非*,朱永利",
-              contentBefore: "肖蔚然,徐哲,阎晓东,于爱晶,周茂非*",
-              createTime: "2022-03-19",
-            },
-            {
-              changeDate: "2022-03-18",
-              changeItem: "董事（理事）、经理、监事",
-              contentAfter: "徐哲,阎晓东,杨锟,于爱晶,周茂非*,朱永利",
-              contentBefore: "肖蔚然,徐哲,阎晓东,于爱晶,周茂非*",
-              createTime: "2022-03-19",
-            },
-            {
-              changeDate: "2022-03-18",
-              changeItem: "董事（理事）、经理、监事",
-              contentAfter: "徐哲,阎晓东,杨锟,于爱晶,周茂非*,朱永利",
-              contentBefore: "肖蔚然,徐哲,阎晓东,于爱晶,周茂非*",
-              createTime: "2022-03-19",
-            },
-            {
-              changeDate: "2022-03-18",
-              changeItem: "董事（理事）、经理、监事",
-              contentAfter: "徐哲,阎晓东,杨锟,于爱晶,周茂非*,朱永利",
-              contentBefore: "肖蔚然,徐哲,阎晓东,于爱晶,周茂非*",
-              createTime: "2022-03-19",
-            },
-            {
-              changeDate: "2022-03-18",
-              changeItem: "董事（理事）、经理、监事",
-              contentAfter: "徐哲,阎晓东,杨锟,于爱晶,周茂非*,朱永利",
-              contentBefore: "肖蔚然,徐哲,阎晓东,于爱晶,周茂非*",
-              createTime: "2022-03-19",
-            },
-            {
-              changeDate: "2022-03-18",
-              changeItem: "董事（理事）、经理、监事",
-              contentAfter: "徐哲,阎晓东,杨锟,于爱晶,周茂非*,朱永利",
-              contentBefore: "肖蔚然,徐哲,阎晓东,于爱晶,周茂非*",
-              createTime: "2022-03-19",
-            },
-            {
-              changeDate: "2022-03-18",
-              changeItem: "董事（理事）、经理、监事",
-              contentAfter: "徐哲,阎晓东,杨锟,于爱晶,周茂非*,朱永利",
-              contentBefore: "肖蔚然,徐哲,阎晓东,于爱晶,周茂非*",
-              createTime: "2022-03-19",
-            },
-            {
-              changeDate: "2022-03-18",
-              changeItem: "董事（理事）、经理、监事",
-              contentAfter: "徐哲,阎晓东,杨锟,于爱晶,周茂非*,朱永利",
-              contentBefore: "肖蔚然,徐哲,阎晓东,于爱晶,周茂非*",
-              createTime: "2022-03-19",
-            },
-            {
-              changeDate: "2022-03-18",
-              changeItem: "董事（理事）、经理、监事",
-              contentAfter: "徐哲,阎晓东,杨锟,于爱晶,周茂非*,朱永利",
-              contentBefore: "肖蔚然,徐哲,阎晓东,于爱晶,周茂非*",
-              createTime: "2022-03-19",
-            },
-            {
-              changeDate: "2022-03-18",
-              changeItem: "董事（理事）、经理、监事",
-              contentAfter: "徐哲,阎晓东,杨锟,于爱晶,周茂非*,朱永利",
-              contentBefore: "肖蔚然,徐哲,阎晓东,于爱晶,周茂非*",
-              createTime: "2022-03-19",
-            },
-            {
-              changeDate: "2022-03-18",
-              changeItem: "董事（理事）、经理、监事",
-              contentAfter: "徐哲,阎晓东,杨锟,于爱晶,周茂非*,朱永利",
-              contentBefore: "肖蔚然,徐哲,阎晓东,于爱晶,周茂非*",
-              createTime: "2022-03-19",
-            },
-            {
-              changeDate: "2022-03-18",
-              changeItem: "董事（理事）、经理、监事",
-              contentAfter: "徐哲,阎晓东,杨锟,于爱晶,周茂非*,朱永利",
-              contentBefore: "肖蔚然,徐哲,阎晓东,于爱晶,周茂非*",
-              createTime: "2022-03-19",
-            },
-          ],
-        },
-        {
-          id: 2,
-          title: "任职信息",
-          useComType: "spDesc",
-          businessMessage: [
-            {
-              personName: "周茂非",
-              position: "董事长",
-              toco: "3",
-              type: "2",
-            },
-          ],
-        },
-        {
-          id: 3,
-          title: "股东信息",
-          useComType: "desc",
-          businessMessage: {
-            // capitalTime: "2021-07-15",
-            // contributionRatio: "100.00%",
-            shareholderName: "北京市国有文化资产监督管理办公室",
-            // shareholderType: "1",
-            // shareholderTypeStr: "公司",
-            subCapital: "621332.12万元",
-            // subCapitalCurrency: "万人民币",
-            // subCapitals: "621332.12万人民币"
-          },
-          businessConfig: {
-            shareholderName: "股东名称",
-            subCapital: "认缴出资额（万元）",
-          },
-        },
-        {
-          id: 4,
-          title: "年报信息",
-        },
-      ],
-    },
-    {
-      tabName: "司法信息",
-      id: 0,
-      optionsList: [
-        {
-          id: 0,
-          title: "工商信息",
-          useComType: "desc",
-          businessMessage: {
-            entime: "北京文投大数据有限公司",
-            creditNo: "911100000592736444",
-            regNo: "110000015455463",
-            esDate: "2017-08-01",
-            apprDate: "2017-08-01",
-            entStatus: "登记",
-            nameKeyNo: "SDFDSFDSFSE13D23F4E2F",
-            name: "姬新军",
-            nameIcon: "asdas",
-            regCap: "600616万人民币",
-            recCap: "600616万人民币",
-            entType: "文化投资",
-            regOrg: "工商局",
-            opFrom: "2022-03-18",
-            opTo: "2022-03-18",
-            tax_vert: "bj",
-            nic_name: "北京市",
-            region_name: "石景山",
-            history_name: "北京九鼎",
-            phone: "17732236736",
-            email: "wtdsj@bjwcxf.com",
-            website: "www.baidu.com",
-            opScope:
-              "投资与投资管理；资产管理；组织企业资产重组、并购。（市场主体依法自主选择经营项目，开展经营活动；依法须经批准的项目，经相关部门批准后依批准的内容开展经营活动；不得从事国家和本市产业政策禁止和限制类项目的经营活动。）",
-          },
-          businessConfig: {
-            entime: "企业名称",
-            creditNo: "统一社会信用代码",
-            regNo: "工商注册号",
-            esDate: "成立日期",
-            apprDate: "核准日期",
-            entStatus: "登记状态",
-            nameKeyNo: "法人key",
-            name: "法人代表人",
-            nameIcon: "法人头像",
-            regCap: "注册资本",
-            recCap: "实缴资本",
-            entType: "企业类型",
-            regOrg: "登记机关",
-            opFrom: "营业期限自",
-            opTo: "营业期限至",
-            dom: "注册地址",
-            canDate: "注销日期",
-            revDate: "注销日期",
-            tax_vert: "纳税人资质",
-            nic_name: "所属行业",
-            region_name: "所属地区",
-            history_name: "曾用名",
-            phone: "电话",
-            email: "邮箱",
-            website: "官网",
-            opScope: "经营范围",
-          },
-        },
-        {
-          id: 1,
-          title: "变更信息",
-          useComType: "table",
-          businessMessage: [
-            {
-              changeDate: "2022-03-18",
-              changeItem: "董事（理事）、经理、监事",
-              contentAfter: "徐哲,阎晓东,杨锟,于爱晶,周茂非*,朱永利",
-              contentBefore: "肖蔚然,徐哲,阎晓东,于爱晶,周茂非*",
-              createTime: "2022-03-19",
-            },
-            {
-              changeDate: "2022-03-18",
-              changeItem: "董事（理事）、经理、监事",
-              contentAfter: "徐哲,阎晓东,杨锟,于爱晶,周茂非*,朱永利",
-              contentBefore: "肖蔚然,徐哲,阎晓东,于爱晶,周茂非*",
-              createTime: "2022-03-19",
-            },
-            {
-              changeDate: "2022-03-18",
-              changeItem: "董事（理事）、经理、监事",
-              contentAfter: "徐哲,阎晓东,杨锟,于爱晶,周茂非*,朱永利",
-              contentBefore: "肖蔚然,徐哲,阎晓东,于爱晶,周茂非*",
-              createTime: "2022-03-19",
-            },
-            {
-              changeDate: "2022-03-18",
-              changeItem: "董事（理事）、经理、监事",
-              contentAfter: "徐哲,阎晓东,杨锟,于爱晶,周茂非*,朱永利",
-              contentBefore: "肖蔚然,徐哲,阎晓东,于爱晶,周茂非*",
-              createTime: "2022-03-19",
-            },
-            {
-              changeDate: "2022-03-18",
-              changeItem: "董事（理事）、经理、监事",
-              contentAfter: "徐哲,阎晓东,杨锟,于爱晶,周茂非*,朱永利",
-              contentBefore: "肖蔚然,徐哲,阎晓东,于爱晶,周茂非*",
-              createTime: "2022-03-19",
-            },
-            {
-              changeDate: "2022-03-18",
-              changeItem: "董事（理事）、经理、监事",
-              contentAfter: "徐哲,阎晓东,杨锟,于爱晶,周茂非*,朱永利",
-              contentBefore: "肖蔚然,徐哲,阎晓东,于爱晶,周茂非*",
-              createTime: "2022-03-19",
-            },
-            {
-              changeDate: "2022-03-18",
-              changeItem: "董事（理事）、经理、监事",
-              contentAfter: "徐哲,阎晓东,杨锟,于爱晶,周茂非*,朱永利",
-              contentBefore: "肖蔚然,徐哲,阎晓东,于爱晶,周茂非*",
-              createTime: "2022-03-19",
-            },
-            {
-              changeDate: "2022-03-18",
-              changeItem: "董事（理事）、经理、监事",
-              contentAfter: "徐哲,阎晓东,杨锟,于爱晶,周茂非*,朱永利",
-              contentBefore: "肖蔚然,徐哲,阎晓东,于爱晶,周茂非*",
-              createTime: "2022-03-19",
-            },
-            {
-              changeDate: "2022-03-18",
-              changeItem: "董事（理事）、经理、监事",
-              contentAfter: "徐哲,阎晓东,杨锟,于爱晶,周茂非*,朱永利",
-              contentBefore: "肖蔚然,徐哲,阎晓东,于爱晶,周茂非*",
-              createTime: "2022-03-19",
-            },
-            {
-              changeDate: "2022-03-18",
-              changeItem: "董事（理事）、经理、监事",
-              contentAfter: "徐哲,阎晓东,杨锟,于爱晶,周茂非*,朱永利",
-              contentBefore: "肖蔚然,徐哲,阎晓东,于爱晶,周茂非*",
-              createTime: "2022-03-19",
-            },
-            {
-              changeDate: "2022-03-18",
-              changeItem: "董事（理事）、经理、监事",
-              contentAfter: "徐哲,阎晓东,杨锟,于爱晶,周茂非*,朱永利",
-              contentBefore: "肖蔚然,徐哲,阎晓东,于爱晶,周茂非*",
-              createTime: "2022-03-19",
-            },
-            {
-              changeDate: "2022-03-18",
-              changeItem: "董事（理事）、经理、监事",
-              contentAfter: "徐哲,阎晓东,杨锟,于爱晶,周茂非*,朱永利",
-              contentBefore: "肖蔚然,徐哲,阎晓东,于爱晶,周茂非*",
-              createTime: "2022-03-19",
-            },
-            {
-              changeDate: "2022-03-18",
-              changeItem: "董事（理事）、经理、监事",
-              contentAfter: "徐哲,阎晓东,杨锟,于爱晶,周茂非*,朱永利",
-              contentBefore: "肖蔚然,徐哲,阎晓东,于爱晶,周茂非*",
-              createTime: "2022-03-19",
-            },
-            {
-              changeDate: "2022-03-18",
-              changeItem: "董事（理事）、经理、监事",
-              contentAfter: "徐哲,阎晓东,杨锟,于爱晶,周茂非*,朱永利",
-              contentBefore: "肖蔚然,徐哲,阎晓东,于爱晶,周茂非*",
-              createTime: "2022-03-19",
-            },
-            {
-              changeDate: "2022-03-18",
-              changeItem: "董事（理事）、经理、监事",
-              contentAfter: "徐哲,阎晓东,杨锟,于爱晶,周茂非*,朱永利",
-              contentBefore: "肖蔚然,徐哲,阎晓东,于爱晶,周茂非*",
-              createTime: "2022-03-19",
-            },
-          ],
-        },
-        {
-          id: 2,
-          title: "任职信息",
-          useComType: "spDesc",
-          businessMessage: [
-            {
-              personName: "周茂非",
-              position: "董事长",
-              toco: "3",
-              type: "2",
-            },
-          ],
-        },
-        {
-          id: 3,
-          title: "股东信息",
-          useComType: "desc",
-          businessMessage: {
-            // capitalTime: "2021-07-15",
-            // contributionRatio: "100.00%",
-            shareholderName: "北京市国有文化资产监督管理办公室",
-            // shareholderType: "1",
-            // shareholderTypeStr: "公司",
-            subCapital: "621332.12万元",
-            // subCapitalCurrency: "万人民币",
-            // subCapitals: "621332.12万人民币"
-          },
-          businessConfig: {
-            shareholderName: "股东名称",
-            subCapital: "认缴出资额（万元）",
-          },
-        },
-        {
-          id: 4,
-          title: "年报信息",
-        },
-      ],
-    },
-  ],
+  tabList: list,
+  baseInfo: baseInfo
 });
 
 let currentRoleId = ref<string>("");
@@ -687,6 +325,52 @@ const getbusinessEstimateAll = () => {
   });
 };
 getbusinessEstimateAll();
+
+//  文章内容列表
+const getTestAll = () => {
+  get(`${testAll}`, {
+
+  }).then(function (data) {
+    console.log('data----', data);   
+    Object.keys(map1).forEach((i, index) => {
+      let obj = {
+        tabName: i,
+        id: index,
+        optionsList: []
+      };
+      map1[i].forEach((key, index) => {
+        if(key === 'BASICINFO') {
+          baseInfo = {
+              id: index,
+              businessConfig: {
+                ENTNAME: '企业名称',
+                DOM: '地点'
+              },
+              businessMessage: {
+                ENTNAME: data[key][0].ENTNAME,
+                DOM: data[key][0].DOM
+              }
+          };
+        };
+          obj.optionsList.push({
+              id: index,
+              ...map[key],
+              businessMessage: data[key]
+          });
+      });
+      list.push(obj);
+      
+    });
+    state.tabList = list;
+  });
+};
+getTestAll();
+
+
+const handleChange = val => {
+  console.log('valk------', val);
+  state.tableData = [{}];
+};
 
 // 切换每页显示数
 const handleSizeChange = (val: number) => {

@@ -1,11 +1,6 @@
 <template>
   <u-container-layout>
     <div class="inline-edit-table">
-      <div style="display: flex; justify-content: flex-end">
-        <el-button type="primary" @click="add">
-          <el-icon><plus /></el-icon>添加
-        </el-button>
-      </div>
       <el-table
         :data="state.tableData"
         style="width: 100%"
@@ -18,23 +13,32 @@
           :prop="item.prop"
           :label="item.label"
         >
+          <template #default="scope" v-if="item.prop === 'applyStatus'">
+            {{this.applyStatusObj[scope.row.applyStatus]}}
+          </template>
         </el-table-column>
         <el-table-column prop="operator" label="操作" width="200" fixed="right">
           <template #default="scope">
-            <el-button
+            <!-- <el-button
               type="primary"
               size="small"
               icon="Edit"
               @click="edit(scope.row)"
               >修改</el-button
-            >
-            <el-button
+            > -->
+            <el-button type="primary" size="small" @click="detail(scope.row)">
+              查看详情
+            </el-button>
+            <el-button type="primary" :disabled="scope.row.applyStatus !== 0" size="small" @click="examine(scope.row)">
+              审核
+            </el-button>
+            <!-- <el-button
               type="danger"
               size="small"
               icon="Delete"
               @click="deleteAction(scope.row, state.isResume)"
               >删除</el-button
-            >
+            > -->
           </template>
         </el-table-column>
       </el-table>
@@ -45,11 +49,17 @@
         @closed="closeDialog()"
       >
         <formConpoent
-          v-if="state.dialogVisible"
+          v-if="state.showForm"
+          :disabled="state.disabled"
           v-model:formConfig="state.formConfig"
           @handle="postFormData"
           @dialogClose="closeDialog"
         ></formConpoent>
+        <examineFormConpoent
+          v-if="state.showExamineForm"
+          @handle="postFormData"
+          @dialogClose="closeDialog"
+        ></examineFormConpoent>
       </el-dialog>
       <div
         style="
@@ -74,6 +84,7 @@
 </template>
 <script lang="ts">
 import { ref, reactive, provide } from "vue";
+import examineFormConpoent from "@/components/form/examineForm.vue";
 import formConpoent from "@/components/form/form.vue";
 import {
   activityApplyAll,
@@ -88,34 +99,36 @@ export default {
   name: "sensitive-manage",
   data() {
     return {
+      applyStatusObj: {
+        0: '未审核',
+        1: '审核中',
+        2: '审核通过',
+        3: '审核未通过'
+      },
       tableHeaderConfig: [
         {
           prop: "id",
           label: '序号'
         },
         {
-          prop: "actId",
-          label: "活动id",
+          prop: "actName",
+          label: "活动名称",
         },
         {
-          prop: "companyid",
-          label: "企业id",
+          prop: "entName",
+          label: "企业名称",
         },
         {
           prop: "duties",
           label: "职务",
         },
         {
-          prop: "operator",
-          label: "操作人",
+          prop: "applyTimeFrom",
+          label: "报名开始时间",
         },
         {
-          prop: "startTime",
-          label: "开始时间",
-        },
-        {
-          prop: "endTime",
-          label: "结束时间",
+          prop: "applyTimeTo",
+          label: "报名结束时间",
         },
         {
           prop: "personName",
@@ -125,6 +138,10 @@ export default {
           prop: "telPhone",
           label: "人员电话",
         },
+        {
+          prop: "applyStatus",
+          label: "审核状态",
+        }
       ],
     };
   },
@@ -142,14 +159,8 @@ interface formConfigItem {
 }
 const formConfig: formConfigItem[] = [
   {
-    prop: "actId",
-    label: "活动id",
-    required: true,
-    showInput: true
-  },
-  {
-    prop: "companyid",
-    label: "企业id",
+    prop: "actName",
+    label: "活动名称",
     required: true,
     showInput: true
   },
@@ -164,18 +175,6 @@ const formConfig: formConfigItem[] = [
     label: "操作人",
     required: true,
     showInput: true
-  },
-  {
-    prop: "startTime",
-    label: "开始时间",
-    required: true,
-    showDatePicker: true
-  },
-  {
-    prop: "endTime",
-    label: "结束时间",
-    required: true,
-    showDatePicker: true
   },
   {
     prop: "personName",
@@ -199,16 +198,13 @@ const state = reactive({
   sensitiveword: "",
   dialogVisible: false,
   isResume: false,
+  showForm: false,
+  showExamineForm: false,
+  disabled: true
 });
 
 let currentRoleId = ref<string>("");
 const title = ref<string>("新增");
-
-// 添加
-const add = () => {
-  title.value = "新增";
-  state.dialogVisible = true;
-};
 
 /**
  * 提交表单数据
@@ -228,7 +224,7 @@ const postFormData = (formData) => {
   } else {
     post(`${activityApplyrUpdateOne}`, {
       id: currentRoleId.value,
-      ...formData,
+      applyStatus: formData.status
     })
       .then(function (data) {
         getactivityApplyAll();
@@ -270,6 +266,37 @@ const getactivityApplyAll = () => {
   });
 };
 getactivityApplyAll();
+
+
+/**
+ * 表单详情
+ */
+ const detail = (row) => {
+  title.value = "查看详情";
+  state.formConfig.status = row.applyStatus;
+  state.dialogVisible = true;
+  state.showForm = true;
+  state.formConfig = state.formConfig
+    .map((e, b) => {
+      // value 替换成 e.prop
+      let result = { ...e };
+      result[e.prop] = row[e.prop];
+      return result;
+    })
+    .splice(0);
+};
+
+/**
+ * 审核
+ */
+ const examine = (row) => {
+  title.value = "审核";
+  currentRoleId.value = row.id;
+  state.dialogVisible = true;
+  state.showExamineForm = true;
+  state.showForm = false;
+};
+
 
 // 切换每页显示数
 const handleSizeChange = (val: number) => {

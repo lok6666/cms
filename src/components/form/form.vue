@@ -6,7 +6,7 @@
       ref="formRef"
       v-for="(item, i) in state.formConfig"
       :key="i"
-      :disabled="item.disabled"
+      :disabled="state.disabled"
       :model="item"
       class="demo-dynamic"
       label-width="180px"
@@ -20,6 +20,8 @@
         {{ item[i] }}
         <!--输入框-->
         <el-input v-model="item[item.prop]" v-if="item.showInput" />
+        <!--输入框-->
+        <el-input v-model="item[item.prop]" type="texarea" v-if="item.showTextarea" />
         <!--时间选择器-->
         <el-date-picker
           v-model="item[item.prop]"
@@ -113,6 +115,10 @@ interface prop{
     default: "",
   },
   showBtn: {
+    type: Boolean,
+    default: true
+  },
+  disabled: {
     type: Boolean,
     default: true
   }

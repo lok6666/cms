@@ -88,24 +88,20 @@ export default {
     return {
       tableHeaderConfig: [
         {
-          prop: "id",
-          label: "序号",
+          prop: "activityName",
+          label: "活动名称",
         },
         {
           prop: "activityAddress",
           label: "活动地址",
         },
         {
-          prop: "activityDateFrom",
-          label: "活动开始时间",
+          prop: "telName",
+          label: "联络人",
         },
         {
-          prop: "activityDateTo",
-          label: "活动结束时间",
-        },
-        {
-          prop: "activityName",
-          label: "企业名称",
+          prop: "phone",
+          label: "联络人电话",
         },
         {
           prop: "activityNumber",
@@ -122,23 +118,7 @@ export default {
         {
           prop: "applyTimeTo",
           label: "活动报名结束日期",
-        },
-        {
-          prop: "lastUpdataTime",
-          label: "最后一次更新时间",
-        },
-        {
-          prop: "operator",
-          label: "操作人",
-        },
-        {
-          prop: "phone",
-          label: "联络人电话",
-        },
-        {
-          prop: "telName",
-          label: "联络人名称",
-        },
+        }
       ],
     };
   },
@@ -147,10 +127,16 @@ export default {
 <script lang="ts" setup>
 const formConfig = [
   {
+    prop: "activityName",
+    label: "活动名称",
+    required: true,
+    showInput: true,
+  },
+  {
     prop: "activityAddress",
     label: "活动地址",
     required: true,
-    showInput: true
+    showInput: true 
   },
   {
     prop: "activityDateFrom",
@@ -163,19 +149,26 @@ const formConfig = [
     prop: "activityDateTo",
     label: "活动结束时间",
     required: true,
-    showDatePicker: true
+    showDatePicker: true,
+    
   },
   {
-    prop: "activityName",
-    label: "企业名称",
+    prop: "telName",
+    label: "联络人",
     required: true,
-    showInput: true
+    showInput: true,   
+  },
+  {
+    prop: "phone",
+    label: "联络人电话",
+    required: true,
+    showInput: true,    
   },
   {
     prop: "activityNumber",
     label: "参加人数",
     required: true,
-    showInput: true
+    showInput: true    
   },
   {
     prop: "activityStatus",
@@ -195,38 +188,23 @@ const formConfig = [
       }
     ],
     required: true,
-    showSelect: true
+    showSelect: true,
+    
   },
   {
     prop: "applyTimeFrom",
     label: "活动报名开始日期",
     required: true,
-    showDatePicker: true
+    showDatePicker: true,
+    
   },
   {
     prop: "applyTimeTo",
     label: "活动报名结束日期",
     required: true,
-    showDatePicker: true
-  },
-  {
-    prop: "operator",
-    label: "操作人",
-    required: true,
-    showInput: true
-  },
-  {
-    prop: "phone",
-    label: "联络人电话",
-    required: true,
-    showInput: true
-  },
-  {
-    prop: "telName",
-    label: "联络人名称",
-    required: true,
-    showInput: true
-  },
+    showDatePicker: true,
+    
+  }
 ];
 const state = reactive({
   currentPage: 0,

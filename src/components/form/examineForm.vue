@@ -37,16 +37,19 @@ interface prop{
   title: {
     type: String,
     default: "",
+  },
+  status: {
+    type: Boolean,
+    default: true
   }
 }
-const ruleForm = reactive({
-    status: true,
-    inputValue: ''
-});
 const emit = defineEmits(["handle", "dialogClose"]);
 let props = defineProps<prop>();
 const state = reactive(props);
-const formData = {};
+const ruleForm = reactive({
+    status: state.status === 1 ? true : false,
+    inputValue: ''
+});
 const formRef = ref<FormInstance>();
 
 /**

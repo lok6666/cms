@@ -1,8 +1,21 @@
 <template>
   <u-container-layout>
-    <el-button type="primary" size="small" icon="close" @click="close">
+    <el-button type="primary" size="small" icon="close" @click="close" style="float: right;">
       关闭
     </el-button>
+    基本信息
+    <el-descriptions
+      :border="true"
+      :column="2"
+    >
+      <el-descriptions-item
+        v-for="(value, key) in baseInfo.businessMessage"
+        :key="key"
+        label-class-name="my-label"
+        :label="baseInfo.businessConfig[key]"
+        >{{ value }}</el-descriptions-item
+      >
+    </el-descriptions>
     <el-tabs
       v-model="activeName"
       type="carid"
@@ -12,7 +25,7 @@
       <el-tab-pane
         v-for="i in state.tabList"
         :label="i.tabName"
-        :name="i.tabName"
+        :name="i.title"
         :key="i.id">
         <div class="business-essay-content">
           <el-tabs
@@ -32,46 +45,88 @@
           </el-tabs>
           <div
             class="business-essay-inline-edit-table"
-            style="max-width: 1500px"
+            style="width: 90%"
           >
-            <div v-for="item in i.optionsList" :key="item.id">
+            <div v-for="item in i.optionsList" :key="item.id" style="width: 90%">
               <h3 :id="item.title">{{ item.title }}</h3>
+                <el-tabs v-if="item.useComType === 'yearDesc'" type="carid" v-model="activeYear" @tab-click="articleHandleClick1">
+                  <el-tab-pane v-for="(i, index) in item.businessMessage" :label="i.NBYEAR" :name="i['NBYEAR']" :key="index">
+                    <el-descriptions
+                        :border="true"
+                        :column="2"
+                      >
+                        <el-descriptions-item
+                          v-for="(value, key) in i"
+                          :key="key"
+                          label-class-name="my-label"
+                          :label="item.businessConfig[key]"
+                          >{{ value }}</el-descriptions-item
+                        >
+                      </el-descriptions>
+                  </el-tab-pane>
+                </el-tabs>
+                <el-descriptions :border="true"
+                        :column="2" v-if="item.useComType === 'bescInfo'">
+                  <el-descriptions-item label="企业名称" name="ENTNAME">{{item.businessMessage[0].ENTNAME}}</el-descriptions-item>
+                  <el-descriptions-item label="法定代表人" name="FRDB">{{item.businessMessage[0].FRDB}}</el-descriptions-item>
+                  <el-descriptions-item label="统一社会信用代码" name="SHXYDM">{{item.businessMessage[0].SHXYDM}}</el-descriptions-item>
+                  <el-descriptions-item label="行业门类" name="INDUSTRY_CODE">{{item.businessMessage[0].INDUSTRY_CODE}}</el-descriptions-item>
+                  <el-descriptions-item label="注册资本" name="REGCAP">{{item.businessMessage[0].REGCAP}}</el-descriptions-item>
+                  <el-descriptions-item label="经营状态" name="ENTSTATUS">{{item.businessMessage[0].ENTSTATUS}}</el-descriptions-item>
+                  <el-descriptions-item label="成立日期" name="ESDATE">{{item.businessMessage[0].ESDATE}}</el-descriptions-item>
+                  <el-descriptions-item label="核准日期" name="APPRDATE">{{item.businessMessage[0].APPRDATE}}</el-descriptions-item>
+                  <el-descriptions-item label="行业门类" name="INDUSTRY">{{item.businessMessage[0].INDUSTRY}}</el-descriptions-item>
+                  <el-descriptions-item label="行业门类代码" name="INDUSTRYCODE">{{item.businessMessage[0].INDUSTRYCODEPlace}}</el-descriptions-item>
+                  <el-descriptions-item label="企业类型" name="ENTTYPE">{{item.businessMessage[0].ENTTYPE}}</el-descriptions-item>
+                  <el-descriptions-item label="地址" name="DOM">{{item.businessMessage[0].DOM}}</el-descriptions-item>
+                  <el-descriptions-item label="登记机关" name="REGORG">{{item.businessMessage[0].REGORG}}</el-descriptions-item>
+                  <el-descriptions-item label="曾用名" name="OLDNAME">{{item.businessMessage[0].OLDNAME}}</el-descriptions-item>
+                  <el-descriptions-item label="登记地省份" name="PROVINCE">{{item.businessMessage[0].PROVINCE}}</el-descriptions-item>
+                  <el-descriptions-item label="登记地城市代码" name="CITYCODE">{{item.businessMessage[0].CITYCODE}}</el-descriptions-item>
+                  <el-descriptions-item label="地理坐标" name="JWD">{{item.businessMessage[0].JWD}}</el-descriptions-item>
+                  <el-descriptions-item label="组织机构代码" name="ORGID">{{item.businessMessage[0].ORGID}}</el-descriptions-item>
+                  <el-descriptions-item label="ENGNAME" name="企业英文名">{{item.businessMessage[0].ENGNAME}}</el-descriptions-item>
+                  <el-descriptions-item label="企业官网" name="WEBSITE">{{item.businessMessage[0].WEBSITE}}</el-descriptions-item>
+                  <el-descriptions-item label="OPFROM" name="经营期限自">{{item.businessMessage[0].OPFROM}}</el-descriptions-item>
+                  <el-descriptions-item label="经营期限至" name="OPTO">{{item.businessMessage[0].OPTO}}</el-descriptions-item>
+                  <el-descriptions-item label="经营业务范围" name="OPSCOPE">{{item.businessMessage[0].OPSCOPE}}</el-descriptions-item>
+                </el-descriptions>
+                <el-descriptions :border="true" :column="2" v-if="item.useComType === 'yearInfo'">=
+                  <el-descriptions-item label="企业名称" name="ENTNAME">{{item.businessMessage[0].ENTNAME}}</el-descriptions-item>
+                  <el-descriptions-item label="统一社会信用代码" name="SHXYDM">{{item.businessMessage[0].SHXYDM}}</el-descriptions-item>
+                  <el-descriptions-item label="企业联系电话" name="TEL">{{item.businessMessage[0].TEL}}</el-descriptions-item>
+                  <el-descriptions-item label="企业经营状态" name="ENTSTATUS">{{item.businessMessage[0].ENTSTATUS}}</el-descriptions-item>
+                  <el-descriptions-item label="年报年份" name="NBYEAR">{{item.businessMessage[0].NBYEAR}}</el-descriptions-item>
+                  <el-descriptions-item label="年报时间" name="NBDATE">{{item.businessMessage[0].NBDATE}}</el-descriptions-item>
+                  <el-descriptions-item label="注册号" name="REGNO">{{item.businessMessage[0].REGNO}}</el-descriptions-item>
+                  <el-descriptions-item label="行业门类代码" name="EMPNUM">{{item.businessMessage[0].EMPNUM}}</el-descriptions-item>
+                  <el-descriptions-item label="邮政编码" name="POSTCODE">{{item.businessMessage[0].POSTCODE}}</el-descriptions-item>
+                  <el-descriptions-item label="企业通信地址" name="ADDR">{{item.businessMessage[0].企业通信地址}}</el-descriptions-item>
+                  <el-descriptions-item label="电子邮箱" name="EMAIL">{{item.businessMessage[0].EMAIL}}</el-descriptions-item>
+                  <el-descriptions-item label="是否有网站或网店" name="ISWEB">{{item.businessMessage[0].ISWEB}}</el-descriptions-item>
+                  <el-descriptions-item label="有限责任公司本年度是否发生股东股权转让" name="ISGQZR">{{item.businessMessage[0].ISGQZR}}</el-descriptions-item>
+                  <el-descriptions-item label="企业是否有投资信息或购买其他公司股权" name="ISGMGQ">{{item.businessMessage[0].ISGMGQ}}</el-descriptions-item>
+                </el-descriptions>
               <el-descriptions
                 :border="true"
                 :column="2"
-                v-if="item.useComType === 'desc'"
+                v-if="item.useComType === 'singleDesc'"
               >
                 <el-descriptions-item
-                  v-for="(value, key) in item.businessMessage"
+                  v-for="(value, key) in item.businessMessage[0]"
                   :key="key"
                   label-class-name="my-label"
                   :label="item.businessConfig[key]"
                   >{{ value }}</el-descriptions-item
                 >
               </el-descriptions>
-              <el-descriptions
-                :border="true"
-                :column="2"
-                v-if="item.useComType === 'spDesc'"
-              >
-                <el-descriptions-item
-                  v-for="(i, index) in item.businessMessage"
-                  :key="index"
-                  :label="i.position"
-                  >{{ i.personName }}</el-descriptions-item
-                >
-              </el-descriptions>
               <el-table
                 v-if="item.useComType === 'table'"
                 :data="item.businessMessage"
-                style="width: 100%"
                 :border="true"
                 v-loading="loading"
-              >
-                <el-table-column prop="changeDate" label="修改日期" />
-                <el-table-column prop="changeItem" label="修改事项" />
-                <el-table-column prop="contentBefore" label="修改前" />
-                <el-table-column prop="contentAfter" label="修改后" />
+              > 
+                <el-table-column v-for='(value, key, index) of item.businessConfig' :prop="key" :label="value" :key='index' />{{value}}
               </el-table>
             </div>
           </div>
@@ -91,7 +146,10 @@ import { get, post } from "@/utils/request";
 interface prop {
   tabList: {
     type: Array<Object>;
-  };
+  },
+  baseInfo: {
+    type: Object;
+  }
 }
 let props = defineProps<prop>();
 const emit = defineEmits(["dialogClose"]);
@@ -99,12 +157,14 @@ const state = reactive({
   currentPage: 0,
   total: 0,
   pageSize: 10,
-  activeName: 0,
+  activeName: '工商信息',
+  activeYear: '2020',
   editableTabsValue: "1",
   dialogVisible: false,
   articletype: 1,
   businessConfig,
   tabList: props.tabList,
+  baseInfo: props.baseInfo
 });
 
 const articleHandleClick = (tab, event) => {
@@ -114,7 +174,9 @@ const articleHandleClick = (tab, event) => {
     block: "start",
   });
 };
-
+const articleHandleClick1 = (tab) => {
+  state.activeYear
+};
 // 关闭弹窗
 const close = (): void => {
   emit("dialogClose");
@@ -152,6 +214,9 @@ onMounted(() => {
   &::-webkit-scrollbar {
     display: none;
   }
+  .my-label {
+      width: 200px;
+    }
   .business-essay-inline-edit-table {
     width: 92%;
     h3 {
