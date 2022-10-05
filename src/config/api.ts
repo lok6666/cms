@@ -1,5 +1,5 @@
-const host:string = 'http://172.16.12.8:28182';
-// const host:string = 'http://172.16.110.101:28191';
+// const host:string = 'http://172.16.12.8:28182';
+const host:string = 'http://172.16.130.92:28191';
 // 登录接口
 export const login = `${host}/auth/login`
 
@@ -102,6 +102,14 @@ export const businessApplyAll = `${host}/activityApply/list` // 轮播图列表
 export const businessApplyAddOne = `${host}/activityApply/insert`//  轮播图添加
 export const businessApplyUpdateOne = `${host}/activityApply/update`//  轮播图更新
 export const businessApplyDelete = `${host}/activityApply/delete` // 轮播图删除
+
+
+/*招商服务-入住申请*/
+export const entApplyAll = `${host}/entApply/list` // 轮播图列表
+export const entApplAddOne = `${host}/entApply/insert`//  轮播图添加
+export const entApplyUpdateOne = `${host}/entApply/update`//  轮播图更新
+export const entApplyDelete = `${host}/entApply/delete` // 轮播图删除
+export const testAll = `${host}/ent/getByName/北京文投大数据有限公司` // 轮播图删除
 
 /*招商服务-企业评估*/
 export const businessEstimateAll = `${host}/activityApply/list` // 轮播图列表

@@ -1,6 +1,5 @@
 <template>
   <u-container-layout>
-    <el-input v-model="state.searchKey" placeholder="请输入" style="width: 300px; margin-bottom: 10px;" @change="handleChange"/>
     <div class="inline-edit-table">
       <formConpoent
         v-if="state.dialogVisible"
@@ -10,13 +9,15 @@
         @handle="postFormData"
         @dialogClose="closeDialog"
       ></formConpoent>
-      <el-table
-        v-else
-        :data="state.tableData"
-        style="width: 100%"
-        :border="true"
-        v-loading="loading"
-      >
+      <div v-else>
+            <el-input v-model="state.searchKey" placeholder="请输入" style="width: 300px; margin-bottom: 10px;" @change="handleChange"/>
+        <el-table
+          
+          :data="state.tableData"
+          style="width: 100%"
+          :border="true"
+          v-loading="loading"
+        >
         <el-table-column
           v-for="(item, index) in tableHeaderConfig"
           :key="index"
@@ -32,6 +33,7 @@
           </template>
         </el-table-column>
       </el-table>
+      </div>
       <!-- <el-dialog
         v-model="state.dialogVisible"
         :title="title"
@@ -340,7 +342,7 @@ const getTestAll = () => {
       };
       map1[i].forEach((key, index) => {
         if(key === 'BASICINFO') {
-          baseInfo = {
+          state.baseInfo = {
               id: index,
               businessConfig: {
                 ENTNAME: '企业名称',

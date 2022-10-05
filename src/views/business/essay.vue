@@ -3,8 +3,9 @@
     <el-button type="primary" size="small" icon="close" @click="close" style="float: right;">
       关闭
     </el-button>
-    基本信息
+    <div style="margin-bottom: 20px;">基本信息</div>
     <el-descriptions
+      style="margin-bottom: 20px;"
       :border="true"
       :column="2"
     >
