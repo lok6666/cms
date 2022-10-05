@@ -1,11 +1,11 @@
 export const map = {
-    RESULTTYPEINFO: {
-        title: '结果类型信息',
-        useComType: "singleDesc",
-        businessConfig: {
-            RESULTTYPE: '结果类型（1，企业2，个体）',
-        },
-    },
+    // RESULTTYPEINFO: {
+    //     title: '结果类型信息',
+    //     useComType: "singleDesc",
+    //     businessConfig: {
+    //         RESULTTYPE: '结果类型（1，企业2，个体）',
+    //     },
+    // },
     ANNREPORTINFO: {
         title: '企业年报基本信息',
         useComType: "yearInfo",
@@ -15,7 +15,7 @@ export const map = {
             TEL: '企业联系电话',
             ENTSTATUS: '企业经营状态',
             NBYEAR: '年报年份',
-            NBDATE: '年报时间',
+
             REGNO: '注册号',
             EMPNUM: '从业人数',
             POSTCODE: '邮政编码',
@@ -111,7 +111,7 @@ export const map = {
         useComType: "table",
         businessConfig: {
             NBYEAR: '年报年份',
-            NBDATE: '年报时间',
+
             SHANAME: '股东名称',
             CONAM: '认缴出资额',
             CONDATE: '认缴出资时间',
@@ -130,7 +130,7 @@ export const map = {
         useComType: "table",
         businessConfig: {
             NBYEAR: '年报年份',
-            NBDATE: '年报时间',
+
             ZQR: '债权人',
             ZWR: '债务人',
             ZQZL: '主债权种类',
@@ -194,7 +194,7 @@ export const map = {
 
 
     SERIOUSDISHONESTYINFO: {
-        title: '企业严重违法失信企业（黑名单）信息',
+        title: '严重违法失信企业信息',
         useComType: "table",
         businessConfig: {
             TYPE: '类别',
@@ -213,7 +213,7 @@ export const map = {
         useComType: "table",
         businessConfig: {
             NBYEAR: '年报年份',
-            NBDATE: '年报时间',
+
             ASSGRO: '资产总额',
             LIAGRO: '负债总额',
             VENDINC: '营业总收入',
@@ -242,7 +242,7 @@ export const map = {
         useComType: "table",
         businessConfig: {
             NBYEAR: '年报年份',
-            NBDATE: '年报时间',
+
             INV: '股东名称',
             TRANSAMPR: '变更前股权比例',
             TRANSAMAFT: '变更后股权比例',
@@ -284,7 +284,7 @@ export const map = {
         useComType: "table",
         businessConfig: {
             NBYEAR: '年报年份',
-            NBDATE: '年报时间',
+
             WEBNAME: '网站（网店）名称',
             WEBURL: '网站（网店）网址',
             WEBTYPE: '网站网店类型',
@@ -477,7 +477,7 @@ export const map = {
         useComType: "singleDesc",
         businessConfig: {
             NBYEAR: '年报年份',
-            NBDATE: '年报时间',
+
             A1: '城镇职工基本养老保险',
             A2: '失业保险',
             A3: '职工基本医疗保险',
@@ -505,7 +505,7 @@ export const map = {
         useComType: "table",
         businessConfig: {
             NBYEAR: '年报年份',
-            NBDATE: '年报时间',
+
             ENTNAME: '投资设立企业或购买股权企业名称',
             REGNO: '注册号/统一社会信用代码',
         }
@@ -621,7 +621,7 @@ export const map = {
         useComType: "table",
         businessConfig: {
             NBYEAR: '年报年份',
-            NBDATE: '年报时间',
+
             ALITEM: '修改事项',
             ALTBE: '修改前',
             ALTAF: '修改后',

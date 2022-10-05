@@ -109,13 +109,13 @@ export const entApplyAll = `${host}/entApply/list` // 轮播图列表
 export const entApplAddOne = `${host}/entApply/insert`//  轮播图添加
 export const entApplyUpdateOne = `${host}/entApply/update`//  轮播图更新
 export const entApplyDelete = `${host}/entApply/delete` // 轮播图删除
-export const testAll = `${host}/ent/getByName/北京文投大数据有限公司` // 轮播图删除
+export const testAll = `${host}/ent/getByName` // 轮播图删除
 
 /*招商服务-企业评估*/
-export const businessEstimateAll = `${host}/activityApply/list` // 轮播图列表
-export const businessEstimateAddOne = `${host}/activityApply/insert`//  轮播图添加
-export const businessEstimatUpdateOne = `${host}/activityApply/update`//  轮播图更新
-export const businessEstimatDelete = `${host}/activityApply/delete` // 轮播图删除
+export const businessEstimateAll = `${host}/entList/list` // 轮播图列表
+export const businessEstimateAddOne = `${host}/entList/insert`//  轮播图添加
+export const businessEstimatUpdateOne = `${host}/entList/update`//  轮播图更新
+export const businessEstimatDelete = `${host}/entList/delete` // 轮播图删除
 
 // menu路由
 export const getMenuByUserId = `${host}/sysResource/getMenuByUserId`

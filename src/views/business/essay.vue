@@ -3,7 +3,7 @@
     <el-button type="primary" size="small" icon="close" @click="close" style="float: right;">
       关闭
     </el-button>
-    <div style="margin-bottom: 20px;">基本信息</div>
+    <!-- <div style="margin-bottom: 20px;">基本信息</div> -->
     <el-descriptions
       style="margin-bottom: 20px;"
       :border="true"
@@ -46,7 +46,7 @@
           </el-tabs>
           <div
             class="business-essay-inline-edit-table"
-            style="width: 90%"
+            style="width: 87%"
           >
             <div v-for="item in i.optionsList" :key="item.id" style="width: 90%">
               <h3 :id="item.title">{{ item.title }}</h3>
@@ -124,10 +124,14 @@
               <el-table
                 v-if="item.useComType === 'table'"
                 :data="item.businessMessage"
+                header-row-class-name="custom-header"
                 :border="true"
-                v-loading="loading"
               > 
-                <el-table-column v-for='(value, key, index) of item.businessConfig' :prop="key" :label="value" :key='index' />{{value}}
+                <el-table-column v-for='(value, key, index) of item.businessConfig' :prop="key" :label="value" :key='index'>
+                  <template #default="scope"  v-if="key === 'CONRATIO'">
+                    {{scope.row.CONRATIO * 100}}%
+                  </template>
+                </el-table-column>
               </el-table>
             </div>
           </div>
@@ -211,7 +215,7 @@ onMounted(() => {
 }
 .business-essay-content {
   overflow-x: hidden;
-  height: 500px;
+  height: 600px;
   &::-webkit-scrollbar {
     display: none;
   }
@@ -220,6 +224,12 @@ onMounted(() => {
     }
   .business-essay-inline-edit-table {
     width: 92%;
+    .custom-header {
+      background: gray;
+      th.el-table__cell {
+        background: var(--el-fill-color-light);
+      }
+    }
     h3 {
       height: 26px;
       border-left: 4px solid #3085d5;

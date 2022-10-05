@@ -90,41 +90,17 @@ export default {
     return {
       tableHeaderConfig: [
         {
-          prop: "id",
-          label: "序号",
+          prop: "companyName",
+          label: "企业名称"
         },
         {
-          prop: "actId",
-          label: "活动id",
+          prop: "entLocal",
+          label: "企业地点"
         },
         {
-          prop: "companyid",
-          label: "企业id",
-        },
-        {
-          prop: "duties",
-          label: "职务",
-        },
-        {
-          prop: "operator",
-          label: "操作人",
-        },
-        {
-          prop: "startTime",
-          label: "开始时间",
-        },
-        {
-          prop: "endTime",
-          label: "结束时间",
-        },
-        {
-          prop: "personName",
-          label: "联系人",
-        },
-        {
-          prop: "telPhone",
-          label: "人员电话",
-        },
+          prop: "entCode",
+          label: "企业码"
+        }
       ],
     };
   },
@@ -142,53 +118,23 @@ interface formConfigItem {
 }
 const formConfig: formConfigItem[] = [
   {
-    prop: "actId",
-    label: "活动id",
+    prop: "companyName",
+    label: "企业名称",
     required: true,
     showInput: true,
   },
   {
-    prop: "companyid",
-    label: "企业id",
+    prop: "entLocal",
+    label: "企业地点",
     required: true,
     showInput: true,
   },
   {
-    prop: "duties",
-    label: "职务",
+    prop: "entCode",
+    label: "企业码",
     required: true,
     showInput: true,
-  },
-  {
-    prop: "operator",
-    label: "操作人",
-    required: true,
-    showInput: true,
-  },
-  {
-    prop: "startTime",
-    label: "开始时间",
-    required: true,
-    showDatePicker: true,
-  },
-  {
-    prop: "endTime",
-    label: "结束时间",
-    required: true,
-    showDatePicker: true,
-  },
-  {
-    prop: "personName",
-    label: "联系人",
-    required: true,
-    showInput: true,
-  },
-  {
-    prop: "telPhone",
-    label: "人员电话",
-    required: true,
-    showInput: true,
-  },
+  }
 ];
 
 const map1 = {
@@ -269,8 +215,7 @@ const title = ref<string>("新增");
  */
 // todo 单独封装
 const detail = (row) => {
-  title.value = "查看详情";
-  state.dialogVisible = true;
+  getTestAll(row.companyName);
   //   state.formConfig = state.formConfig
   //     .map((e, b) => {
   //       // value 替换成 e.prop
@@ -329,8 +274,8 @@ const getbusinessEstimateAll = () => {
 getbusinessEstimateAll();
 
 //  文章内容列表
-const getTestAll = () => {
-  get(`${testAll}`, {
+const getTestAll = (busneissName) => {
+  get(`${testAll}/${busneissName}`, {
 
   }).then(function (data) {
     console.log('data----', data);   
@@ -361,12 +306,12 @@ const getTestAll = () => {
           });
       });
       list.push(obj);
-      
+      title.value = "查看详情";
+      state.dialogVisible = true;
     });
     state.tabList = list;
   });
 };
-getTestAll();
 
 
 const handleChange = val => {
