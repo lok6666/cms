@@ -17,6 +17,19 @@
         >{{ value }}</el-descriptions-item
       >
     </el-descriptions>
+    <div style="width: 100%;height: 300px;display: flex;align-items: center;">
+        <div style="width: 50%;display: flex;align-items: center;">
+          <div style="width: 50%;">
+            <div>综合评分</div>
+            <div>{{state.overall}}</div>
+          </div>
+          <div style="width: 50%;">
+            <div>评分等级</div>
+            <div>{{state.overallGrade}}</div>
+          </div>
+        </div>
+        <div id="charts" style="width: 50%; height: 300px;">22</div>
+    </div>
     <el-tabs
       v-model="activeName"
       type="carid"
@@ -144,10 +157,15 @@
 export default { name: "inline-table" };
 </script>
 <script lang="ts" setup>
-import { computed, ref, reactive, onMounted, toRefs } from "vue";
+import {
+  entAppraise
+} from "@/config/api";
+import { computed, ref, reactive, onMounted, toRefs, watch } from "vue";
 import { articleSelectById } from "@/config/api";
-import { businessConfig } from "@/config/constants";
+import { businessConfig, priseConfig } from "@/config/constants";
 import { get, post } from "@/utils/request";
+import * as echarts from 'echarts';
+import {EChartsType} from "echarts/core";
 interface prop {
   tabList: {
     type: Array<Object>;
@@ -168,9 +186,11 @@ const state = reactive({
   dialogVisible: false,
   articletype: 1,
   businessConfig,
+  priseConfig,
   tabList: props.tabList,
   baseInfo: props.baseInfo
 });
+let chart:EChartsType;
 
 const articleHandleClick = (tab, event) => {
   state.activeName = tab.props.title;
@@ -186,9 +206,56 @@ const articleHandleClick1 = (tab) => {
 const close = (): void => {
   emit("dialogClose");
 };
+const initChart = (data): void => {
+  let chart = echarts.init(document.getElementById('charts'))
+  chart.setOption({
+      radar: [
+        {
+          indicator: [
+            { text: '竞争实力', max: 1000 },
+            { text: '创新能力', max: 1000 },
+            { text: '发展潜力', max: 1000 },
+            { text: '身份特征', max: 1000 },
+            { text: '经营风险', max: 1000 },
+            { text: '活跃程度', max: 1000 }
+          ],
+          // radius: 80,
+          // center: ['50%', '60%']
+        }
+      ],
+      series: [
+        {
+          type: 'radar',
+          symbol: 'none',
+          areaStyle: {},
+          data: [
+            {
+              value: data
+            }
+          ]
+        }
+      ]
+    })
+  return chart
+}
+//  文章内容列表
+const getTestAll = (busneissName) => {
+  let list = [];
+  get(`${entAppraise}/${state.baseInfo.businessMessage.ENTNAME}`, {
+
+  }).then(function (data) {
+    state.overall = data.overall;
+    state.overallGrade = data.overallGrade;
+    chart = initChart(state.priseConfig.map(e => data[e])); 
+  });
+};
+getTestAll();
 
 // Mounted 生命周期 querySelectorAll 才生效
 onMounted(() => {
+  window.addEventListener('resize',function (){
+    chart&&chart.resize()
+  })
   var Observer = new IntersectionObserver(function (entries) {
     entries.forEach(function (entry) {
       // 进入可视区域

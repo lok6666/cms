@@ -110,6 +110,7 @@ export const entApplAddOne = `${host}/entApply/insert`//  轮播图添加
 export const entApplyUpdateOne = `${host}/entApply/update`//  轮播图更新
 export const entApplyDelete = `${host}/entApply/delete` // 轮播图删除
 export const testAll = `${host}/ent/getByName` // 轮播图删除
+export const entAppraise = `${host}/entAppraise/getByName` // 根据企业名称获取评价
 
 /*招商服务-企业评估*/
 export const businessEstimateAll = `${host}/entList/list` // 轮播图列表
