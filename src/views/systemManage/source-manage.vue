@@ -11,7 +11,7 @@
         :data="tableData"
         style="width: 100%; margin-bottom: 20px"
         row-key="id"
-        border
+        :border="true"
         default-expand-all
       >
         <el-table-column prop="title" label="资源名称" sortable  />
@@ -26,10 +26,6 @@
           sortable
         />
         <el-table-column prop="href" label="资源链接" sortable  />
-        <el-table-column prop="icon" label="图标" sortable  />
-        <el-table-column prop="target" label="跳转方式"/>
-        <el-table-column prop="resourceCreateTime" label="创建日期"/>
-        <el-table-column prop="resourceUpdateTime" label="修改日期"/>
         <el-table-column
           prop="operator"
           label="操作"
@@ -82,18 +78,18 @@
           <el-form-item label="父资源编码" prop="parentId">
             <el-input v-model="ruleForm.parentId" />
           </el-form-item>
-          <el-form-item label="资源编码" prop="resourceId">
+          <!-- <el-form-item label="资源编码" prop="resourceId">
             <el-input v-model="ruleForm.resourceId" />
-          </el-form-item>
+          </el-form-item> -->
           <el-form-item label="资源链接" prop="href">
             <el-input v-model="ruleForm.href" />
           </el-form-item>
-          <el-form-item label="资源图标" prop="icon">
+          <!-- <el-form-item label="资源图标" prop="icon">
             <el-input v-model="ruleForm.icon　" />
-          </el-form-item>
-          <el-form-item label="跳转方式" prop="target">
+          </el-form-item> -->
+          <!-- <el-form-item label="跳转方式" prop="target">
             <el-input v-model="ruleForm.target" />
-          </el-form-item>
+          </el-form-item> -->
         </el-form>
         <template #footer>
           <span class="dialog-footer">

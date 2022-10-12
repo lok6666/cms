@@ -76,10 +76,7 @@ import { map } from "./constant";
 import formConpoent from "./essay.vue";
 import {
   businessEstimateAll,
-  testAll
-  // businessEstimateAddOne,
-  // businessEstimatUpdateOne,
-  // businessEstimatDelete,
+  entGetByName
 } from "@/config/api";
 import { ElMessage, ElMessageBox } from "element-plus";
 // import { formConfigItem } from "@/utils/interface";
@@ -215,7 +212,7 @@ const title = ref<string>("新增");
  */
 // todo 单独封装
 const detail = (row) => {
-  getTestAll(row.companyName);
+  getentGetByName(row.companyName);
   //   state.formConfig = state.formConfig
   //     .map((e, b) => {
   //       // value 替换成 e.prop
@@ -274,8 +271,8 @@ const getbusinessEstimateAll = () => {
 getbusinessEstimateAll();
 
 //  文章内容列表
-const getTestAll = (busneissName) => {
-  get(`${testAll}/${busneissName}`, {
+const getentGetByName = (busneissName) => {
+  get(`${entGetByName}/${busneissName}`, {
 
   }).then(function (data) {
     console.log('data----', data);   
@@ -316,6 +313,14 @@ const getTestAll = (busneissName) => {
 
 const handleChange = val => {
   console.log('valk------', val);
+  post(`${businessEstimateAll}`, {
+    companyName: val,
+    pageNum: state.currentPage,
+    pageSize: state.pageSize,
+  }).then(function (data) {
+    state.tableData = data.list;
+    state.total = data.total;
+  });
   state.tableData = [{}];
 };
 

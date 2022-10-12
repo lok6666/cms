@@ -4,12 +4,14 @@
     <!--看了源码,为了required校验,必须在form标签循环-->
     <el-form
       ref="formRef"
+      style="width: 50%;display:inline"
       v-for="(item, i) in state.formConfig"
       :key="i"
+      :inline='true'
       :disabled="state.disabled"
       :model="item"
       class="demo-dynamic"
-      label-width="180px"
+      label-width="120px"
       label-position="right"
     >
       <el-form-item
@@ -21,7 +23,7 @@
         <!--输入框-->
         <el-input v-model="item[item.prop]" v-if="item.showInput" />
         <!--输入框-->
-        <el-input v-model="item[item.prop]" type="texarea" v-if="item.showTextarea" />
+        <el-input v-model="item[item.prop]" type="textarea" v-if="item.showTextarea" />
         <!--时间选择器-->
         <el-date-picker
           v-model="item[item.prop]"
@@ -59,36 +61,47 @@
             :value="i.value"
           />
         </el-select>
-        <!--上传图片-->
-        <el-upload
-          class="avatar-uploader"
-          action="#"
-          :show-file-list="false"
-          v-if="item.upload"
-          :before-upload="beforeAvatarUpload"
-        >
+        <!--照片墙-->
+        <div v-if="item.zlupload" class="avatar-uploader">
           <img
-            v-if="item[item.prop]"
-            :src="item[item.prop]"
-            style="width: 178px; height: 178px"
+            v-for="i in JSON.parse(item[item.prop])"
+            :src="i.url"
+            style="width: 120px; height: 80px"
             class="avatar"
           />
-          <video
-            v-else-if="item.video"
-            :src="item.video"
-            controls
-            style="width: 178px; height: 178px"
-            class="avatar"
-          ></video>
-          <el-icon v-else class="avatar-uploader-icon" @click="getIndex(i, item)"><Plus /></el-icon>
-        </el-upload>
+        </div>
+        <!--上传图片-->
+        <div @click="getIndex(i)" v-else-if="item.upload">
+          <el-upload
+            class="avatar-uploader"
+            :show-file-list="false"
+            v-if="item.upload"
+            :before-upload="beforeAvatarUpload"
+          >
+            <img
+              v-if="item[item.prop]"
+              :src="item[item.prop]"
+              style="width: 178px; height: 178px"
+              @click="getIndex(i, item)"
+              class="avatar"
+            />
+            <video
+              v-else-if="item.video"
+              :src="item.video"
+              controls
+              style="width: 178px; height: 178px"
+              class="avatar"
+            ></video>
+            <el-icon v-else class="avatar-uploader-icon" @click="getIndex(i, item)"><Plus /></el-icon>
+          </el-upload>
+        </div>
         <!--富文本编辑-->
-        <editor
-          v-if="item.showWangEditor"
-          @click="getIndex(i)"
+        <div @click="getIndex(i)" ref="uploadSingle" :indexValue="i" v-if="item.showWangEditor">
+          <editor 
           :content="content"
           @handle="changeContent"
         ></editor>
+        </div>
       </el-form-item>
     </el-form>
     <div v-if="state.showBtn" style="float: right">
@@ -99,7 +112,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, reactive, watch } from "vue";
+import { ref, reactive, watch, onMounted, getCurrentInstance  } from "vue";
 import type { FormInstance } from "element-plus";
 import { ElMessage, UploadProps } from "element-plus";
 import editor from "@/components/editor/index.vue";
@@ -124,6 +137,7 @@ interface prop{
   }
 }
 const emit = defineEmits(["handle", "dialogClose"]);
+const uploadSingle = ref(null);
 let props = defineProps<prop>();
 const state = reactive(props);
 const itemIndex = ref<number>();
@@ -138,7 +152,9 @@ watch(
 );
 const formData = {};
 const formRef = ref<FormInstance>();
-
+  onMounted(() => {
+      return uploadSingle;
+		});
 /**
  * 表单校验
  */
@@ -186,11 +202,13 @@ const resetForm = (formEl: FormInstance | undefined) => {
  */
 const changeContent = (HTML: String) => {
   // todo 记得封装一下
-  state.formConfig[itemIndex.value][state.formConfig[itemIndex.value].prop] = HTML;
+  let index = uploadSingle.value[0].attributes.indexvalue.value;
+  state.formConfig[index].prop && (state.formConfig[index][state.formConfig[index].prop] = HTML);
 };
 
 // 获取索引
 const getIndex = (i: Number, item) => {
+  console.log('getIndex', i);
   itemIndex.value = i;
 };
 
@@ -209,16 +227,11 @@ const beforeAvatarUpload: UploadProps["beforeUpload"] = (rawFile) => {
   var FormData = require("form-data");
   var data = new FormData();
   data.append("file", rawFile); // file 即选中的文件
-  data.append("userId", 1);
+  data.append("userId", window.localStorage);
   data.append("type", "image");
   var config = {
     method: "post",
     url: `${upLoad}`, //上传图片地址
-    headers: {
-      "Content-Type": "multipart/form-data",
-      "Access-Control-Allow-Origin": "*",
-      Authorization: "Bearer " + localStorage.getItem("token")
-    },
     type: uploadType.value,
     data: data
   };

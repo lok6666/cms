@@ -30,6 +30,12 @@
           :prop="item.prop"
           :label="item.label"
         >
+        <template #default="scope" v-if="item.prop === 'serviceFlag'">
+            {{this.serviceFlagstatus[scope.row.serviceFlag]}}
+          </template>
+          <template #default="scope" v-if="item.prop === 'serviceType'">
+            {{this.serviceTypetatus[scope.row.serviceType]}}
+          </template>
         </el-table-column>
         <el-table-column prop="operator" label="操作" width="200" fixed="right">
           <template #default="scope">
@@ -86,35 +92,51 @@ export default {
   name: "sensitive-manage",
   data() {
     return {
+      serviceFlagstatus: {
+        0: '下架',
+        1: '上架'
+      },
+      serviceTypetatus: {
+        0: '税务服务',
+        1: '注销及其他',
+        2: '工商业务类',
+        3: '资质类',
+        4: '公司变更',
+        5: '财税服务'
+      },
       tableHeaderConfig: [
       {
         prop: "serviceName",
         label: "服务名称",
       },
       {
-        prop: "serviceStatus",
-        label: "审批状态",
+        prop: "serviceFlag",
+        label: "上下架",
       },
       {
         prop: "serviceType",
         label: "服务类型",
       },
-      {
-        prop: "supplierName",
-        label: "服务商名称",
-      },
-      {
-        prop: "supplierId",
-        label: "服务商id",
-      },
-      {
-        prop: "supplierContact",
-        label: "服务商联系方式",
-      },
-      {
-        prop: "supplierPerson",
-        label: "服务商联系人",
-      }
+      // {
+      //   prop: "supplierName",
+      //   label: "服务商名称",
+      // },
+      /*  {
+         prop: "supplierId",
+         label: "服务商id",
+       },
+       {
+         prop: "supplierContact",
+         label: "服务商联系方式",
+       },
+       {
+         prop: "supplierPerson",
+         label: "服务商联系人",
+       }, */
+       {
+         prop: "servicePrice",
+         label: "服务价格"
+       },
       ],
     };
   },
@@ -129,10 +151,16 @@ const formConfig = [
     showInput: true
   },
   {
-    prop: "serviceSynopsis",
-    label: "服务简介",
+    prop: "servicePrice",
+    label: "服务价格",
     required: true,
-    showWangEditor: true
+    showInput: true
+  },
+  {
+    prop: "serviceImage",
+    label: "服务缩略图",
+    required: true,
+    upload: true
   },
   {
     prop: "serviceType",
@@ -165,30 +193,11 @@ const formConfig = [
     ],
     required: true,
     showSelect: true
-  },
-  {
-    prop: "supplierName",
-    label: "服务商名称",
+  },{
+    prop: "serviceSynopsis",
+    label: "服务简介",
     required: true,
-    showInput: true
-  },
-  {
-    prop: "supplierId",
-    label: "服务商id",
-    required: true,
-    showInput: true
-  },
-  {
-    prop: "supplierContact",
-    label: "服务商联系方式",
-    required: true,
-    showInput: true
-  },
-  {
-    prop: "supplierPerson",
-    label: "服务商联系人",
-    required: true,
-    showInput: true
+    showWangEditor: true
   }
 ];
 const state = reactive({
@@ -299,7 +308,7 @@ ElMessageBox.confirm("你确定要删除当前项吗?", "温馨提示", {
     draggable: true,
   })
     .then(() => {
-      deleteItem(`${entServicesDeleteOne}`, [row.id]).then(function (data) {
+      deleteItem(`${entServicesDeleteOne}/${row.id}`).then(function (data) {
         getentServicesAll();
       });
       ElMessage.success("删除成功");
@@ -318,7 +327,7 @@ ElMessageBox.confirm("你确定要上架当前项吗?", "温馨提示", {
     draggable: true,
   })
     .then(() => {
-      post(`${entServicesDeleteOne}`, {id: row.id, sersxj: 0}).then(function (data) {
+      post(`${entServicesDeleteOne}/${row.id}`).then(function (data) {
         getentServicesAll();
       });
       ElMessage.success("删除成功");
@@ -337,7 +346,7 @@ ElMessageBox.confirm("你确定要上架当前项吗?", "温馨提示", {
     draggable: true,
   })
     .then(() => {
-      post(`${entServicesDeleteOne}`, {id: row.id, sersxj: 1}).then(function (data) {
+      post(`${entServicesDeleteOne}/${row.id}`).then(function (data) {
         getentServicesAll();
       });
       ElMessage.success("删除成功");

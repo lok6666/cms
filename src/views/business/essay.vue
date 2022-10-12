@@ -18,14 +18,14 @@
       >
     </el-descriptions>
     <div style="width: 100%;height: 300px;display: flex;align-items: center;">
-        <div style="width: 50%;display: flex;align-items: center;">
-          <div style="width: 50%;">
-            <div>综合评分</div>
-            <div>{{state.overall}}</div>
+        <div style="width: 50%;display: flex;align-items: center;justify-content: space-around;">
+          <div style="display: flex;flex-direction: column;align-items: center;">
+            <div style="font-size: 20px;">综合评分</div>	
+            <div style="color: #3CB371">{{state.overall}}</div>
           </div>
-          <div style="width: 50%;">
-            <div>评分等级</div>
-            <div>{{state.overallGrade}}</div>
+          <div style="display: flex;flex-direction: column;align-items: center;">
+            <div style="font-size: 20px;">评分等级</div>
+            <div style="color: #3CB371">{{state.overallGrade}}</div>
           </div>
         </div>
         <div id="charts" style="width: 50%; height: 300px;">22</div>
@@ -239,7 +239,7 @@ const initChart = (data): void => {
   return chart
 }
 //  文章内容列表
-const getTestAll = (busneissName) => {
+const getEntAppraise = (busneissName) => {
   let list = [];
   get(`${entAppraise}/${state.baseInfo.businessMessage.ENTNAME}`, {
 
@@ -249,7 +249,7 @@ const getTestAll = (busneissName) => {
     chart = initChart(state.priseConfig.map(e => data[e])); 
   });
 };
-getTestAll();
+getEntAppraise();
 
 // Mounted 生命周期 querySelectorAll 才生效
 onMounted(() => {

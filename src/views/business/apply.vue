@@ -14,7 +14,7 @@
           :label="item.label"
         >
         <template #default="scope" v-if="item.prop === 'applyStatus'">
-            {{this.applyStatusObj[scope.row.applyStatus]}}
+            {{applyStatusObj[scope.row.applyStatus]}}
           </template>
         </el-table-column>
         <el-table-column prop="operator" label="操作" width="200" fixed="right">
@@ -22,7 +22,7 @@
             <el-button type="primary" size="small" @click="detail(scope.row)">
               查看详情
             </el-button>
-            <el-button type="primary" size="small" @click="examine(scope.row)" :disabled="[scope.row.applyStatus !== 0]">
+            <el-button type="primary" size="small" @click="examine(scope.row)" :disabled="scope.row.applyStatus !== 0">
               审核
             </el-button>
           </template>

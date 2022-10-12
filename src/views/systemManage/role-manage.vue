@@ -113,8 +113,11 @@ const props = {
 const formInline = ref({
   username: ""
 });
+const state = reactive({
+  updateList: []
+});
 const defaultCheckedKeys = ref([]);
-const updateList =  ref([]);
+// const state.updateList =  ref([]);
 let roleList = ref([]);
 let currentRoleId = ref('');
 let roleName = ref('');
@@ -142,7 +145,7 @@ const add = () => {
   }).then(function (data) {
     treeTable.value = data.parent;
     defaultCheckedKeys.value = [];
-    updateList.value = data.children.map(el => {
+    state.updateList = data.children.map(el => {
       return {id: el.resourceId, title: el.title};
     });
   });
@@ -154,12 +157,16 @@ const handleCheckChange = (
 ) => {
   if(checked) {
      defaultCheckedKeys.value.push(data.id);
-     updateList.value.push({id: data.id, title: data.title});
+     state.updateList.push({id: data.id, title: data.title});
   }
-   console.log('updateList', updateList.value);
-/*   else {
-    defaultCheckedKeys.value = defaultCheckedKeys.value.map({id: data.id, title: data.title});
-   }; */
+  else {
+    defaultCheckedKeys.value = defaultCheckedKeys.value.filter(id => {
+      return id !== data.id;
+    });
+    state.updateList = state.updateList.filter(e => {
+      return e.id !== data.id;
+    });
+  };
 }
 
 // 编辑
@@ -168,13 +175,13 @@ const edit = (row) => {
   currentRoleId.value = row.roleId;
   formInline.value = {username: row.roleName};
   roleName.value = row.roleName;
-  title.value === '编辑';
+  title.value = '编辑';
   post(`${sysRoleParent}`, {
     roleId: row.roleId
   }).then(function (data) {
     treeTable.value = data.parent;
     defaultCheckedKeys.value = data.children.map(el => el.resourceId);
-    updateList.value = data.children.map(el => {
+    state.updateList = data.children.map(el => {
       return {id: el.resourceId, title: el.title};
     });
   });
@@ -186,7 +193,7 @@ const cancelBtn = async (done: () => void) => {
 };
 
 const closeDialog = async (done: () => void) => {
-  updateList.value = [];
+  state.updateList = [];
 };
 
 // 关闭弹窗
@@ -195,7 +202,7 @@ const handleClose = async (done: () => void) => {
   if(title.value === '新增') {
       post(`${sysRoleInsert}`, {
         roleName: formInline.value.username,
-        tree: updateList.value
+        tree: state.updateList
       }).then(function (data) {
         getSysRoleList();
       });
@@ -203,11 +210,11 @@ const handleClose = async (done: () => void) => {
     post(`${sysRoleUpdate}`, {
       roleId: currentRoleId.value,
       roleName: formInline.value.username || roleName.value,
-      tree: updateList.value
+      tree: state.updateList
     }).then(function (data) {
       getSysRoleList();
     });
-    updateList.value = [];
+    state.updateList = [];
   }
 };
 //  删除

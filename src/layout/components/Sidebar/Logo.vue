@@ -19,7 +19,7 @@ import { useStore } from 'vuex' // useStore ===vue2.0中的this.$store
 import logo from '@/assets/logo.png'
 
 const store = useStore()
-const title = ref<string>('后台erp')
+const title = ref<string>('后台管理系统')
 
 const isCollapse = computed(()=>{
   return !store.state.app.isCollapse

@@ -7,6 +7,7 @@
         :border="true"
         v-loading="loading"
       >
+      <el-table-column type="index" label="序号" width="80" />
         <el-table-column
           v-for="(item, index) in tableHeaderConfig"
           :key="index"
@@ -24,9 +25,6 @@
             <el-button type="primary" size="small" @click="detail(scope.row)">
               查看详情
             </el-button>
-            <el-button type="primary" size="small" @click="qr(scope.row)">
-              确认金额
-            </el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -38,14 +36,8 @@
       >
         <formConpoent
           v-model:formConfig="state.formConfig"
-          title="项目"
           :showBtn="false"
-          @dialogClose="closeDialog"
-        ></formConpoent>
-         <formConpoent
-          title="产品"
-          :showBtn="false"
-          v-model:formConfig="state.form2Config"
+          :disabled="true"
           @dialogClose="closeDialog"
         ></formConpoent>
       </el-dialog>
@@ -83,40 +75,28 @@ export default {
     return {
       tableHeaderConfig: [
         {
-          prop: "id",
-          label: "序号",
+          prop: "serviceName",
+          label: "服务名称",
         },
         {
-          prop: "protName",
-          label: "项目名称",
+          prop: "companyContact",
+          label: "企业联系方式",
         },
         {
-          prop: "proCompany",
+          prop: "companyPerson",
+          label: "企业联系人"
+        },
+        {
+          prop: "companyName",
           label: "企业名称",
         },
         {
-          prop: "fundName",
-          label: "企业资金",
-        },
-        {
-          prop: "fundCompnay",
-          label: "资金企业",
-        },
-        {
-          prop: "amount",
-          label: "确认金额(万元)",
-        },
-        {
-          prop: "",
+          prop: "dockStatus",
           label: "对接状态",
         },
         {
-          prop: "",
-          label: "对接类别",
-        },
-        {
-          prop: "storageTime",
-          label: "时间",
+          prop: "dockTime",
+          label: "申请时间",
         }
       ],
     };
@@ -124,35 +104,37 @@ export default {
 };
 </script>
 <script lang="ts" setup >
-const formConfig = [
+const formConfig = [ {
+    prop: "serviceName",
+    label: "服务名称",
+    showInput: true,
+    disabled: true
+  }, {
+    prop: "companyContact",
+    label: "企业联系方式",
+    showInput: true,
+    disabled: true
+  }, 
   {
-    prop: "protName",
-    label: "项目名称",
+    prop: "companyName",
+    label: "企业名称",
+    showInput: true,
+    disabled: true
+  }, 
+  {
+    prop: "companyPerson",
+    label: "企业联系人",
     showInput: true,
     disabled: true
   }, {
-    prop: "proType",
-    label: "融资类型",
+    prop: "dockStatus",
+    label: "对接状态",
     showInput: true,
     disabled: true
-  }, {
-    prop: "money",
-    label: "融资金额",
-    showInput: true,
-    disabled: true
-  }, {
-    prop: "income",
-    label: "去年总收入",
-    showInput: true,
-    disabled: true
-  }, {
-    prop: "expenditure",
-    label: "去年总支出",
-    showInput: true,
-    disabled: true
-  }, {
-    prop: "intro",
-    label: "项目简介",
+  },
+  {
+    prop: "dockTime",
+    label: "申请时间",
     showInput: true,
     disabled: true
   }

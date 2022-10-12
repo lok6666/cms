@@ -31,7 +31,13 @@ export const constantRoutes: Array<RouteRecordRaw & extendRoute> = [
     hidden: true,
     meta: { title: '登录', }
   },
-
+  {
+    path: '/policy-pulish-detail',
+    name: 'policy-pulish-detail',
+    component: () => import('@/views/serverManage/policy-pulish-detail.vue'),
+    hidden: true,
+    meta: { title: '政策详情', }
+  },
   {
     path: '/',
     name: 'layout',
@@ -47,7 +53,7 @@ export const constantRoutes: Array<RouteRecordRaw & extendRoute> = [
     ]
   },
   {
-    path: '/charts',
+    path: '/business',
     component: Layout,
     redirect: 'noRedirect',
     name: 'Charts',
@@ -70,16 +76,65 @@ export const constantRoutes: Array<RouteRecordRaw & extendRoute> = [
         meta: { title: '企业评估', roles: ['other'] }
       },
       {
-        path: 'complex',
-        component: () => import('@/views/charts/complex.vue'),
-        name: 'charts-complex',
-        meta: { title: '招商效果', roles: ['other'] }
+        path: 'income',
+        component: () => import('@/views/busneissMessage/income.vue'),
+        name: 'busneiss-income',
+        meta: { title: '财税数据', roles: ['other'] }
       },
       {
-        path: 'animation',
-        component: () => import('@/views/business/enterMessage.vue'),
-        name: 'charts-animation',
-        meta: { title: '信息录入', roles: ['other'] }
+        path: 'test',
+        component: () => import('@/views/busneissMessage/test.vue'),
+        name: 'busneiss-test',
+        meta: { title: '政策申报管理', roles: ['other'] }
+      },
+      // {
+      //   path: 'complex',
+      //   component: () => import('@/views/charts/complex.vue'),
+      //   name: 'charts-complex',
+      //   meta: { title: '招商效果', roles: ['other'] }
+      // },
+      // {
+      //   path: 'animation',
+      //   component: () => import('@/views/business/enterMessage.vue'),
+      //   name: 'charts-animation',
+      //   meta: { title: '信息录入', roles: ['other'] }
+      // },
+    ]
+  },
+  {
+    path: '/busneiss-message',
+    component: Layout,
+    redirect: 'noRedirect',
+    name: 'busneiss-message',
+    meta: {
+      title: '企业信息',
+      roles: ['other']
+    },
+    children: [
+      {
+        path: 'busneiss-basic',
+        component: () => import('@/views/busneissMessage/basic.vue'),
+        name: 'busneiss-basic',
+        meta: { title: '基本信息', roles: ['other']}
+      },
+      {
+        path: 'busneiss-propagate',
+        component: () => import('@/views/busneissMessage/propagate.vue'),
+        // component: () => import('@/views/business/essay.vue'),
+        name: 'busneiss-propagate',
+        meta: { title: '宣传资料', roles: ['other'] }
+      },
+      {
+        path: 'busneiss-filling',
+        component: () => import('@/views/busneissMessage/filling.vue'),
+        name: 'busneiss-filling',
+        meta: { title: '备案信息', roles: ['other'] }
+      },
+      {
+        path: 'envelope',
+        component: () => import('@/views/serverManage/envelope.vue'),
+        name: 'envelope',
+        meta: { title: '站内信管理', roles: ['other'] }
       },
     ]
   },
@@ -95,7 +150,10 @@ export const constantRoutes: Array<RouteRecordRaw & extendRoute> = [
     children: [
       {
         path: 'publish',
-        component: () => import('@/views/action/publish.vue'),
+        component: () => {
+          let src = 'publish';
+          return import(`@/views/action/${src}.vue`)
+        },
         name: 'publish',
         meta: { title: '活动发布', roles: ['other'], requiresAuth: false }
       },
@@ -107,7 +165,31 @@ export const constantRoutes: Array<RouteRecordRaw & extendRoute> = [
       }
     ]
   },
-  permissionRouter
+  {
+    path: '/message',
+    component: Layout,
+    redirect: 'noRedirect',
+    name: 'message',
+    meta: {
+      title: '信息发布',
+      roles: ['other']
+    },
+    children: [
+      {
+        path: 'essay',
+        component: () => import('@/views/contentmanage/essay.vue'),
+        name: 'essay',
+        meta: { title: '文章发布', roles: ['other'], requiresAuth: false }
+      },
+      {
+        path: 'essay2',
+        component: () => import('@/views/contentmanage/essay.vue'),
+        name: 'essay1',
+        meta: { title: '文章发布', roles: ['other'], requiresAuth: false }
+      }
+    ]
+  }
+  // permissionRouter
 ]
 
 const clipboardTable = {
@@ -167,7 +249,7 @@ export const asyncRoutes = [
   errorRouter,
   externalLink,
   clipboardTable,
-  permissionRouter,
+  // permissionRouter,
 
   {
     path: '/:pathMatch(.*)',

@@ -15,7 +15,7 @@
           :label="item.label"
         >
         <template #default="scope" v-if="item.prop === 'dockStatus'">
-            {{applyStatusObj[scope.row.dockStatus]}}
+            {{this.dockStatusObj[scope.row.dockStatus]}}
           </template>
          <img
             v-if="item.showImg"
@@ -27,9 +27,6 @@
           <template #default="scope">
             <el-button type="primary" size="small" @click="detail(scope.row)">
               查看详情
-            </el-button>
-            <el-button type="primary" size="small" @click="qr(scope.row)">
-              分配
             </el-button>
           </template>
         </el-table-column>
@@ -44,19 +41,6 @@
           v-model:formConfig="state.formConfig"
           :showBtn="false"
           :disabled="true"
-          @dialogClose="closeDialog"
-        ></formConpoent>
-      </el-dialog>
-      <el-dialog
-        v-model="state.dialogVisible2"
-        :title="title"
-        width="50%"
-        @closed="closeDialog()"
-      >
-        <formConpoent
-          v-model:formConfig="state.formConfig2"
-          :showBtn="true"
-          @handle="postFormData"
           @dialogClose="closeDialog"
         ></formConpoent>
       </el-dialog>
@@ -82,8 +66,8 @@
   </u-container-layout>
 </template>
 <script lang="ts">
-import { computed, ref, reactive, onMounted, toRefs, } from "vue";
-import { entServiceDockingAll, entServiceDockingUpdate, suppliersAll } from "@/config/api";
+import { computed, ref, reactive, onMounted, toRefs } from "vue";
+import { recruitServiceDockingAll, recruitServiceDockingUpdateOne } from "@/config/api";
 import formConpoent from "@/components/form/form.vue";
 import { ElMessage, ElMessageBox, FormRules, UploadProps } from "element-plus";
 import { get, post } from "@/utils/request";
@@ -92,52 +76,44 @@ export default {
   name: "sensitive-manage",
   data() {
     return {
-      applyStatusObj: {
-        0: '未分配',
-        1: '已分配'
-      },
-      tableHeaderConfig: [{
-        prop: "serviceName",
-        label: "服务名称",
-      },  {
-    prop: "supplierName",
-    label: "服务商名称",
-    showInput: true,
-    disabled: true
-  },  {
-        prop: "companyContact",
-        label: "企业联系方式",
-      }, 
-      {
-        prop: "companyName",
-        label: "企业名称",
-      }, 
-      {
-        prop: "companyPerson",
-        label: "企业联系人",
-      }, {
-        prop: "dockStatus",
-        label: "对接状态",
-      },
-      {
-        prop: "dockTime",
-        label: "对接时间",
-      }
+      dockStatusObj: {
+          0: '未对接',
+          1: '对接中',
+          2: '111'
+        },
+      tableHeaderConfig: [
+        {
+          prop: "companyName",
+          label: "企业名称",
+        },
+        {
+          prop: "serviceName",
+          label: "服务名称",
+        },
+        {
+          prop: "companyContact",
+          label: "企业联系方式",
+        },
+        {
+          prop: "companyPerson",
+          label: "企业联系人"
+        },
+        {
+          prop: "dockStatus",
+          label: "对接状态",
+        },
+        {
+          prop: "dockTime",
+          label: "申请时间",
+        }
       ],
     };
   },
 };
 </script>
 <script lang="ts" setup >
-let currentRoleId = ref("")
-const formConfig = [
-  {
-    prop: "supplierId",
-    label: "服务ID",
-    showInput: true,
-    disabled: true
-  }, {
-    prop: "supplierName",
+const formConfig = [ {
+    prop: "serviceName",
     label: "服务名称",
     showInput: true,
     disabled: true
@@ -158,7 +134,7 @@ const formConfig = [
     label: "企业联系人",
     showInput: true,
     disabled: true
-  },{
+  }, {
     prop: "dockStatus",
     label: "对接状态",
     showInput: true,
@@ -166,7 +142,40 @@ const formConfig = [
   },
   {
     prop: "dockTime",
-    label: "对接时间",
+    label: "申请时间",
+    showInput: true,
+    disabled: true
+  }
+];
+const form2Config = [
+  {
+    prop: "fundName",
+    label: "产品名称",
+    showInput: true,
+    disabled: true
+  }, {
+    prop: "",
+    label: "定义",
+    showInput: true,
+    disabled: true
+  }, {
+    prop: "investmentIndustry",
+    label: "产品特征",
+    showInput: true,
+    disabled: true
+  }, {
+    prop: "entryConditions",
+    label: "准入条件",
+    showInput: true,
+    disabled: true
+  }, {
+    prop: "",
+    label: "备注",
+    showInput: true,
+    disabled: true
+  }, {
+    prop: "fundCompnay",
+    label: "发行单位",
     showInput: true,
     disabled: true
   }
@@ -176,18 +185,47 @@ const state = reactive({
   total: 0,
   pageSize: 10,
   dialogVisible: false,
-  dialogVisible2: false,
   name: '',
   username: '',
   culName: "",
   formConfig: formConfig,
+  form2Config: form2Config,
   tableData: [
+    {
+      amount: "",
+      company: "",
+      companyid: 0,
+      definition: "",
+      describe: "",
+      entryConditions: "1、具有国家高新技术企业证书或中关村高新技术企业证书的科技企业；。",
+      expenditure: "100",
+      files: [],
+      fundCompnay: "华夏银行股份有限公司",
+      fundName: "小额智融宝",
+      fundPrincipal: "1",
+      fundPrincipalTel: "2",
+      fundid: 39,
+      id: 30,
+      images: [],
+      income: "100",
+      intro: "该户债权为三笔债权共同使用同一抵押物，并办理了最高额抵押。",
+      investmentIndustry: "与北京IP合作",
+      money: "面议",
+      pageNum: 0,
+      pageSize: 0,
+      principal: "刘经理",
+      principalTel: "66295509",
+      proCompany: "北京文投大数据有限公司",
+      proType: "企业债券融资",
+      projectid: 118,
+      protName: "云南中天文化债权",
+      status: 1,
+      storageTime: "2022-07-27 11:30:44",
+      trzFundList: [],
+      trzProjectList: [],
+      type: 1
+    },
   ],
-  formConfig2: [{
-    prop: "supplierName",
-    label: "服务商",
-    showSelect: true
-  }],
   optionsList: [],
   levelOptions: [],
 });
@@ -196,7 +234,6 @@ const title = ref("新增");
 // todo 改写法
 const closeDialog = async (done: () => void) => {
   state.dialogVisible = false;
-  state.dialogVisible2 = false;
 };
 
 /**
@@ -213,17 +250,7 @@ const detail = (row) => {
       return result;
     })
     .splice(0);
-  console.log("state.formConfig", state);
-};
-
-/**
- * 编辑表单
- */
- const qr = (row) => {
-  title.value = "分配";
-  currentRoleId.value = row.id;
-  state.dialogVisible2 = true;
-  state.formConfig2 = state.formConfig2
+  state.form2Config = state.form2Config
     .map((e, b) => {
       // value 替换成 e.prop
       let result = { ...e };
@@ -231,14 +258,13 @@ const detail = (row) => {
       return result;
     })
     .splice(0);
-  console.log("state.formConfig", state);
 };
 
 /**
  *  获取表格数据
  */
-const getentServiceDockingAll = () => {
-  post(`${entServiceDockingAll}`, {
+const getrecruitServiceDockingAll = () => {
+  post(`${recruitServiceDockingAll}`, {
     pageNum: state.currentPage,
     pageSize: state.pageSize,
 
@@ -247,52 +273,8 @@ const getentServiceDockingAll = () => {
     state.total = data.total;
   });
 };
-getentServiceDockingAll();
+getrecruitServiceDockingAll();
 
-/**
- *  获取表格数据
- */
- const getsuppliersAll = () => {
-  post(`${suppliersAll}`, {
-  }).then(function (data) {
-    state.formConfig2[0].options = data.list.map((e, index) => {
-      return {
-        label: e.supplierName,
-        value: e.supplierName,
-        id: e.supplierId
-      };
-    });
-    console.log('data--', data);
-  });
-};
-getsuppliersAll();
-
-
-/**
- * 提交表单数据
- */
- const postFormData = (formData) => {
-    let supplierId = '';
-    state.formConfig2[0].options.forEach(e => {
-      if(e.value === formData.supplierName) {
-        supplierId = e.id;
-      };
-    });
-    post(`${entServiceDockingUpdate}`, {
-      id: currentRoleId.value,
-      ...formData,
-      supplierId,
-      dockStatus: 1
-    })
-    .then(function (data) {
-      getsuppliersAll();
-    })
-    .catch((e) => {
-      console.log("e", e);
-    });
-  state.dialogVisible2 = false;
-  console.log("submit!", formData);
-};
 
 /**
  * 切换每页显示数
@@ -300,7 +282,7 @@ getsuppliersAll();
 const handleSizeChange = (val: number) => {
   console.log(`${val} items per page`);
   state.pageSize = val;
-  getentServiceDockingAll();
+  getrecruitServiceDockingAll();
 };
 
 /**
@@ -309,9 +291,8 @@ const handleSizeChange = (val: number) => {
 const handleCurrentChange = (val: number) => {
   console.log(`current page: ${val}`);
   state.currentPage = val;
-  getentServiceDockingAll();
+  getrecruitServiceDockingAll();
 };
-const loading = ref(false);
 
 </script>
 

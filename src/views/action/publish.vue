@@ -18,6 +18,16 @@
           :prop="item.prop"
           :label="item.label"
         >
+        <template #default="scope" v-if="item.prop === 'activityStatus'">
+            {{this.activityStatus[scope.row.activityStatus]}}
+          </template>
+        <template #default="scope" v-if="item.showImg">
+            <img
+            v-if="item.showImg"
+            :src="scope.row[item.prop]"
+            style="width: 50px; height: 50px"
+          />
+          </template>
         </el-table-column>
         <el-table-column prop="operator" label="操作" width="200" fixed="right">
           <template #default="scope">
@@ -47,6 +57,7 @@
         <formConpoent
           v-model:formConfig="state.formConfig"
           @handle="postFormData"
+          :showBtn="true"
           @dialogClose="closeDialog"
         ></formConpoent>
       </el-dialog>
@@ -86,39 +97,81 @@ export default {
   name: "active-publish",
   data() {
     return {
+      activityStatus: {
+        0: '未发布',
+        1: '已发布'
+      },
       tableHeaderConfig: [
-        {
-          prop: "activityName",
-          label: "活动名称",
-        },
-        {
-          prop: "activityAddress",
-          label: "活动地址",
-        },
-        {
-          prop: "telName",
-          label: "联络人",
-        },
-        {
-          prop: "phone",
-          label: "联络人电话",
-        },
-        {
-          prop: "activityNumber",
-          label: "参加人数",
-        },
-        {
-          prop: "activityStatus",
-          label: "活动状态",
-        },
-        {
-          prop: "applyTimeFrom",
-          label: "活动报名开始日期",
-        },
-        {
-          prop: "applyTimeTo",
-          label: "活动报名结束日期",
-        }
+      {
+        prop: "activityName",
+        label: "活动名称"
+      },
+      {
+        prop: "activityAddress",
+        label: "活动地点"
+      },
+      // {
+      //   prop: "activityAbstract",
+      //   label: "活动简介"
+      // },
+      // {
+      //   prop: "activityContent",
+      //   label: "活动详情介绍"
+      // },
+      {
+        prop: "activityNum",
+        label: "参加人数"
+      },
+      // {
+      //   prop: "activityImg",
+      //   label: "活动课程图片",
+      //   showImg: true
+      // },
+      {
+        prop: "telName",
+        label: "联络人" 
+      },
+      {
+        prop: "phone",
+        label: "联络人电话" 
+      },
+      {
+        prop: "activityDateFrom",
+        label: "活动开始时间",
+        placeholder: "活动开始时间"
+      },
+      {
+        prop: "activityDateTo",
+        label: "活动结束时间"    
+      },
+      {
+        prop: "applyTimeFrom",
+        label: "活动报名开始日期",
+        placeholder: "活动报名开始日期"
+      },
+      {
+        prop: "applyTimeTo",
+        label: "活动报名结束日期",
+        placeholder: "活动报名结束日期"
+      },
+      {
+        prop: "activityStatus",
+        label: "活动状态",
+        options: [
+          {
+            label: '报名中',
+            value: '1'
+          },
+          {
+            label: '报名结束，进行中',
+            value: '2'
+          },
+          {
+            label: '已结束',
+            value: '3'
+          }
+        ]      
+      }
       ],
     };
   },
@@ -134,9 +187,46 @@ const formConfig = [
   },
   {
     prop: "activityAddress",
-    label: "活动地址",
+    label: "活动地点",
     required: true,
     showInput: true 
+  },
+  {
+    prop: "activityAbstract",
+    label: "活动简介",
+    required: true,
+    showTextarea: true 
+  },
+  {
+    prop: "activityNum",
+    label: "参加人数",
+    required: true,
+    showInput: true 
+  },
+  {
+    prop: "telName",
+    label: "联络人",
+    required: true,
+    showInput: true,   
+  },
+  {
+    prop: "phone",
+    label: "联络人电话",
+    required: true,
+    showInput: true,    
+  },
+  {
+    prop: "activityImg",
+    label: "活动课程图片",
+    required: true,
+    upload: true 
+  },
+  {
+    prop: "activityThumbnail",
+    label: "缩略图",
+    required: true,
+    // display: ''
+    upload: true 
   },
   {
     prop: "activityDateFrom",
@@ -153,58 +243,45 @@ const formConfig = [
     
   },
   {
-    prop: "telName",
-    label: "联络人",
-    required: true,
-    showInput: true,   
-  },
-  {
-    prop: "phone",
-    label: "联络人电话",
-    required: true,
-    showInput: true,    
-  },
-  {
-    prop: "activityNumber",
-    label: "参加人数",
-    required: true,
-    showInput: true    
-  },
-  {
-    prop: "activityStatus",
-    label: "活动状态",
-    options: [
-      {
-        label: '报名中',
-        value: '1'
-      },
-      {
-        label: '报名结束，进行中',
-        value: '2'
-      },
-      {
-        label: '已结束',
-        value: '3'
-      }
-    ],
-    required: true,
-    showSelect: true,
-    
-  },
-  {
     prop: "applyTimeFrom",
     label: "活动报名开始日期",
+    placeholder: "活动报名开始日期",
     required: true,
-    showDatePicker: true,
-    
+    showDatePicker: true
   },
   {
     prop: "applyTimeTo",
     label: "活动报名结束日期",
+    placeholder: "活动报名结束日期",
     required: true,
-    showDatePicker: true,
-    
-  }
+    showDatePicker: true, 
+  },
+  {
+    prop: "activityContent",
+    label: "活动详情介绍",
+    required: true,
+    showWangEditor: true, 
+  },
+  // {
+  //   prop: "activityStatus",
+  //   label: "活动状态",
+  //   options: [
+  //     {
+  //       label: '报名中',
+  //       value: '1'
+  //     },
+  //     {
+  //       label: '报名结束，进行中',
+  //       value: '2'
+  //     },
+  //     {
+  //       label: '已结束',
+  //       value: '3'
+  //     }
+  //   ],
+  //   required: true,
+  //   showSelect: true,
+  // }
 ];
 const state = reactive({
   currentPage: 0,
@@ -227,6 +304,7 @@ const add = () => {
  * 提交表单数据
  */
 const postFormData = (formData) => {
+  debugger;
   if (title.value === "新增") {
     post(`${actionAddOne}`, {
       ...formData,

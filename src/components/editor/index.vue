@@ -75,21 +75,18 @@ const editorConfig = {
   MENU_CONF: {
     uploadAttachment: {
       customUpload(file, insertFn) {
+        debugger;
         var axios = require("axios");
         var FormData = require("form-data");
         var data = new FormData();
         data.append("file", file); // file 即选中的文件
-        data.append("userId", 1);
+        data.append("userId", window.localStorage);
         data.append("type", "file");
         // 插入节点
         const editor = editorRef.value;
          var config = {
           method: "post",
-          url: "http://172.16.12.8:28182/upload", //上传图片地址
-          headers: {
-            "Access-Control-Allow-Origin": "*",
-            Authorization: "Bearer " + localStorage.getItem("token"),
-          },
+          url: `${upLoad}`, //上传图片地址
           data,
         };
         axios(config)

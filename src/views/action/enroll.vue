@@ -14,7 +14,7 @@
           :label="item.label"
         >
           <template #default="scope" v-if="item.prop === 'applyStatus'">
-            {{this.applyStatusObj[scope.row.applyStatus]}}
+            {{applyStatusObj[scope.row.applyStatus]}}
           </template>
         </el-table-column>
         <el-table-column prop="operator" label="操作" width="200" fixed="right">
@@ -111,8 +111,16 @@ export default {
           label: '序号'
         },
         {
+          prop: "entName",
+          label: '企业名称'
+        },
+        {
           prop: "actName",
           label: "活动名称",
+        },
+        {
+          prop: "applyCount",
+          label: "报名人数",
         },
         {
           prop: "entName",
@@ -123,7 +131,7 @@ export default {
           label: "职务",
         },
         {
-          prop: "applyTimeFrom",
+          prop: "activityDateFrom",
           label: "报名开始时间",
         },
         {

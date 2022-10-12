@@ -31,20 +31,24 @@
           :prop="item.prop"
           :label="item.label"
         >
-        <template #default="scope" v-if="item.showImg">
-          <img
-              :src="scope.row.serviceImages"
-              style="width: 50px; height: 50px"
-            />
+        <template #default="scope" v-if="item.prop === 'supplierType'">
+            {{this.supplierTypeStatus[scope.row.supplierType]}}
         </template>
+        <template #default="scope" v-if="item.showImg">
+            <img
+            v-if="item.showImg"
+            :src="scope.row[item.prop]"
+            style="width: 50px; height: 50px"
+          />
+          </template>
         </el-table-column>
         <el-table-column prop="operator" label="操作" width="200" fixed="right">
           <template #default="scope">
             <el-button type="primary" size="small"  @click="edit(scope.row)">编辑</el-button>
-            <el-button type="success" size="small"  @click="edit(scope.row)">审批</el-button>
-            <el-button type="info" size="small"  @click="deleteAction(scope.row)">删除</el-button>
+            <!-- <el-button type="success" size="small"  @click="edit(scope.row)">审批</el-button> -->
+            <!-- <el-button type="info" size="small"  @click="deleteAction(scope.row)">删除</el-button>
             <el-button type="warning" size="small"  @click="upItem(scope.row)">上架</el-button>
-            <el-button type="danger" size="small"  @click="downItem(scope.row)">下架</el-button>
+            <el-button type="danger" size="small"  @click="downItem(scope.row)">下架</el-button> -->
           </template>
         </el-table-column>
       </el-table>
@@ -55,6 +59,7 @@
         @closed="closeDialog()"
       >
         <formConpoent
+          v-if="state.dialogVisible"
           :showBtn="true"
           v-model:formConfig="state.formConfig"
           @handle="postFormData"
@@ -93,6 +98,16 @@ export default {
   name: "sensitive-manage",
   data() {
     return {
+      supplierTypeStatus: {
+        0: '不限',
+        1: '文化/互联网科技资讯',
+        2: '法律服务',
+        3: '政策资质',
+        4: '知识产权',
+        5: '工商财税',
+        6: '灵活用工',
+        7: '银行'
+      },
       tableHeaderConfig: [
         {
           prop: "supplierName",
@@ -102,6 +117,40 @@ export default {
         {
           prop: "supplierType",
           label: "供应商类别",
+          options: [
+            {
+              label: '不限',
+              value: '0'
+            },
+            {
+              label: '文化/互联网科技资讯',
+              value: '1'
+            },
+            {
+              label: '法律服务',
+              value: '2'
+            },
+            {
+              label: '政策资质',
+              value: '3'
+            },
+            {
+              label: '知识产权',
+              value: '4'
+            },
+            {
+              label: '工商财税',
+              value: '5'
+            },
+            {
+              label: '灵活用工',
+              value: '6'
+            },
+            {
+              label: '银行',
+              value: '7'
+            }
+          ]
         },
         {
           prop: "supplierPerson",
@@ -160,6 +209,14 @@ const formConfig = [
       {
         label: '工商财税',
         value: '5'
+      },
+      {
+        label: '灵活用工',
+        value: '6'
+      },
+      {
+        label: '银行',
+        value: '7'
       }
     ],
     required: true,

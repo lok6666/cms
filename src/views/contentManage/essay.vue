@@ -1,5 +1,5 @@
 <template>
-  <u-container-layout>
+  <u-container-layout v-loading="loading">
     <div class="inline-edit-table">
       <el-tabs
         type="card"
@@ -8,7 +8,7 @@
         @tab-click="articleHandleClick"
         v-model="state.editableTabsValue"
       >
-        <el-tab-pane
+<!--         <el-tab-pane
           v-for="item in state.optionsList"
           :key="item.id"
           :label="item.title"
@@ -29,7 +29,7 @@
               >
             </el-tab-pane>
           </el-tabs>
-        </el-tab-pane>
+        </el-tab-pane> -->
       </el-tabs>
       <el-tabs
         v-model="state.activeName"
@@ -42,7 +42,7 @@
       </el-tabs>
       <el-form :inline="true" :model="formInline" class="demo-form-inline">
         <el-form-item label="标题">
-          <el-input v-model="formInline.title" placeholder="请输入标题" />
+          <el-input v-model="formInline.title" placeholder="请输入标题"/>
         </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="onSubmit">搜索</el-button>
@@ -62,7 +62,6 @@
       >
         <el-table-column prop="id" label="序号" />
         <el-table-column prop="title" label="文章标题" />
-        <el-table-column prop="articleTypeName" label="文章栏目" />
         <el-table-column prop="dataSources" label="文章来源" />
         <el-table-column prop="releaseDate" label="发布日期" />
         <el-table-column prop="createDate" label="创建时间" />
@@ -70,12 +69,30 @@
         <el-table-column prop="operator" label="文章作者" />
         <el-table-column prop="isTop" label="置顶">
           <template #default="scope">
-            {{ scope.row.isTop === "0 " ? "不置顶" : "置顶" }}
+            <el-switch
+              size="large"
+              v-model="scope.row.booleanIsTop"
+              class="ml-2"
+              @change="userChange1(scope.row)"
+              inline-prompt
+              style="--el-switch-on-color: #13ce66; --el-switch-off-color: #ff4949"
+              active-text="是"
+              inactive-text="否"
+            />
           </template>
         </el-table-column>
         <el-table-column prop="recommend" label="推荐">
           <template #default="scope">
-            {{ scope.row.recommend === "0 " ? "不推荐" : "推荐" }}
+            <el-switch
+            size="large"
+            v-model="scope.row.booleanRecommend"
+            class="ml-2"
+            @change="userChange(scope.row)"
+            inline-prompt
+            style="--el-switch-on-color: #13ce66; --el-switch-off-color: #ff4949"
+            active-text="是"
+            inactive-text="否"
+          />
           </template>
         </el-table-column>
         <el-table-column prop="operator" label="操作" width="200" fixed="right">
@@ -106,6 +123,8 @@
             >
               {{ state.isResume ? "彻底删除" : "删除" }}
             </el-button>
+            <el-button type="warning" v-if="!state.isResume" size="small"  @click="upItem(scope.row)">上架</el-button>
+            <el-button type="danger" v-if="!state.isResume" size="small"  @click="downItem(scope.row)">下架</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -123,9 +142,6 @@
           class="demo-ruleForm"
           :size="formSize"
         >
-          <el-form-item label="栏目" prop="articleType">
-            <el-input v-model="ruleForm.articleType" />
-          </el-form-item>
           <el-form-item label="标题" prop="title">
             <el-input v-model="ruleForm.title" />
           </el-form-item>
@@ -196,6 +212,7 @@ export default { name: "inline-table" };
 </script>
 <script lang="ts" setup >
 import { computed, ref, reactive, onMounted, toRefs } from "vue";
+import { upLoad } from "@/config/api";
 import editor from "@/components/editor/index.vue";
 import {
   articleArticleAddOne,
@@ -205,6 +222,8 @@ import {
   articleDelete,
   articleArticleAelectCircle,
   articleSelectById,
+  articleMoveUp,
+  articleMoveDown
 } from "@/config/api";
 import { ElMessage, ElMessageBox, FormRules, UploadProps } from "element-plus";
 import { get, post } from "@/utils/request";
@@ -257,6 +276,8 @@ const state = reactive({
   articletype: 1,
   optionsList: [],
   isResume: false,
+  isTop: 0,
+  title: ''
 });
 const ruleFormRef = ref();
 const title = ref("新增");
@@ -271,20 +292,83 @@ let ruleForm: baseData = reactive({
   digest: "",
   id: "",
   releaseDate: "",
-  content: "",
+  content: ""
 });
 
-// 获取文章类型
-const getOPtionList = () => {
-  get(`${articleArticleAelectCircle}`)
-    .then(function (data) {
-      state.optionsList = data;
-    })
-    .catch((e) => {
-      console.log("e", e);
-    });
+const userChange1 = (row) => {
+  let obj = {
+    ...row,
+    recommend:row.booleanIsTop ? 1 : 0,
+  };
+  post(`${articleUpdateOne}`, {
+    ...obj
+  }).then(function (data) {
+    ElMessage.success("删除成功");
+  });
 };
-getOPtionList();
+
+const userChange = (row) => {
+  let obj = {
+    ...row,
+    recommend:row.booleanRecommend ? 1 : 0,
+  };
+  post(`${articleUpdateOne}`, {
+    ...obj
+  }).then(function (data) {
+    ElMessage.success("删除成功");
+  });
+};
+
+// // 获取文章类型
+// const getOPtionList = () => {
+//   get(`${articleArticleAelectCircle}`)
+//     .then(function (data) {
+//       state.optionsList = data;
+//     })
+//     .catch((e) => {
+//       console.log("e", e);
+//     });
+// };
+// getOPtionList();
+
+
+/**
+ * 上架
+ */
+ const upItem = (row) => {
+ElMessageBox.confirm("你确定要上架当前项吗?", "温馨提示", {
+    confirmButtonText: "确定",
+    cancelButtonText: "取消",
+    type: "warning",
+    draggable: true,
+  })
+    .then(() => {
+      get(`${articleMoveUp}?id=${row.id}`).then(function (data) {
+        getArticleSelectAll();
+      });
+      ElMessage.success("删除成功");
+    })
+    .catch(() => {});
+};
+
+/**
+ * 下架
+ */
+const downItem = (row) => {
+ElMessageBox.confirm("你确定要上架当前项吗?", "温馨提示", {
+    confirmButtonText: "确定",
+    cancelButtonText: "取消",
+    type: "warning",
+    draggable: true,
+  })
+    .then(() => {
+      get(`${articleMoveDown}?id=${row.id}`).then(function (data) {
+        getArticleSelectAll();
+      });
+      ElMessage.success("删除成功");
+    })
+    .catch(() => {});
+};
 
 const articleHandleClick = (tab, event) => {
   state.articletype = tab.props.name;
@@ -338,13 +422,6 @@ const handleClose = async (done: () => void) => {
   });
 };
 const beforeAvatarUpload: UploadProps["beforeUpload"] = (rawFile) => {
-  if (rawFile.type !== "image/jpeg") {
-    ElMessage.error("Avatar picture must be JPG format!");
-    return false;
-  } else if (rawFile.size / 1024 / 1024 > 2) {
-    ElMessage.error("Avatar picture size can not exceed 2MB!");
-    return false;
-  }
         var axios = require("axios");
         var FormData = require("form-data");
         var data = new FormData();
@@ -353,12 +430,7 @@ const beforeAvatarUpload: UploadProps["beforeUpload"] = (rawFile) => {
         data.append("type", "image");
         var config = {
           method: "post",
-          url: "http://172.16.12.8:28182/upload", //上传图片地址
-          headers: {
-            "Content-Type": "multipart/form-data",
-            "Access-Control-Allow-Origin": "*",
-            Authorization: "Bearer " + localStorage.getItem("token"),
-          },
+          url: `${upLoad}`, //上传图片地址
           type: "image",
           data: data
         };
@@ -390,7 +462,8 @@ const closeDialog = async (done: () => void) => {
 // 编辑
 const edit = (row) => {
   title.value = "编辑";
-  post(`${articleSelectById}?id=${row.id}`, {
+  debugger;
+  get(`${articleSelectById}/${row.id}`, {
   })
     .then(function (data) {
       state.dialogVisible = true;
@@ -406,9 +479,14 @@ const getArticleSelectAll = (config?: selectAllConfig) => {
     pageNum: state.currentPage,
     pageSize: state.pageSize,
     articletype: state.articletype,
+    title: state.title,
     ...config,
   }).then(function (data) {
-    state.tableData = data.list;
+    state.tableData = data.list.map(e => {
+      e.booleanIsTop = e.isTop === 0 ? false :true;
+      e.booleanRecommend = e.recommend === 0 ? false :true;
+      return e;
+    });
     state.total = data.total;
   });
 };
@@ -421,7 +499,11 @@ const getArticleRecycle = (config?: selectAllConfig) => {
     pageSize: state.pageSize,
     ...config,
   }).then(function (data) {
-    state.tableData = data.list;
+    state.tableData = data.list.map(e => {
+      e.booleanIsTop = e.isTop === 0 ? false :true;
+      e.booleanRecommend = e.recommend === 0 ? false :true;
+      return e;
+    });
     state.total = data.total;
   });
 };
