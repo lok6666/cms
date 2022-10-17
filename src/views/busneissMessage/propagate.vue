@@ -13,8 +13,8 @@
             :prop="item.prop"
             :label="item.label"
           >
-          <template #default="scope" v-if="item.prop === 'applyStatus'">
-              {{applyStatusObj[scope.row.applyStatus]}}
+          <template #default="scope" v-if="item.prop === 'approvalStatus'">
+              {{approvalStatusObj[scope.row.approvalStatus]}}
           </template>
           <template #default="scope" v-if="item.showImg">
             <img
@@ -29,8 +29,8 @@
               <el-button type="primary" size="small" @click="detail(scope.row)">
                 查看详情
               </el-button>
-              <el-button type="primary" size="small" @click="examine(scope.row)" :disabled="[scope.row.applyStatus !== 0]">
-                审核
+              <el-button type="primary" size="small" @click="examine(scope.row)" :disabled="scope.row.approvalStatus">
+                {{approvalStatusObj[scope.row.approvalStatus]}}
               </el-button>
             </template>
           </el-table-column>
@@ -38,7 +38,7 @@
         <el-dialog
           v-model="state.dialogVisible"
           :title="title"
-          width="50%"
+          width="80%"
           @closed="closeDialog()"
         >
           <formConpoent
@@ -83,7 +83,7 @@
   import {
     entPropagateAll,
     entApplAddOne,
-    entApplyUpdateOne,
+    entPropagateUpdate,
     entApplyDelete,
   } from "@/config/api";
   import { ElMessage, ElMessageBox } from "element-plus";
@@ -94,9 +94,9 @@
     name: "sensitive-manage",
     data() {
       return {
-        applyStatusObj: {
+        approvalStatusObj: {
           0: '未审核',
-          1: '审核中',
+          1: '审核通过',
           2: '审核通过',
           3: '审核未通过'
         },
@@ -118,7 +118,12 @@
             prop: "logoImg",
             label: "企业logo",
             showImg: true
-        }],
+        },
+        {
+            prop: "approvalStatus",
+            label: "审查状态"
+        }
+      ],
       };
     },
   };
@@ -155,6 +160,10 @@
       prop: "logoImg",
       label: "企业logo",
       upload: true
+  },{
+      prop: "productDesc",
+      label: "产品介绍",
+      showWangEditor: true
   }];
   const state = reactive({
     currentPage: 0,
@@ -194,7 +203,7 @@
    * 审核
    */
   const examine = (row) => {
-    state.formConfig.status = row.applyStatus;
+    state.formConfig.status = row.approvalStatus;
     currentRoleId.value = row.id;
     state.dialogVisible = true;
     state.showExamineForm = true;
@@ -204,9 +213,9 @@
    * 提交表单数据
    */
   const postFormData = (formData) => {
-    post(`${entApplyUpdateOne}`, {
+    post(`${entPropagateUpdate}`, {
       id: currentRoleId.value,
-      applyStatus: formData.status
+      approvalStatus: formData.status
     })
       .then(function (data) {
         getentPropagateAll();

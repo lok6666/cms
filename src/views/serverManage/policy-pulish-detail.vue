@@ -53,7 +53,7 @@
             type="textarea"
             @keyup.enter="handleInputConfirm"
           />
-          <el-button
+          <!-- <el-button
             v-else
             class="button-new-tag ml-1"
             size="small"
@@ -67,7 +67,7 @@
             size="small"
             placeholder="请输入行业名称"
             @input="handleDesc"
-          />
+          /> -->
           <div class="demo-collapse" v-if="descList.length !== 0">
             <el-table
               :key="i"

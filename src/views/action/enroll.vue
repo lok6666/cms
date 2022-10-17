@@ -30,7 +30,7 @@
               查看详情
             </el-button>
             <el-button type="primary" :disabled="scope.row.applyStatus !== 0" size="small" @click="examine(scope.row)">
-              审核
+              {{applyStatusObj[scope.row.applyStatus]}}
             </el-button>
             <!-- <el-button
               type="danger"
@@ -45,7 +45,7 @@
       <el-dialog
         v-model="state.dialogVisible"
         :title="title"
-        width="50%"
+        width="80%"
         @closed="closeDialog()"
       >
         <formConpoent

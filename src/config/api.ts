@@ -1,4 +1,5 @@
-const host:string = 'http://172.16.4.62:28182';
+// export const host:string = 'http://172.16.4.62:28182';
+export const host:string = 'http://172.16.4.62:28182';
 // const host:string = 'http://enterprise.bjwcxf.com:28191';
 // 登录接口
 export const login = `${host}/auth/login`
@@ -13,7 +14,8 @@ export  const articleUpdateOne = `${host}/article/update` // 文章内容
 export  const articleMoveUp = `${host}/article/moveUp` // 文章上移
 export  const articleMoveDown = `${host}/article/moveDown` // 文章下移
 export  const articleArticleAelectCircle = `${host}/articletype/selectType` // 文章类型 
-export  const articleArticleAddOne = `${host}/article/addOne` // 新增
+export  const articleArticleAddOne = `${host}/article/insert` // 新增
+export const policyPulishDetaill = `${host}`;
 
 /*信息发布-敏感词*/
 export  const sensitiveSelectAll = `http://172.16.110.101:81/assoication_sjs/trzSensitive/selectAll` //  文章列表
@@ -47,6 +49,10 @@ export const swiperDelete = `${host}/article/deleteAll` // 删除
 export const swiperArticleOption = `${host}/article/deleteAll` // 文章选项
 export const swiperVideoOption = `${host}/article/deleteAll` // 视频选项
 
+/*信息发布-站内信*/
+export  const messageList = `${host}/message/list` // 角色管理列表
+export  const messageInsertBatch = `${host}/message/insertBatch` // 角色管理列表
+
 /*视频专栏*/
 export const videoAll = `http://172.16.110.101:81/assoication_sjs/trzSensitive/selectAll` // 列表
 export const videoAddOne = `http://172.16.110.101:81/assoication_sjs/trzSensitive/addOne`//  添加
@@ -79,7 +85,13 @@ export const entServicesInsert = `${host}/entServices/insert` // 行业新增
 
 /*服务库管理-服务对接管理*/
 export const entServiceDockingAll = `${host}/entServiceDocking/list` //
-export const entServiceDockingUpdate = `${host}/entServiceDocking/update` //  
+export const entServiceDockingUpdate = `${host}/entServiceDocking/update` //
+
+
+/*政策申报*/
+export const policyApplyList = `${host}/policyApply/list`// 获取活动详情
+
+
 /*服务库管理-供应商管理*/
 export const suppliersAll = `${host}/supplier/list` //  金融数据
 export const suppliersUpdateOne = `${host}/supplier/update` // 金融更新
@@ -106,6 +118,7 @@ export const entInfoAll = `${host}/entUser/list` // 基本信息列表
 export const entInfoGet = `${host}/entUser/get` // 基本信息详情
 export const entPropagateAll = `${host}/entPropagate/list` // 宣传资料列表
 export const entPropagateGet = `${host}/entPropagate/get` // 宣传资料详情
+export const entPropagateUpdate = `${host}/entPropagate/update` // 宣传资料列表
 export const entIncomeAll = `${host}/entIncome/list` // 财税数据列表
 export const entIncomeGet = `${host}/entIncome/get` // 财税数据详情
 
@@ -148,6 +161,13 @@ export const entApplAddOne = `${host}/entApply/insert`//  轮播图添加
 export const entApplyUpdateOne = `${host}/entApply/update`//  轮播图更新
 export const entApplyDelete = `${host}/entApply/delete` // 轮播图删除
 export const entGetByName = `${host}/ent/getByName` // 轮播图删除
+export const entPatentGet = `${host}/ent/getPatentByName` // 获取企业专利信息数据
+export const engetRecruitByName = `${host}/ent/getRecruitByName` // 根据企业名称获取招聘数据
+export const entgetSoftByName = `${host}/ent/getSoftByName` // 根据企业名称获取软著数据
+export const entgetTrademarkByName = `${host}/ent/getTrademarkByName` // 根据企业名称获取商标数据
+export const entgetWorksByName = `${host}/ent/getWorksByName` // 根据企业名称获取作品著作权数据
+export const entgetRecruitByName = `${host}/ent/getRecruitByName` // 根据企业名称获取招聘数据
+export const entgetNewsByName = `${host}/ent/getNewsByName` // 根据企业名称获取舆情数据
 export const entAppraise = `${host}/entAppraise/getByName` // 根据企业名称获取评价
 
 /*招商服务-企业评估*/

@@ -9,6 +9,9 @@ import ElementPlus from 'element-plus'
 import UContainerLayout from '@/components/u-container-layout/index.vue'
 import 'element-plus/dist/index.css'
 import zhCn from 'element-plus/es/locale/lang/zh-cn'
+import attachmentModule from "@wangeditor/plugin-upload-attachment";
+import { Boot } from "@wangeditor/editor";
+Boot.registerModule(attachmentModule);
 const app = createApp(App)
 app.component('svg-icon',SvgIcon)
 app.component('u-container-layout',UContainerLayout)

@@ -131,10 +131,11 @@
       <el-dialog
         v-model="state.dialogVisible"
         :title="title"
-        width="50%"
+        width="80%"
         @closed="closeDialog()"
       >
         <el-form
+          v-if="state.dialogVisible"
           ref="ruleFormRef"
           :model="ruleForm"
           :rules="rules"
@@ -253,7 +254,6 @@ const rules = reactive<FormRules>({
     required: true,
   },
   picture: {
-    required: true,
   },
   releaseDate: {
     required: true,
@@ -273,7 +273,7 @@ const state = reactive({
   activeName: "content",
   editableTabsValue: "1",
   dialogVisible: false,
-  articletype: 1,
+  
   optionsList: [],
   isResume: false,
   isTop: 0,
@@ -283,10 +283,10 @@ const ruleFormRef = ref();
 const title = ref("新增");
 let ruleForm: baseData = reactive({
   title: "",
-  articleType: "",
+  
   operator: "",
   picture: "",
-  articletype: 1,
+  
   dataSources: "",
   avatar: "",
   digest: "",
@@ -303,7 +303,7 @@ const userChange1 = (row) => {
   post(`${articleUpdateOne}`, {
     ...obj
   }).then(function (data) {
-    ElMessage.success("删除成功");
+    ElMessage.success("操作成功");
   });
 };
 
@@ -315,7 +315,7 @@ const userChange = (row) => {
   post(`${articleUpdateOne}`, {
     ...obj
   }).then(function (data) {
-    ElMessage.success("删除成功");
+    ElMessage.success("操作成功");
   });
 };
 
@@ -346,7 +346,7 @@ ElMessageBox.confirm("你确定要上架当前项吗?", "温馨提示", {
       get(`${articleMoveUp}?id=${row.id}`).then(function (data) {
         getArticleSelectAll();
       });
-      ElMessage.success("删除成功");
+      ElMessage.success("上架成功");
     })
     .catch(() => {});
 };
@@ -355,7 +355,7 @@ ElMessageBox.confirm("你确定要上架当前项吗?", "温馨提示", {
  * 下架
  */
 const downItem = (row) => {
-ElMessageBox.confirm("你确定要上架当前项吗?", "温馨提示", {
+ElMessageBox.confirm("你确定要下架当前项吗?", "温馨提示", {
     confirmButtonText: "确定",
     cancelButtonText: "取消",
     type: "warning",
@@ -365,7 +365,7 @@ ElMessageBox.confirm("你确定要上架当前项吗?", "温馨提示", {
       get(`${articleMoveDown}?id=${row.id}`).then(function (data) {
         getArticleSelectAll();
       });
-      ElMessage.success("删除成功");
+      ElMessage.success("下架成功");
     })
     .catch(() => {});
 };
@@ -448,7 +448,7 @@ const beforeAvatarUpload: UploadProps["beforeUpload"] = (rawFile) => {
 const closeDialog = async (done: () => void) => {
   Object.assign(ruleForm, {
     title: "",
-    articleType: "",
+    
     operator: "",
     picture: "",
     dataSources: "",
@@ -462,7 +462,6 @@ const closeDialog = async (done: () => void) => {
 // 编辑
 const edit = (row) => {
   title.value = "编辑";
-  debugger;
   get(`${articleSelectById}/${row.id}`, {
   })
     .then(function (data) {
@@ -599,7 +598,7 @@ const resume = (row) => {
       }).then(function (data) {
         getArticleRecycle();
       });
-      ElMessage.success("删除成功");
+      ElMessage.success("恢复成功");
     })
     .catch(() => {});
 };

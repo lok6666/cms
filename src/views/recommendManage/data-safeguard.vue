@@ -81,7 +81,7 @@
       <el-dialog
         v-model="state.dialogVisible"
         :title="title"
-        width="50%"
+        width="80%"
         @closed="closeDialog()"
       >
         <formConpoent
@@ -258,7 +258,7 @@ const state = reactive({
   dialogVisible: false,
   year: 0,
   month: "",
-  articletype: "",
+  
   culName: "",
   formConfig: formConfig,
   tableData: [

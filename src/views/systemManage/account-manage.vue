@@ -84,7 +84,7 @@
       <el-dialog
         v-model="dialogVisible"
         :title="title"
-        width="50%"
+        width="80%"
         @closed="closeDialog()"
       >
         <el-form
@@ -196,7 +196,7 @@ const beforeAvatarUpload: UploadProps["beforeUpload"] = (rawFile) => {
   data.append("type", "image");
   var config = {
     method: "post",
-    url: "http://172.16.12.8:28182/upload", //上传图片地址
+    url: "http://172.16.4.62:28182/upload", //上传图片地址
     type: "image",
     data: data,
   };

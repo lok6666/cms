@@ -23,13 +23,11 @@ import { onBeforeUnmount, ref, toRefs, shallowRef, onUpdated, onMounted, reactiv
 import { Editor, Toolbar } from "@wangeditor/editor-for-vue";
 import type { FormInstance } from "element-plus";
 import { ElMessage } from "element-plus";
-import { Boot } from "@wangeditor/editor";
 import { get, post } from "@/utils/request";
 import { upLoad } from "@/config/api";
 import formData from "form-data";
-import attachmentModule from "@wangeditor/plugin-upload-attachment";
-const emit = defineEmits(['handle'])
-Boot.registerModule(attachmentModule);
+
+const emit = defineEmits(['handle']);
 const props = defineProps({
     content:String
 });
@@ -75,7 +73,6 @@ const editorConfig = {
   MENU_CONF: {
     uploadAttachment: {
       customUpload(file, insertFn) {
-        debugger;
         var axios = require("axios");
         var FormData = require("form-data");
         var data = new FormData();
@@ -110,7 +107,7 @@ const editorConfig = {
         // todo 查看图片链接
         var config = {
           method: "post",
-          url: "http://172.16.12.8:28182/upload", //上传图片地址
+          url: "http://172.16.4.62:28182/upload", //上传图片地址
           headers: {
             "Content-Type": "multipart/form-data",
             "Access-Control-Allow-Origin": "*",
@@ -143,7 +140,7 @@ const editorConfig = {
         data.append("type", "video");
         var config = {
           method: "post",
-          url: "http://172.16.12.8:28182/upload", //上传图片地址
+          url: "http://172.16.4.62:28182/upload", //上传图片地址
           headers: {
             "Content-Type": "multipart/form-data",
             "Access-Control-Allow-Origin": "*",

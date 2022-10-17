@@ -55,7 +55,7 @@
       <el-dialog
         v-model="state.dialogVisible"
         :title="title"
-        width="50%"
+        width="80%"
         @closed="closeDialog()"
       >
         <formConpoent
@@ -333,7 +333,6 @@ const edit = (row) => {
  * 删除
  */
 const deleteAction = (row) => {
-  debugger;
 ElMessageBox.confirm("你确定要删除当前项吗?", "温馨提示", {
     confirmButtonText: "确定",
     cancelButtonText: "取消",

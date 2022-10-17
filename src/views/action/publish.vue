@@ -19,7 +19,7 @@
           :label="item.label"
         >
         <template #default="scope" v-if="item.prop === 'activityStatus'">
-            {{this.activityStatus[scope.row.activityStatus]}}
+            {{activityStatus[scope.row.activityStatus]}}
           </template>
         <template #default="scope" v-if="item.showImg">
             <img
@@ -51,7 +51,7 @@
       <el-dialog
         v-model="state.dialogVisible"
         :title="title"
-        width="50%"
+        width="80%"
         @closed="closeDialog()"
       >
         <formConpoent
@@ -128,11 +128,11 @@ export default {
       //   showImg: true
       // },
       {
-        prop: "telName",
+        prop: "contactPerson",
         label: "联络人" 
       },
       {
-        prop: "phone",
+        prop: "contactPhone",
         label: "联络人电话" 
       },
       {
@@ -204,13 +204,13 @@ const formConfig = [
     showInput: true 
   },
   {
-    prop: "telName",
+    prop: "contactPerson",
     label: "联络人",
     required: true,
     showInput: true,   
   },
   {
-    prop: "phone",
+    prop: "contactPhone",
     label: "联络人电话",
     required: true,
     showInput: true,    
@@ -304,7 +304,6 @@ const add = () => {
  * 提交表单数据
  */
 const postFormData = (formData) => {
-  debugger;
   if (title.value === "新增") {
     post(`${actionAddOne}`, {
       ...formData,

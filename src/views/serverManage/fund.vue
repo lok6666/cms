@@ -61,7 +61,7 @@
       <el-dialog
         v-model="state.dialogVisible"
         :title="title"
-        width="50%"
+        width="80%"
         @closed="closeDialog()"
       >
         <formConpoent
@@ -94,7 +94,7 @@
 </template>
 <script lang="ts">
 import { computed, ref, reactive, onMounted, toRefs } from "vue";
-import { financialServicesAll, financialServicesUpdateOne, financialServicesDeleteOne, financialServicesInsert } from "@/config/api";
+import { suppliersAll, financialServicesAll, financialServicesUpdateOne, financialServicesDeleteOne, financialServicesInsert } from "@/config/api";
 import formConpoent from "@/components/form/form.vue";
 import { ElMessage, ElMessageBox, FormRules, UploadProps } from "element-plus";
 import { get, deleteItem, post } from "@/utils/request";
@@ -185,20 +185,8 @@ const formConfig = [
   },
   {
     prop: "supplierId",
-    label: "服务商ID",
+    label: "服务商",
     options: [
-      {
-        label: '报名中',
-        value: '1'
-      },
-      {
-        label: '报名结束，进行中',
-        value: '2'
-      },
-      {
-        label: '已结束',
-        value: '3'
-      }
     ],
     required: true,
     showSelect: true
@@ -214,34 +202,6 @@ const state = reactive({
   culName: "",
   formConfig: formConfig,
   tableData: [
-    {
-      address: "",
-      company: 5,
-      companyIco: "/asset/mxupload/up0255470001577778909.png",
-      companyName: "",
-      cound: 0,
-      createdate: "2022-03-25 17:17:04",
-      date: 0,
-      definition: "“短贷宝”是我行向个体工商户、企业主（包括企业主要股东、法定代表人或实际控制人等）发放的用于其企业正常经营活动的个人贷款或个人授信。",
-      describe: "1、贷款申请简、易、快。简：提供资料简洁，贷款手续简便；易：专",
-      entryconditions: "1、受信人须为具有完全民事行为能力的中国籍自然人，年龄1",
-      files: [],
-      id: 40,
-      images: [],
-      investmentindustry: "贷款申请简、易、快",
-      name: "短贷宝",
-      pageNum: 0,
-      pageSize: 0,
-      picture: "/images/a1121f2b923a4b1aba90ea379114287b.gif",
-      principal: "1",
-      principalTel: "2",
-      projectId: 0,
-      status: 1,
-      sxj: 0,
-      trzCompany: null,
-      username: "北京银行股份有限公司",
-ysIssue: 0
-    },
   ],
   optionsList: [],
   levelOptions: [],
@@ -249,6 +209,24 @@ ysIssue: 0
 const title = ref("新增");
 
 
+/**
+ *  获取表格数据
+ */
+ const getsuppliersAll = () => {
+  post(`${suppliersAll}`, {
+  }).then(function (data) {
+    debugger;
+    state.formConfig[state.formConfig.length -1].options = data.list.map(e => {
+      return {
+        label: e.supplierName,
+        value: e.supplierName,
+        id: e.supplierId
+      };
+    });
+
+  });
+};
+getsuppliersAll();
 /**
  * 添加
  */

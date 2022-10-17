@@ -50,7 +50,7 @@
       <el-dialog
         v-model="state.dialogVisible"
         :title="title"
-        width="50%"
+        width="80%"
         @closed="closeDialog()"
       >
         <formConpoent
@@ -97,12 +97,12 @@ export default {
         1: '上架'
       },
       serviceTypetatus: {
-        0: '税务服务',
-        1: '注销及其他',
-        2: '工商业务类',
+        0: '不限',
+        1: '文化/互联网科技资讯',
+        2: '政策资质',
         3: '资质类',
-        4: '公司变更',
-        5: '财税服务'
+        4: '知识产权',
+        5: '工商财税'
       },
       tableHeaderConfig: [
       {
@@ -151,18 +151,6 @@ const formConfig = [
     showInput: true
   },
   {
-    prop: "servicePrice",
-    label: "服务价格",
-    required: true,
-    showInput: true
-  },
-  {
-    prop: "serviceImage",
-    label: "服务缩略图",
-    required: true,
-    upload: true
-  },
-  {
     prop: "serviceType",
     label: "服务类型",
     options: [
@@ -193,6 +181,42 @@ const formConfig = [
     ],
     required: true,
     showSelect: true
+  },
+  {
+    prop: "supplierName",
+    label: "服务商名称",
+    required: true,
+    showInput: true
+  },
+  {
+    prop: "supplierPerson",
+    label: "联系人",
+    required: true,
+    showInput: true
+  },
+  {
+    prop: "supplierContact",
+    label: "联系方式",
+    required: true,
+    showInput: true
+  },
+  {
+    prop: "servicePrice",
+    label: "服务价格",
+    required: true,
+    showInput: true
+  },
+  {
+    prop: "supplierContactX",
+    label: "虚拟号",
+    required: true,
+    showInput: true
+  },
+  {
+    prop: "serviceImage",
+    label: "服务缩略图",
+    required: true,
+    upload: true
   },{
     prop: "serviceSynopsis",
     label: "服务简介",
@@ -209,28 +233,7 @@ const state = reactive({
   username: '',
   culName: "",
   formConfig: formConfig,
-  tableData: [{
-      address: "测试地点",
-      companyicon: "/asset/mxupload/up0642170001558080624.png",
-      files: [],
-      id: 36,
-      images: [],
-      pageNum: 0,
-      pageSize: 0,
-      sercompany: "北京文投大数据有限公司",
-      sercompanyId: "62",
-      sercompanyid: "62",
-      sercontact: "2",
-      sermsg: "",
-      sername: "知识产权咨询",
-      serperson: "1",
-      serstatus: "1",
-      sersxj: "0",
-      sersynopsis: "<p style=\"line-height: normal;\"><strong><span style=\"font-family: simsun, serif; font-size: 18px; white-space: pre-wrap;\">提供免</span><span style=\"font-family: simsun, serif; font-size: 18px; white-space: pre-wrap;\">费的专利、商标、软件著作权等确权、用权、维权咨询服务；专利、商标、软件著作权代理，以及知识产权贯标等由联盟机构提供服务，协议企业享20%优惠。。</span><span style=\"font-family: simsun, serif; font-size: 14px; white-space: pre-wrap;\">。。</span></strong></p>",
-      serthumbnail: "/images/82cfb5dc3a40411798baeb2915b1bd1c.jpg",
-      sertype: "知识产权服务",
-      storgetime: "2022-03-25 17:22:18"
-    }],
+  tableData: [],
   optionsList: [],
   levelOptions: [],
 });
@@ -320,6 +323,7 @@ ElMessageBox.confirm("你确定要删除当前项吗?", "温馨提示", {
  * 上架
  */
 const upItem = (row) => {
+  currentRoleId.value = row.id;
 ElMessageBox.confirm("你确定要上架当前项吗?", "温馨提示", {
     confirmButtonText: "确定",
     cancelButtonText: "取消",
@@ -327,10 +331,13 @@ ElMessageBox.confirm("你确定要上架当前项吗?", "温馨提示", {
     draggable: true,
   })
     .then(() => {
-      post(`${entServicesDeleteOne}/${row.id}`).then(function (data) {
+      post(`${entServicesUpdateOne}`, {
+      id: currentRoleId.value,
+      serviceFlag: 1,
+    }).then(function (data) {
         getentServicesAll();
       });
-      ElMessage.success("删除成功");
+      ElMessage.success("上架成功");
     })
     .catch(() => {});
 };
@@ -339,17 +346,21 @@ ElMessageBox.confirm("你确定要上架当前项吗?", "温馨提示", {
  * 下架
  */
 const downItem = (row) => {
-ElMessageBox.confirm("你确定要上架当前项吗?", "温馨提示", {
+  currentRoleId.value = row.id;
+ElMessageBox.confirm("你确定要下架当前项吗?", "温馨提示", {
     confirmButtonText: "确定",
     cancelButtonText: "取消",
     type: "warning",
     draggable: true,
   })
     .then(() => {
-      post(`${entServicesDeleteOne}/${row.id}`).then(function (data) {
+      post(`${entServicesUpdateOne}`, {
+      id: currentRoleId.value,
+      serviceFlag: 0,
+    }).then(function (data) {
         getentServicesAll();
       });
-      ElMessage.success("删除成功");
+      ElMessage.success("下架成功");
     })
     .catch(() => {});
 };

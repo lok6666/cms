@@ -1,6 +1,17 @@
 <template>
     <u-container-layout>
       <div class="inline-edit-table">
+        <el-form :inline="true" :model="formInline" class="demo-form-inline">
+        <el-form-item label="">
+            <el-input v-model="state.companyName" placeholder="请输入企业名称" style="width: 300px; margin-right: 10px;margin-bottom: 10px;"/>
+            <el-input v-model="state.messageContent" placeholder="请输入消息内容" style="width: 300px; margin-bottom: 10px;"/>
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary" @click="onSubmit">搜索</el-button>
+          <el-button type="primary" @click="onClear">清空</el-button>
+          <el-button type="primary" @click="examine">编辑站内信</el-button>
+        </el-form-item>
+      </el-form>
         <el-table
           :data="state.tableData"
           style="width: 100%"
@@ -22,9 +33,6 @@
               <el-button type="primary" size="small" @click="detail(scope.row)">
                 查看详情
               </el-button>
-              <el-button type="primary" size="small" @click="examine(scope.row)" :disabled="[scope.row.applyStatus !== 0]">
-                审核
-              </el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -38,6 +46,7 @@
             v-if="state.showForm"
             :disabled="state.disabled"
             v-model:formConfig="state.formConfig"
+            :showBtn="state.showBtn"
             @handle="postFormData"
             @dialogClose="closeDialog"
           ></formConpoent>
@@ -74,10 +83,9 @@
   import formConpoent from "@/components/form/form.vue";
   import examineFormConpoent from "@/components/form/examineForm.vue";
   import {
-    entIncomeAll,
-    entApplAddOne,
-    entApplyUpdateOne,
-    entApplyDelete,
+    messageList,
+    messageInsertBatch,
+    entInfoAll
   } from "@/config/api";
   import { ElMessage, ElMessageBox } from "element-plus";
   // import { formConfigItem } from "@/utils/interface";
@@ -93,52 +101,22 @@
           2: '审核通过',
           3: '审核未通过'
         },
-        tableHeaderConfig: [{
-                prop: "entName",
+        tableHeaderConfig: [
+            {
+                prop: "companyName",
                 label: "企业名称"
-            },{
-                prop: "incomeYear",
-                label: "年份"
-            },{
-                prop: "incomeMonth",
-                label: "月份"
-            },{
-            prop: "businessIncome",
-            label: "营业收入(万)",
-            },{
-            prop: "cultureIncome",
-            label: "文化产业相关营业收入(万)",
-
-            },{
-            prop: "totalProfit",
-            label: "利润总额(万)",
-            },{
-            prop: "netProfit",
-            label: "净利润(万)",
-            },{
-            prop: "totalAssets",
-            label: "资产总额(万)"
-            },{
-            prop: "netAssets",
-            label: "净资产(万)",
-            },{
-            prop: "totalLiability",
-            label: "负债总额(万)"
-            },{
-            prop: "equity",
-            label: "所有者权益(万)",
-            },{
-            prop: "payTaxes",
-            label: "纳税额(不含个人所得税)(万)",
-            },{
-            prop: "addedTax",
-            label: "增值税(万)",
-            },{
-            prop: "corporateIncomeTax",
-            label: "企业所得税(万)",
-            },{
-            prop: "individualIncomeTax",
-            label: "个人所得税(万)"
+            },
+            {
+                prop: "messageContent",
+                label: "消息内容"
+            },
+            // {
+            //     prop: "messageType",
+            //     label: "消息类别"
+            // },
+            {
+                prop: "messageTime",
+                label: "推送时间"
             }
         ],
       };
@@ -157,83 +135,29 @@
     disabled?: boolean;
     showTextarea?: boolean;
   }
-  const formConfig: formConfigItem[] = [{
-  prop: "businessIncome",
-  label: "营业收入",
-  required: true,
-  showInput: true,
-},{
-  prop: "cultureIncome",
-  label: "文化产业相关营业收入",
-  required: true,
-  showInput: true,
-
-},{
-  prop: "totalProfit",
-  label: "利润总额",
-  required: true,
-  showInput: true,
-
-},{
-  prop: "netProfit",
-  label: "净利润",
-  required: true,
-  showInput: true,
-
-},{
-  prop: "totalAssets",
-  label: "资产总额",
-  required: true,
-  showInput: true,
-
-},{
-  prop: "netAssets",
-  label: "净资产",
-  required: true,
-  showInput: true,
-
-},{
-  prop: "totalLiability",
-  label: "负债总额",
-  required: true,
-  showInput: true,
-
-},{
-  prop: "equity",
-  label: "所有者权益",
-  required: true,
-  showInput: true,
-
-},{
-  prop: "payTaxes",
-  label: "纳税额(不含个人所得税)",
-  required: true,
-  showInput: true,
-
-},{
-  prop: "addedTax",
-  label: "增值税",
-  required: true,
-  showInput: true,
-
-},{
-  prop: "corporateIncomeTax",
-  label: "企业所得税",
-  required: true,
-  showInput: true,
-
-},{
-  prop: "individualIncomeTax",
-  label: "个人所得税",
-  required: true,
-  showInput: true,
-}];
+  const formConfig: formConfigItem[] = [
+    {
+      prop: "companyid",
+      label: "企业名称",
+      required: true,
+      showSelect: true,
+    },
+    {
+      prop: "messageContent",
+      label: "消息内容",
+      required: true,
+      showTextarea: true
+    },
+  ];
   const state = reactive({
     currentPage: 0,
     pageSize: 10,
     formConfig: formConfig,
     tableData: [],
     total: 0,
+    showBtn: false,
+    companyName: '',
+    messageContent: '',
     sensitiveword: "",
     dialogVisible: false,
     showForm: false,
@@ -244,7 +168,48 @@
   
   let currentRoleId = ref<string>("");
   const title = ref<string>("新增");
-  
+  // 提交
+  const onSubmit = (val) => {
+    getmessageList();
+  };
+  // 清空
+  const onClear = (val) => {
+    state.messageContent = '';
+    state.companyName = '';
+    getmessageList();
+  };
+  // 发送
+  const examine = () => {
+    post(`${entInfoAll}`, {
+        attestationStatus: 1
+    }).then(function (data) {
+        formConfig[0].options = data.list.map(e => {
+            return {
+                label: e.entName,
+                value: e.entId
+            }
+        });
+        state.dialogVisible = true;
+        state.showForm = true;
+        state.disabled = false;
+        state.formConfig = formConfig;
+        state.showBtn = true;
+    });
+  };
+
+  /**
+ * 提交表单数据
+ */
+const postFormData = (formData) => {
+    post(`${messageInsertBatch}`, {
+        companyids: [formData.companyids],
+        messageContent: formData.messageContent
+    })
+    .then(function (data) {
+        state.dialogVisible = false;
+        state.showForm = false;
+    });
+};
   /**
    * 表单详情
    */
@@ -252,6 +217,7 @@
     title.value = "查看详情";
     state.dialogVisible = true;
     state.showForm = true;
+    state.showBtn = false;
     state.formConfig = state.formConfig
       .map((e, b) => {
         // value 替换成 e.prop
@@ -262,34 +228,6 @@
       .splice(0);
   };
   
-  /**
-   * 审核
-   */
-  const examine = (row) => {
-    state.formConfig.status = row.applyStatus;
-    currentRoleId.value = row.id;
-    state.dialogVisible = true;
-    state.showExamineForm = true;
-  };
-  
-  /**
-   * 提交表单数据
-   */
-  const postFormData = (formData) => {
-    post(`${entApplyUpdateOne}`, {
-      id: currentRoleId.value,
-      applyStatus: formData.status
-    })
-      .then(function (data) {
-        getentIncomeAll();
-      })
-      .catch((e) => {
-        console.log("e", e);
-      });
-    state.dialogVisible = false;
-    state.showExamineForm = false;
-  };
-  
   // todo 改写法
   const closeDialog = async (done: () => void) => {
     state.dialogVisible = false;
@@ -298,29 +236,31 @@
   };
   
   //  文章内容列表
-  const getentIncomeAll = () => {
-    post(`${entIncomeAll}`, {
+  const getmessageList = () => {
+    post(`${messageList}`, {
       pageNum: state.currentPage,
       pageSize: state.pageSize,
+      messageContent: state.messageContent,
+      companyName: state.companyName
     }).then(function (data) {
       state.tableData = data.list;
       state.total = data.total;
     });
   };
-  getentIncomeAll();
+  getmessageList();
   
   // 切换每页显示数
   const handleSizeChange = (val: number) => {
     console.log(`${val} items per page`);
     state.pageSize = val;
-    getentIncomeAll();
+    getmessageList();
   };
   
   // 换页数
   const handleCurrentChange = (val: number) => {
     console.log(`current page: ${val}`);
     state.currentPage = val;
-    getentIncomeAll();
+    getmessageList();
   };
   const loading = ref(false);
   
@@ -339,7 +279,7 @@
         deleteItem(`${businessApplyDelete}`, {
           data: [row.id],
         }).then(function (data) {
-          getentIncomeAll();
+          getmessageList();
         });
         ElMessage.success("删除成功");
       })

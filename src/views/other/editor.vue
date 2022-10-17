@@ -39,12 +39,9 @@ import { onBeforeUnmount, ref, shallowRef, onMounted, reactive } from "vue";
 import { Editor, Toolbar } from "@wangeditor/editor-for-vue";
 import type { FormInstance } from "element-plus";
 import { ElMessage } from "element-plus";
-import { Boot } from "@wangeditor/editor";
 import { get, post } from "@/utils/request";
 import { upLoad } from "@/config/api";
-import formData from "form-data";
-import attachmentModule from "@wangeditor/plugin-upload-attachment";
-Boot.registerModule(attachmentModule);
+import formData from "form-data";;
 // 编辑器实例，必须用 shallowRef，重要！
 const editorRef = shallowRef();
 const url = ref("");
@@ -88,14 +85,14 @@ const editorConfig = {
         editor.insertNode(node);
 /*         var config = {
           method: "post",
-          url: "http://172.16.12.8:28182/upload", //上传图片地址
+          url: "http://172.16.4.62:28182/upload", //上传图片地址
           headers: {
             "Access-Control-Allow-Origin": "*",
             Authorization: "Bearer " + localStorage.getItem("token"),
           },
           data,
         };
-        // post(`http://172.16.12.8:28182/upload`, {
+        // post(`http://172.16.4.62:28182/upload`, {
         //   headers: {
         //     "Access-Control-Allow-Origin": "*",
         //     Authorization: "Bearer " + localStorage.getItem("token"),
@@ -104,7 +101,7 @@ const editorConfig = {
         // })
         axios(config)
           .then(function (res) {
-            debugger;
+            ;
             let url = res.data; //拼接成可浏览的图片地址
             insertFn(url, "使用说明", url); //插入图片
           })
@@ -124,7 +121,7 @@ const editorConfig = {
         // todo 查看图片链接
         var config = {
           method: "post",
-          url: "http://172.16.12.8:28182/upload", //上传图片地址
+          url: "http://172.16.4.62:28182/upload", //上传图片地址
           headers: {
             "Content-Type": "multipart/form-data",
             "Access-Control-Allow-Origin": "*",
@@ -139,7 +136,6 @@ const editorConfig = {
         axios.defaults.headers.common["Access-Control-Allow-Origin"] = "*";
         axios(config)
         .then(function (res) {
-          debugger;
           let url = res; //拼接成可浏览的图片地址
           insertFn(url, "使用说明", url); //插入图片
         })
@@ -158,7 +154,7 @@ const editorConfig = {
         data.append("type", "video");
         var config = {
           method: "post",
-          url: "http://172.16.12.8:28182/upload", //上传图片地址
+          url: "http://172.16.4.62:28182/upload", //上传图片地址
           headers: {
             "Content-Type": "multipart/form-data",
             "Access-Control-Allow-Origin": "*",

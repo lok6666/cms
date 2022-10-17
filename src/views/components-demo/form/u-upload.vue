@@ -40,7 +40,6 @@ const handleRemove: UploadProps['onRemove'] = (uploadFile, uploadFiles) => {
 }
 
 const beforeUploadAction = (file, fileLi)=>{
-  debugger;
 /*   var axios = require("axios");
   var FormData = require("form-data");
   var data = new FormData();
@@ -50,7 +49,7 @@ const beforeUploadAction = (file, fileLi)=>{
   // todo 查看图片链接
   var config = {
     method: "post",
-    url: "http://172.16.12.8:28182/upload", //上传图片地址
+    url: "http://172.16.4.62:28182/upload", //上传图片地址
     headers: {
       "Content-Type": "multipart/form-data",
       "Access-Control-Allow-Origin": "*",
@@ -65,7 +64,7 @@ const beforeUploadAction = (file, fileLi)=>{
   axios.defaults.headers.common["Access-Control-Allow-Origin"] = "*";
   axios(config)
   .then(function (res) {
-    debugger;
+    ;
     let url = res; //拼接成可浏览的图片地址
     fileList.value.push([{name: 'test', url}]);
     emit('update:modelValue',fileList.value);
@@ -80,7 +79,6 @@ const beforeUploadAction = (file, fileLi)=>{
      let name = file.name
      if(reg.test(name)){
        reader.onload = (e:FileReader)=>{
-         debugger;
          fileList.value.push('https://www.baidu.com/img/flexible/logo/pc/result.png')
         //  emit('update:modelValue',fileList.value)
          resolve('https://www.baidu.com/img/flexible/logo/pc/result.png')

@@ -4,10 +4,9 @@
     <!--看了源码,为了required校验,必须在form标签循环-->
     <el-form
       ref="formRef"
-      style="width: 50%;display:inline"
+      style="width: 80%;display:inline"
       v-for="(item, i) in state.formConfig"
       :key="i"
-      :inline='true'
       :disabled="state.disabled"
       :model="item"
       class="demo-dynamic"
@@ -30,8 +29,8 @@
           type="datetime"
           v-if="item.showDatePicker"
           :placeholder="item[placeholder]"
-          format="YYYY/MM/DD hh:mm:ss"
-          value-format="YYYY-MM-DD hh:mm:ss"
+          format="YYYY/MM/DD HH:mm:ss"
+          value-format="YYYY-MM-DD HH:mm:ss"
         />
         <!--年选择器-->
         <el-date-picker
@@ -61,8 +60,9 @@
             :value="i.value"
           />
         </el-select>
+         <!--附件文件-->
         <!--照片墙-->
-        <div v-if="item.zlupload" class="avatar-uploader">
+        <div v-if="item.zlupload && item[item.prop]" class="avatar-uploader">
           <img
             v-for="i in JSON.parse(item[item.prop])"
             :src="i.url"
@@ -70,6 +70,11 @@
             class="avatar"
           />
         </div>
+          <div v-else-if="item.showFile && item[item.prop]" class="avatar-uploader" style="display: flex;flex-direction: column;">
+            <div v-for="(items, i) in Object.values(JSON.parse(item[item.prop]))">
+              {{JSON.parse(items)[0].label}}: <a :href="JSON.parse(items)[0].url">{{JSON.parse(items)[0].name}}</a>
+            </div>  
+          </div>
         <!--上传图片-->
         <div @click="getIndex(i)" v-else-if="item.upload">
           <el-upload
@@ -98,7 +103,7 @@
         <!--富文本编辑-->
         <div @click="getIndex(i)" ref="uploadSingle" :indexValue="i" v-if="item.showWangEditor">
           <editor 
-          :content="content"
+          :content="item[item.prop]"
           @handle="changeContent"
         ></editor>
         </div>

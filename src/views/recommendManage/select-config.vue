@@ -73,7 +73,7 @@
       <el-dialog
         v-model="state.dialogVisible"
         :title="title"
-        width="50%"
+        width="80%"
         @closed="closeDialog()"
       >
         <formConpoent
@@ -164,7 +164,7 @@ const state = reactive({
   activeName: "content",
   editableTabsValue: "1",
   dialogVisible: false,
-  articletype: 1,
+  
   formConfig: formConfig,
   tableData: [
     {

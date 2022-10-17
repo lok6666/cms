@@ -23,7 +23,7 @@
               查看详情
             </el-button>
             <el-button type="primary" size="small" @click="examine(scope.row)" :disabled="scope.row.applyStatus !== 0">
-              审核
+              {{scope.row.applyStatus === 0 ? '未审核' : '审核中'}}
             </el-button>
           </template>
         </el-table-column>
@@ -31,7 +31,7 @@
       <el-dialog
         v-model="state.dialogVisible"
         :title="title"
-        width="50%"
+        width="80%"
         @closed="closeDialog()"
       >
         <formConpoent

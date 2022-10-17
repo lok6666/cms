@@ -1,9 +1,9 @@
 export const  busneissData = {
-    "RESULTTYPEINFO": [
-        {
-            "RESULTTYPE": "1"
-        }
-    ],
+    // "RESULTTYPEINFO": [
+    //     {
+    //         "RESULTTYPE": "1"
+    //     }
+    // ],
     "JUDICIALAIDEQUITYFREEZEINFO": [],
     "EQUITYPLEDGEDDETAILZXINFO": [],
     "LISTEDCOMPANYINFORMATIONINFO": [],

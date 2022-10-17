@@ -15,7 +15,7 @@
           :label="item.label"
         >
         <template #default="scope" v-if="item.prop === 'dockStatus'">
-            {{this.dockStatusObj[scope.row.dockStatus]}}
+            {{dockStatusObj[scope.row.dockStatus]}}
           </template>
          <img
             v-if="item.showImg"
@@ -34,7 +34,7 @@
       <el-dialog
         v-model="state.dialogVisible"
         :title="title"
-        width="50%"
+        width="80%"
         @closed="closeDialog()"
       >
         <formConpoent

@@ -61,7 +61,7 @@
       <el-dialog
         v-model="state.dialogVisible"
         :title="title"
-        width="50%"
+        width="80%"
         @closed="closeDialog()"
       >
         <formConpoent
@@ -235,7 +235,6 @@ const closeDialog = async (done: () => void) => {
 // todo 课程状态
 // 上架或者下架
 const changeStatus = (row, status) => {
-  debugger;
    post(`${trainingServicesUpdateOne}`, {
        id: row.id,
        serviceStatus: status

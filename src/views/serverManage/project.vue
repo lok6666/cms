@@ -6,11 +6,8 @@
       </el-button>
     </div>
     <el-form :inline="true" :model="state" class="demo-form-inline">
-      <el-form-item label="项目名称">
-        <el-input v-model="state.name" placeholder="请输入项目名称" />
-      </el-form-item>
-      <el-form-item label="企业名称">
-          <el-input v-model="state.username" placeholder="请输入企业名称" />
+      <el-form-item label="课程名称">
+        <el-input v-model="state.name" placeholder="请输入课程名称" @change="handleChange"/>
       </el-form-item>
       <el-form-item>
        <el-button type="primary" @click="gettrainingServicesAll">查询</el-button>
@@ -61,7 +58,7 @@
       <el-dialog
         v-model="state.dialogVisible"
         :title="title"
-        width="50%"
+        width="80%"
         @closed="closeDialog()"
       >
         <formConpoent
@@ -180,12 +177,16 @@ const state = reactive({
   formConfig: formConfig,
   tableData: [
   ],
+  serviceName: '',
   optionsList: [],
   levelOptions: [],
 });
 const title = ref("新增");
 
 
+const handleChange = (val) => {
+  state.serviceName = val;
+};
 /**
  * 添加
  */
@@ -235,7 +236,6 @@ const closeDialog = async (done: () => void) => {
 // todo 课程状态
 // 上架或者下架
 const changeStatus = (row, status) => {
-  debugger;
    post(`${trainingServicesUpdateOne}`, {
        id: row.id,
        serviceStatus: status
@@ -268,7 +268,8 @@ const edit = (row) => {
 const gettrainingServicesAll = () => {
   post(`${trainingServicesAll}`, {
     pageNum: state.currentPage,
-    pageSize: state.pageSize
+    pageSize: state.pageSize,
+    serviceName: state.serviceName
   }).then(function (data) {
     state.tableData = data.list;
     state.total = data.total;

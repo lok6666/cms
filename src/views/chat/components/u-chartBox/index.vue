@@ -183,7 +183,6 @@
   }
 
   const sendInfoAction = ()=>{
-    debugger;
     const value = contenteditableInputs.value.innerHTML
     console.log('value===',value)
     if(!value){

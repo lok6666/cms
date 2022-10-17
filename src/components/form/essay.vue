@@ -32,8 +32,6 @@
     </div>
     <el-tabs
       v-model="activeName"
-      type="carid"
-      class="demo-tabs"
       @tab-click="handleClick"
     >
       <el-tab-pane
@@ -43,7 +41,6 @@
         :key="i.id">
         <div class="business-essay-content">
           <el-tabs
-            class="demo-tabs"
             style="position: absolute; right: 0px"
             tab-position="right"
             @tab-click="articleHandleClick"
@@ -184,7 +181,7 @@ const state = reactive({
   activeYear: '2020',
   editableTabsValue: "1",
   dialogVisible: false,
-  articletype: 1,
+  
   businessConfig,
   priseConfig,
   tabList: props.tabList,

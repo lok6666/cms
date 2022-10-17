@@ -37,7 +37,7 @@
       <el-dialog
         v-model="state.dialogVisible"
         :title="title"
-        width="50%"
+        width="80%"
         @closed="closeDialog()"
       >
         <formConpoent
@@ -50,7 +50,7 @@
       <el-dialog
         v-model="state.dialogVisible2"
         :title="title"
-        width="50%"
+        width="80%"
         @closed="closeDialog()"
       >
         <formConpoent
@@ -231,7 +231,6 @@ const detail = (row) => {
       return result;
     })
     .splice(0);
-  console.log("state.formConfig", state);
 };
 
 /**

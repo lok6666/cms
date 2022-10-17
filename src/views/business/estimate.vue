@@ -12,7 +12,6 @@
       <div v-else>
             <el-input v-model="state.searchKey" placeholder="请输入" style="width: 300px; margin-bottom: 10px;" @change="handleChange"/>
         <el-table
-          
           :data="state.tableData"
           style="width: 100%"
           :border="true"
@@ -72,11 +71,18 @@
 <script lang="ts">
 import { ref, reactive, provide } from "vue";
 // import { busneissData } from "./data";
-import { map } from "./constant";
-import formConpoent from "./essay.vue";
+import { map,entPatentGetMap, getSoftByNameMap, getTrademarkByNameMap, getWorksByNameMap,
+  entgetRecruitByNameMap,entgetNewsByNameMap } from "./constant";
+import formConpoent from "@/components/form/essay.vue";
 import {
   businessEstimateAll,
-  entGetByName
+  entGetByName,
+  entPatentGet,
+  entgetSoftByName,
+  entgetTrademarkByName,
+  entgetWorksByName,
+  entgetRecruitByName,
+  entgetNewsByName
 } from "@/config/api";
 import { ElMessage, ElMessageBox } from "element-plus";
 // import { formConfigItem } from "@/utils/interface";
@@ -137,7 +143,7 @@ const formConfig: formConfigItem[] = [
 const map1 = {
     '工商信息': [
       'BASICINFO',
-      'RESULTTYPEINFO',
+      // 'RESULTTYPEINFO',
       'MAINMANAGERINFO',
       'SHAREHOLDERINFO',
       'SIMPLECANCELINFO',
@@ -188,9 +194,37 @@ const map1 = {
       'LISTEDCOMPANYSHAREHOLDEINFO'
     ]
   };
-let list: Array = [];
-let baseInfo: Object = {};
-console.log('e---', list, baseInfo);
+const map2 = {
+  '专利信息': [
+  'ANNREPORTINFO'
+  ],
+};
+const map3 = {
+  '软著': [
+  'ANNREPORTINFO'
+  ],
+};
+const map4 = {
+  '商标': [
+  'ANNREPORTINFO'
+  ],
+};
+const map5 = {
+  '著作权': [
+  'ANNREPORTINFO'
+  ],
+};
+const map6 = {
+  '招聘': [
+  'ANNREPORTINFO'
+  ],
+};
+const map7 = {
+  '舆情': [
+  'EVENT',
+  'KEYWORD'
+  ],
+};
 const state = reactive({
   currentPage: 0,
   pageSize: 10,
@@ -200,8 +234,8 @@ const state = reactive({
   searchKey: '',
   sensitiveword: "",
   dialogVisible: false,
-  tabList: list,
-  baseInfo: baseInfo
+  tabList: [],
+  baseInfo: {}
 });
 
 let currentRoleId = ref<string>("");
@@ -211,8 +245,12 @@ const title = ref<string>("新增");
  * 表单详情
  */
 // todo 单独封装
-const detail = (row) => {
-  getentGetByName(row.companyName);
+const detail = async (row) => {
+  await getentGetByName(row.companyName);
+  // await getentPatentGet(row.companyName);
+  // await getentgetSoftByName(row.companyName);
+  // await getTrademarkByName(row.companyName);
+  // await getWorksByName(row.companyName);
   //   state.formConfig = state.formConfig
   //     .map((e, b) => {
   //       // value 替换成 e.prop
@@ -274,8 +312,8 @@ getbusinessEstimateAll();
 const getentGetByName = (busneissName) => {
   get(`${entGetByName}/${busneissName}`, {
 
-  }).then(function (data) {
-    console.log('data----', data);   
+  }).then(async function (data) {
+    let list = [];
     Object.keys(map1).forEach((i, index) => {
       let obj = {
         tabName: i,
@@ -303,14 +341,183 @@ const getentGetByName = (busneissName) => {
           });
       });
       list.push(obj);
-      title.value = "查看详情";
-      state.dialogVisible = true;
     });
+    
     state.tabList = list;
+    await getentPatentGet(busneissName);
+    await getentgetSoftByName(busneissName);
+    await getTrademarkByName(busneissName);
+    await getRecruitByName(busneissName);
+    await getNewsByName(busneissName);
+    await getWorksByName(busneissName);
+  });
+};
+
+//  文章内容列表
+const getentPatentGet = (busneissName) => {
+  return get(`${entPatentGet}/${busneissName}`, {
+
+  }).then(function (data) {
+    let list = [];
+    Object.keys(map2).forEach((i, index) => {
+      let obj = {
+        tabName: i,
+        id: index,
+        optionsList: []
+      };
+      map2[i].forEach((key, index) => {
+        obj.optionsList.push({
+              id: index,
+              ...entPatentGetMap[key],
+              businessMessage: data
+          });
+      });
+      list.push(obj);
+    });
+    state.tabList = state.tabList.concat(list);
+    return true;
+  });
+};
+
+//  软著列表
+const getentgetSoftByName = (busneissName) => {
+  return get(`${entgetSoftByName}/${busneissName}`, {
+
+  }).then(function (data) {
+    let list = [];
+    Object.keys(map3).forEach((i, index) => {
+      let obj = {
+        tabName: i,
+        id: index,
+        optionsList: []
+      };
+      map3[i].forEach((key, index) => {
+        obj.optionsList.push({
+              id: index,
+              ...getSoftByNameMap[key],
+              businessMessage: data
+          });
+      });
+      list.push(obj);
+    });
+    
+    state.tabList = state.tabList.concat(list);
+    return true;
   });
 };
 
 
+//  商标列表
+const getTrademarkByName = (busneissName) => {
+  return get(`${entgetTrademarkByName}/${busneissName}`, {
+  }).then(function (data) {
+    let list = [];
+    Object.keys(map4).forEach((i, index) => {
+      let obj = {
+        tabName: i,
+        id: index,
+        optionsList: []
+      };
+      map4[i].forEach((key, index) => {
+        obj.optionsList.push({
+              id: index,
+              ...getTrademarkByNameMap[key],
+              businessMessage: data
+          });
+      });
+      list.push(obj);
+    });
+    state.tabList = state.tabList.concat(list);
+    return true;
+  });
+};
+//  著作权列表
+const getWorksByName = (busneissName) => {
+  return get(`${entgetWorksByName}/${busneissName}`, {
+  }).then(function (data) {
+    let list = [];
+    Object.keys(map5).forEach((i, index) => {
+      let obj = {
+        tabName: i,
+        id: index,
+        optionsList: []
+      };
+      map5[i].forEach((key, index) => {
+        obj.optionsList.push({
+              id: index,
+              ...getWorksByNameMap[key],
+              businessMessage: data
+          });
+      });
+      list.push(obj);
+      title.value = "查看详情";
+      state.dialogVisible = true;
+    });
+    state.tabList = state.tabList.concat(list);
+  });
+};
+
+//  招聘列表
+const getRecruitByName = (busneissName) => {
+  return get(`${entgetRecruitByName}/${busneissName}`, {
+  }).then(function (data) {
+    let list = [];
+    Object.keys(map6).forEach((i, index) => {
+      let obj = {
+        tabName: i,
+        id: index,
+        optionsList: []
+      };
+      map6[i].forEach((key, index) => {
+        obj.optionsList.push({
+              id: index,
+              ...entgetRecruitByNameMap[key],
+              businessMessage: data
+          });
+      });
+      list.push(obj);
+    });
+    state.tabList = state.tabList.concat(list);
+    return true;
+  });
+};
+
+// 舆情列表
+const getNewsByName = (busneissName) => {
+  return get(`${entgetNewsByName}/${busneissName}`, {
+  }).then(function (data) {
+    let list = [];
+    Object.keys(map7).forEach((i, index) => {
+      let obj = {
+        tabName: i,
+        id: index,
+        optionsList: []
+      };
+/*       map7[i].forEach((key, index) => {
+        debugger;
+        obj.optionsList.push({
+              id: index,
+              ...entgetNewsByNameMap[key],
+              businessMessage: data[index][key]
+          });
+      }); */
+      obj.optionsList.push({
+          id: 0,
+          ...entgetNewsByNameMap['EVENT'],
+          businessMessage: data[0]['EVENT']
+      });
+      obj.optionsList.push({
+          id: 1,
+          ...entgetNewsByNameMap['KEYWORD'],
+          // todo 此处优化
+          businessMessage: [{'aaaa': data[0]['KEYWORD']}]
+      }); 
+      list.push(obj);
+    });
+    state.tabList = state.tabList.concat(list);
+    return true;
+  });
+};
 const handleChange = val => {
   console.log('valk------', val);
   post(`${businessEstimateAll}`, {

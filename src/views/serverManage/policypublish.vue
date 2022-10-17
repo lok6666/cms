@@ -558,6 +558,7 @@ import {
   policyTagInsert,
   policyRelationList,
   policyFileInsert,
+  host,
 } from "@/config/api";
 import {
   levelMap,
@@ -570,11 +571,10 @@ import {
   locationOptions,
   relationOptions,
   personOptions,
+  policyPulishDetail
 } from "./constant";
 import { Editor, Toolbar } from "@wangeditor/editor-for-vue";
-import { Boot } from "@wangeditor/editor";
 import formData from "form-data";
-import attachmentModule from "@wangeditor/plugin-upload-attachment";
 import axios from "axios";
 import "@wangeditor/editor/dist/css/style.css";
 // http request 拦截器
@@ -584,7 +584,6 @@ axios.interceptors.request.use(function (config) {
   // 判断是否是
   return config;
 });
-Boot.registerModule(attachmentModule);
 const renovate = inject("reload");
 const activeName = ref("exist");
 const currentPage4 = ref(1);
@@ -1073,12 +1072,11 @@ const handleCurrentChange = (val) => {
   getData();
 };
 const routerTo = (index, id, row) => {
-  debugger;
   detailRow.value = row;
   title.value = "详情";
   window.localStorage.id = id;
   window.localStorage.policyKind = row.policyKind;
-  iframeSrc.value = `http://172.16.12.2:8080/#/service/policy-pulish-detail?id=12340`;
+  iframeSrc.value = `${location.host}#/policy-pulish-detail?id=${id}`;
   routeDialogVisible.value = true;
   // router.push({
   //   name: "EditableV2",
@@ -1112,7 +1110,7 @@ const routerTo = (index, id, row) => {
           `http://gateway.serviceshare.com/design-api-webapp/api/enterprise/validateLogin?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE2NjEzMTc2NDEsInVzZXJuYW1lIjoiMTAyMTcifQ.MykwgiB_NYcmfZSbs_L1N5EzBVnyE6VWuVEyX1GSzoU`
         )
           .then(() => {
-            debugger;
+            ;
             document.getElementsByTagName('iframe');
             window.open("http://merchant.serviceshare.com/home");
           });
