@@ -53,7 +53,7 @@ export const constantRoutes: Array<RouteRecordRaw & extendRoute> = [
     ]
   },
   {
-    path: '/business',
+    path: '/businessservice',
     component: Layout,
     redirect: 'noRedirect',
     name: 'Charts',
@@ -64,7 +64,7 @@ export const constantRoutes: Array<RouteRecordRaw & extendRoute> = [
     children: [
       {
         path: 'migration',
-        component: () => import('@/views/business/apply.vue'),
+        component: () => import('@/views/businessservice/apply.vue'),
         name: 'migration',
         meta: { title: '入驻申请', roles: ['other']}
       },
@@ -82,17 +82,17 @@ export const constantRoutes: Array<RouteRecordRaw & extendRoute> = [
         meta: { title: '财税数据', roles: ['other'] }
       },
       {
-        path: 'test',
-        component: () => import('@/views/busneissMessage/test.vue'),
+        path: 'applymanage',
+        component: () => import('@/views/busneissMessage/applymanage.vue'),
         name: 'busneiss-test',
         meta: { title: '政策申报管理', roles: ['other'] }
       },
-      // {
-      //   path: 'complex',
-      //   component: () => import('@/views/charts/complex.vue'),
-      //   name: 'charts-complex',
-      //   meta: { title: '招商效果', roles: ['other'] }
-      // },
+       {
+         path: 'complex',
+         component: () => import('@/views/charts/complex.vue'),
+         name: 'charts-complex',
+        meta: { title: '招商效果', roles: ['other'] }
+       },
       // {
       //   path: 'animation',
       //   component: () => import('@/views/business/enterMessage.vue'),

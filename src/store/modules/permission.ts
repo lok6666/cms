@@ -37,6 +37,9 @@ export function generator(routes) {
     const res = [];
     routes.forEach(el => {
         const { name, path, meta, parentId} = el || {};
+/*         if(path.includes('businessservice')) {
+            debugger;
+         }; */
         const currentRouter: currentRouter = {
             path:  path || name,
             name: name,

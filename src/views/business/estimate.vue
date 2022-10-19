@@ -501,12 +501,12 @@ const getNewsByName = (busneissName) => {
               businessMessage: data[index][key]
           });
       }); */
-      obj.optionsList.push({
+      data.length > 0 && obj.optionsList.push({
           id: 0,
           ...entgetNewsByNameMap['EVENT'],
           businessMessage: data[0]['EVENT']
       });
-      obj.optionsList.push({
+      data.length > 0 && obj.optionsList.push({
           id: 1,
           ...entgetNewsByNameMap['KEYWORD'],
           // todo 此处优化

@@ -196,7 +196,7 @@ const beforeAvatarUpload: UploadProps["beforeUpload"] = (rawFile) => {
   data.append("type", "image");
   var config = {
     method: "post",
-    url: "http://172.16.4.62:28182/upload", //上传图片地址
+    url: `${upLoad}`, //上传图片地址
     type: "image",
     data: data,
   };

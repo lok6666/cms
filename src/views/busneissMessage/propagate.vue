@@ -153,7 +153,7 @@
   },
   {
       prop: "honorImg",
-      label: "荣誉资质",
+      label: "宣传图片",
       zlupload: true,
   },
   {

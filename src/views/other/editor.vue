@@ -85,7 +85,7 @@ const editorConfig = {
         editor.insertNode(node);
 /*         var config = {
           method: "post",
-          url: "http://172.16.4.62:28182/upload", //上传图片地址
+          url: `${upLoad}`, //上传图片地址
           headers: {
             "Access-Control-Allow-Origin": "*",
             Authorization: "Bearer " + localStorage.getItem("token"),
@@ -121,7 +121,7 @@ const editorConfig = {
         // todo 查看图片链接
         var config = {
           method: "post",
-          url: "http://172.16.4.62:28182/upload", //上传图片地址
+          url: `${upLoad}`, //上传图片地址
           headers: {
             "Content-Type": "multipart/form-data",
             "Access-Control-Allow-Origin": "*",
@@ -154,7 +154,7 @@ const editorConfig = {
         data.append("type", "video");
         var config = {
           method: "post",
-          url: "http://172.16.4.62:28182/upload", //上传图片地址
+          url: `${upLoad}`, //上传图片地址
           headers: {
             "Content-Type": "multipart/form-data",
             "Access-Control-Allow-Origin": "*",

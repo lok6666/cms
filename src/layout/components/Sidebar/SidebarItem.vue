@@ -69,6 +69,7 @@ const hasOneShowingChild = (children = [], parent)=>{
 
 
 const resolvePath = (routePath)=>{
+  debugger;
   if (isExternal(routePath)) {
     return routePath
   }

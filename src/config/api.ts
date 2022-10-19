@@ -176,6 +176,9 @@ export const businessEstimateAddOne = `${host}/entList/insert`//  轮播图添�
 export const businessEstimatUpdateOne = `${host}/entList/update`//  轮播图更新
 export const businessEstimatDelete = `${host}/entList/delete` // 轮播图删除
 
+/*招商服务-招商效果*/
+export const fincialDataStatistics = `${host}/fincialDataStatistics/getByName` // 轮播图删除
+
 // menu路由
 export const getMenuByUserId = `${host}/sysResource/getMenuByUserId`
 // 上传附件,图片,视频

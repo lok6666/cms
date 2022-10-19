@@ -1,6 +1,15 @@
 <template>
   <u-container-layout>
     <div class="inline-edit-table">
+      <el-form :inline="true" :model="formInline" class="demo-form-inline">
+        <el-form-item label="">
+            <el-input v-model="state.activityName" placeholder="请输入企业名称" style="width: 300px; margin-right: 10px;margin-bottom: 10px;"/>
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary" @click="onSubmit">搜索</el-button>
+          <el-button type="primary" @click="onClear">清空</el-button>
+        </el-form-item>
+      </el-form>
       <div style="display: flex; justify-content: flex-end">
         <el-button type="primary" @click="add">
           <el-icon><plus /></el-icon>添加
@@ -289,6 +298,7 @@ const state = reactive({
   formConfig: formConfig,
   tableData: [],
   total: 0,
+  activityName: '',
   sensitiveword: "",
   dialogVisible: false
 });
@@ -300,6 +310,14 @@ const add = () => {
   state.dialogVisible = true;
 };
 
+
+const onSubmit = () => {
+  getactionAll();
+};
+const onClear = () => {
+  state.activityName = '';
+  getactionAll();
+}
 /**
  * 提交表单数据
  */
@@ -351,13 +369,13 @@ const edit = (row): void => {
       return result;
     })
     .splice(0);
-  console.log("row, row", state.formConfig);
 };
 //  文章内容列表
 const getactionAll = () => {
   post(`${actionAll}`, {
     pageNum: state.currentPage,
     pageSize: state.pageSize,
+    activityName: state.activityName
   }).then(function (data) {
     state.tableData = data.list;
     state.total = data.total;

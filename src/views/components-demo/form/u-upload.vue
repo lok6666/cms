@@ -49,7 +49,7 @@ const beforeUploadAction = (file, fileLi)=>{
   // todo 查看图片链接
   var config = {
     method: "post",
-    url: "http://172.16.4.62:28182/upload", //上传图片地址
+    url: `${upLoad}`, //上传图片地址
     headers: {
       "Content-Type": "multipart/form-data",
       "Access-Control-Allow-Origin": "*",

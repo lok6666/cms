@@ -111,12 +111,12 @@ export default {
           label: '序号'
         },
         {
-          prop: "entName",
-          label: '企业名称'
-        },
-        {
           prop: "actName",
           label: "活动名称",
+        },
+        {
+          prop: "entName",
+          label: '企业名称'
         },
         {
           prop: "applyCount",
