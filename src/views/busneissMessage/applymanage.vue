@@ -1,6 +1,15 @@
 <template>
     <u-container-layout>
       <div class="inline-edit-table">
+        <el-form :inline="true" :model="state" class="demo-form-inline">
+          <el-form-item label="企业名称">
+            <el-input v-model="state.entName" placeholder="请输入企业名称"/>
+          </el-form-item>
+          <el-form-item>
+          <el-button type="primary" @click="gettrainingServicesAll">查询</el-button>
+          <el-button type="primary" @click="reset">重置</el-button>
+          </el-form-item>
+        </el-form>
         <entTable
         v-if="state.applyDialogVisible"
         :tabList="state.tabList"
@@ -182,6 +191,7 @@
     total: 0,
     tabList: [],
     baseInfo: {},
+    entName: '',
     sensitiveword: "",
     dialogVisible: false,
     applyDialogVisible: false,
@@ -280,7 +290,13 @@ const map7 = {
   ],
 };
 
-
+const gettrainingServicesAll = () => {
+  getpolicyApplyList();
+};
+const reset = () => {
+  state.entName = '';
+  getpolicyApplyList();
+};
 const routerTo = async (row) => {
   await getentGetByName(row.companyName);
 };
@@ -551,6 +567,7 @@ const getNewsByName = (busneissName) => {
     post(`${policyApplyList}`, {
       pageNum: state.currentPage,
       pageSize: state.pageSize,
+      entName: state.entName
     }).then(function (data) {
       state.tableData = data.list;
       state.total = data.total;

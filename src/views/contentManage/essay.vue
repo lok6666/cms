@@ -298,11 +298,12 @@ let ruleForm: baseData = reactive({
 const userChange1 = (row) => {
   let obj = {
     ...row,
-    recommend:row.booleanIsTop ? 1 : 0,
+    isTop:row.booleanIsTop ? 1 : 0,
   };
   post(`${articleUpdateOne}`, {
     ...obj
   }).then(function (data) {
+    getArticleSelectAll();
     ElMessage.success("操作成功");
   });
 };
@@ -315,6 +316,7 @@ const userChange = (row) => {
   post(`${articleUpdateOne}`, {
     ...obj
   }).then(function (data) {
+    getArticleSelectAll();
     ElMessage.success("操作成功");
   });
 };

@@ -1,6 +1,6 @@
 // export const host:string = 'http://172.16.4.62:28182';
 export const host:string = 'http://172.16.4.62:28182';
-// const host:string = 'http://enterprise.bjwcxf.com:28191';
+//const host:string = 'http://enterprise.bjwcxf.com:28191';
 // 登录接口
 export const login = `${host}/auth/login`
 
@@ -100,7 +100,7 @@ export const suppliersInsert = `${host}/supplier/insert` // 行业新增
 
 /*服务库管理-资金产品库*/
 export const fundAll = `${host}/financialServiceDocking/list` //  资金产品库数据
-export const fundUpdateOne = `http://172.16.110.101:81/assoication_sjs/trzDictionaries/updateOneType` // 资金产品更新
+export const fundUpdateOne = `${host}/financialServiceDocking/update` // 资金产品更新
 
 /*服务库管理-其他服务库*/
 export const otherAll = `IndustryData/list` //  资金产品库数据

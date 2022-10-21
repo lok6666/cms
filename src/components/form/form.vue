@@ -138,7 +138,7 @@ interface prop{
   },
   disabled: {
     type: Boolean,
-    default: true
+    default: false
   }
 }
 const emit = defineEmits(["handle", "dialogClose"]);

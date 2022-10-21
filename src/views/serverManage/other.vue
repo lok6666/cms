@@ -24,17 +24,19 @@
         :border="true"
         v-loading="loading"
       >
+        <el-table-column type="index" width="50" />
         <el-table-column
           v-for="(item, index) in tableHeaderConfig"
           :key="index"
+          sortable
           :prop="item.prop"
           :label="item.label"
         >
         <template #default="scope" v-if="item.prop === 'serviceFlag'">
-            {{this.serviceFlagstatus[scope.row.serviceFlag]}}
+            {{serviceFlagstatus[scope.row.serviceFlag]}}
           </template>
           <template #default="scope" v-if="item.prop === 'serviceType'">
-            {{this.serviceTypetatus[scope.row.serviceType]}}
+            {{serviceTypetatus[scope.row.serviceType]}}
           </template>
         </el-table-column>
         <el-table-column prop="operator" label="操作" width="200" fixed="right">
@@ -106,6 +108,10 @@ export default {
       },
       tableHeaderConfig: [
       {
+        prop: "sortNum",
+        label: "排序",
+      },
+      {
         prop: "serviceName",
         label: "服务名称",
       },
@@ -147,6 +153,12 @@ const formConfig = [
   {
     prop: "serviceName",
     label: "服务名称",
+    required: true,
+    showInput: true
+  },
+  {
+    prop: "sortNum",
+    label: "序号",
     required: true,
     showInput: true
   },

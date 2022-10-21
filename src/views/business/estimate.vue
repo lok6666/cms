@@ -10,7 +10,15 @@
         @dialogClose="closeDialog"
       ></formConpoent>
       <div v-else>
-            <el-input v-model="state.searchKey" placeholder="请输入" style="width: 300px; margin-bottom: 10px;" @change="handleChange"/>
+        <el-form :inline="true" :model="state" class="demo-form-inline">
+          <el-form-item label="企业名称">
+            <el-input v-model="state.entName" placeholder="请输入企业名称"/>
+          </el-form-item>
+          <el-form-item>
+          <el-button type="primary" @click="gettrainingServicesAll">查询</el-button>
+          <el-button type="primary" @click="reset">重置</el-button>
+          </el-form-item>
+        </el-form>
         <el-table
           :data="state.tableData"
           style="width: 100%"
@@ -231,6 +239,7 @@ const state = reactive({
   formConfig: Object.assign([], formConfig),
   tableData: [],
   total: 0,
+  entName: '',
   searchKey: '',
   sensitiveword: "",
   dialogVisible: false,
@@ -241,6 +250,14 @@ const state = reactive({
 let currentRoleId = ref<string>("");
 const title = ref<string>("新增");
 
+
+const gettrainingServicesAll = () => {
+  getbusinessEstimateAll();
+};
+const reset = () => {
+  state.entName = '';
+  getbusinessEstimateAll();
+};
 /**
  * 表单详情
  */
@@ -301,6 +318,7 @@ const getbusinessEstimateAll = () => {
   post(`${businessEstimateAll}`, {
     pageNum: state.currentPage,
     pageSize: state.pageSize,
+    entName: state.entName
   }).then(function (data) {
     state.tableData = data.list;
     state.total = data.total;

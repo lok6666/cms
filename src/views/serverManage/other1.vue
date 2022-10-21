@@ -32,7 +32,7 @@
           :label="item.label"
         >
         <template #default="scope" v-if="item.prop === 'supplierType'">
-            {{this.supplierTypeStatus[scope.row.supplierType]}}
+            {{supplierTypeStatus[scope.row.supplierType]}}
         </template>
         <template #default="scope" v-if="item.showImg">
             <img

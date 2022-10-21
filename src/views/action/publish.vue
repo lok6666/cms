@@ -3,7 +3,7 @@
     <div class="inline-edit-table">
       <el-form :inline="true" :model="formInline" class="demo-form-inline">
         <el-form-item label="">
-            <el-input v-model="state.activityName" placeholder="请输入企业名称" style="width: 300px; margin-right: 10px;margin-bottom: 10px;"/>
+            <el-input v-model="state.activityName" placeholder="请输入活动名称" style="width: 300px; margin-right: 10px;margin-bottom: 10px;"/>
         </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="onSubmit">搜索</el-button>
@@ -201,12 +201,6 @@ const formConfig = [
     showInput: true 
   },
   {
-    prop: "activityAbstract",
-    label: "活动简介",
-    required: true,
-    showTextarea: true 
-  },
-  {
     prop: "activityNum",
     label: "参加人数",
     required: true,
@@ -225,17 +219,10 @@ const formConfig = [
     showInput: true,    
   },
   {
-    prop: "activityImg",
-    label: "活动课程图片",
+    prop: "activityAbstract",
+    label: "活动简介",
     required: true,
-    upload: true 
-  },
-  {
-    prop: "activityThumbnail",
-    label: "缩略图",
-    required: true,
-    // display: ''
-    upload: true 
+    showTextarea: true 
   },
   {
     prop: "activityDateFrom",
@@ -264,6 +251,19 @@ const formConfig = [
     placeholder: "活动报名结束日期",
     required: true,
     showDatePicker: true, 
+  },
+  {
+    prop: "activityImg",
+    label: "活动课程图片",
+    required: true,
+    upload: true 
+  },
+  {
+    prop: "activityThumbnail",
+    label: "缩略图",
+    required: true,
+    // display: ''
+    upload: true 
   },
   {
     prop: "activityContent",

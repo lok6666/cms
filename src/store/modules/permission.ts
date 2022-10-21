@@ -100,6 +100,7 @@ const actions = {
             post(`${getMenuByUserId}`, {})
             .then(function (data) {
                 const routers = generator(data);
+                console.log('routers-----------', routers);
                 commit('SET_ROUTES', routers);
                 resolve(routers);
             });

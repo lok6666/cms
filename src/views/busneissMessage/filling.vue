@@ -1,6 +1,15 @@
 <template>
     <u-container-layout>
       <div class="inline-edit-table">
+        <el-form :inline="true" :model="state" class="demo-form-inline">
+          <el-form-item label="企业名称">
+            <el-input v-model="state.entName" placeholder="请输入企业名称"/>
+          </el-form-item>
+          <el-form-item>
+          <el-button type="primary" @click="gettrainingServicesAll">查询</el-button>
+          <el-button type="primary" @click="reset">重置</el-button>
+          </el-form-item>
+        </el-form>
         <el-table
           :data="state.tableData"
           style="width: 100%"
@@ -95,15 +104,15 @@
         },
         tableHeaderConfig: [
             {
-                prop: "entName",
+                prop: "entname",
                 label: "企业名称"
             },
             {
-                prop: "representativePeople",
+                prop: "frdb",
                 label: "法定代表人"
             },
             {
-                prop: "busneissEmail",
+                prop: "email",
                 label: "企业邮箱"
             },
             {
@@ -168,6 +177,7 @@
     formConfig: formConfig,
     tableData: [],
     total: 0,
+    entName: '',
     sensitiveword: "",
     dialogVisible: false,
     showForm: false,
@@ -179,6 +189,14 @@
   let currentRoleId = ref<string>("");
   const title = ref<string>("新增");
   
+
+const gettrainingServicesAll = () => {
+  getentFilingAll();
+};
+const reset = () => {
+  state.entName = '';
+  getentFilingAll();
+};
   /**
    * 表单详情
    */
@@ -236,6 +254,7 @@
     post(`${entFilingAll}`, {
       pageNum: state.currentPage,
       pageSize: state.pageSize,
+      entName: state.entName
     }).then(function (data) {
       state.tableData = data.list;
       state.total = data.total;

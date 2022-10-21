@@ -27,9 +27,13 @@
         <el-table-column
           v-for="(item, index) in tableHeaderConfig"
           :key="index"
+          sortable
           :prop="item.prop"
           :label="item.label"
         >
+        <template #default="scope" v-if="item.prop === 'serviceFlag'">
+            {{serviceFlagstatus[scope.row.serviceFlag]}}
+          </template>
         <template #default="scope" v-if="item.showImg">
          <img
             v-if="item.showImg"
@@ -55,6 +59,8 @@
                 @click="deleteAction(scope.row, state.isResume)"
                 >删除</el-button
               >
+              <el-button type="warning" size="small"  @click="upItem(scope.row)">上架</el-button>
+              <el-button type="danger" size="small"  @click="downItem(scope.row)">下架</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -103,10 +109,18 @@ export default {
   name: "sensitive-manage",
   data() {
     return {
+      serviceFlagstatus: {
+        0: '下架',
+        1: '上架'
+      },
       tableHeaderConfig: [
         {
           prop: "serviceName",
           label: "服务名称",
+        },
+        {
+          prop: "serviceFlag",
+          label: "上下架",
         },
         {
           prop: "serviceQuota",
@@ -148,12 +162,6 @@ const formConfig = [
     required: true
   },
   {
-    prop: "serviceContent",
-    label: "服务详情",
-    showWangEditor: true,
-    required: true
-  },
-  {
     prop: "serviceImages",
     label: "机构logo",
     upload: true,
@@ -190,7 +198,13 @@ const formConfig = [
     ],
     required: true,
     showSelect: true
-  }
+  },
+  {
+    prop: "serviceContent",
+    label: "服务详情",
+    showWangEditor: true,
+    required: true
+  },
 ];
 const state = reactive({
   currentPage: 0,
@@ -209,13 +223,59 @@ const state = reactive({
 const title = ref("新增");
 
 
+
+/**
+ * 上架
+ */
+ const upItem = (row) => {
+  currentRoleId.value = row.id;
+ElMessageBox.confirm("你确定要上架当前项吗?", "温馨提示", {
+    confirmButtonText: "确定",
+    cancelButtonText: "取消",
+    type: "warning",
+    draggable: true,
+  })
+    .then(() => {
+      post(`${financialServicesUpdateOne}`, {
+      id: currentRoleId.value,
+      serviceFlag: 1,
+    }).then(function (data) {
+      getsuppliersAll();
+      });
+      ElMessage.success("上架成功");
+    })
+    .catch(() => {});
+};
+
+/**
+ * 下架
+ */
+const downItem = (row) => {
+  currentRoleId.value = row.id;
+ElMessageBox.confirm("你确定要下架当前项吗?", "温馨提示", {
+    confirmButtonText: "确定",
+    cancelButtonText: "取消",
+    type: "warning",
+    draggable: true,
+  })
+    .then(() => {
+      post(`${financialServicesUpdateOne}`, {
+      id: currentRoleId.value,
+      serviceFlag: 0,
+    }).then(function (data) {
+      getsuppliersAll();
+      });
+      ElMessage.success("下架成功");
+    })
+    .catch(() => {});
+};
+
 /**
  *  获取表格数据
  */
  const getsuppliersAll = () => {
   post(`${suppliersAll}`, {
   }).then(function (data) {
-    debugger;
     state.formConfig[state.formConfig.length -1].options = data.list.map(e => {
       return {
         label: e.supplierName,

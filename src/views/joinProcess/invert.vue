@@ -1,6 +1,15 @@
 <template>
   <u-container-layout>   
     <div class="inline-edit-table">
+      <el-form :inline="true" :model="state" class="demo-form-inline">
+          <el-form-item label="企业名称">
+            <el-input v-model="state.entName" placeholder="请输入企业名称"/>
+          </el-form-item>
+          <el-form-item>
+          <el-button type="primary" @click="gettrainingServicesAll">查询</el-button>
+          <el-button type="primary" @click="reset">重置</el-button>
+          </el-form-item>
+        </el-form>
       <el-table
         :data="state.tableData"
         style="width: 100%"
@@ -19,11 +28,20 @@
             :src="item[item.prop]"
             style="width: 50px; height: 50px"
           />
+          <template #default="scope" v-if="item.prop === 'dockStatus'">
+            {{status[scope.row.dockStatus]}}
+          </template>
         </el-table-column>
         <el-table-column prop="operator" label="操作" width="200" fixed="right">
           <template #default="scope">
             <el-button type="primary" size="small" @click="detail(scope.row)">
               查看详情
+            </el-button>
+            <el-button type="primary" size="small" @click="editSort(scope.row)">
+              排序
+            </el-button>
+            <el-button type="primary" size="small" @click="examine(scope.row)">
+              审核
             </el-button>
           </template>
         </el-table-column>
@@ -35,11 +53,26 @@
         @closed="closeDialog()"
       >
         <formConpoent
+          v-if="state.showForm"
           v-model:formConfig="state.formConfig"
           :showBtn="false"
           :disabled="true"
           @dialogClose="closeDialog"
         ></formConpoent>
+        <formConpoent
+          v-if="state.showSort"
+          @handle="postFormData1"
+          v-model:formConfig="state.form3Config"
+          :showBtn="true"
+          :disabled="false"
+          @dialogClose="closeDialog"
+        ></formConpoent>
+        <examineFormConpoent
+            v-if="state.showExamineForm"
+            @handle="postFormData"
+            :status="state.formConfig.status"
+            @dialogClose="closeDialog"
+          ></examineFormConpoent>
       </el-dialog>
       <div
         style="
@@ -63,6 +96,7 @@
   </u-container-layout>
 </template>
 <script lang="ts">
+import examineFormConpoent from "@/components/form/examineForm.vue";
 import { computed, ref, reactive, onMounted, toRefs } from "vue";
 import { fundAll, fundUpdateOne } from "@/config/api";
 import formConpoent from "@/components/form/form.vue";
@@ -73,7 +107,16 @@ export default {
   name: "sensitive-manage",
   data() {
     return {
+      status: {
+        0: '未审核',
+        1: '申请成功',
+        2: '申请失败'
+      },
       tableHeaderConfig: [
+        {
+          prop: "companyName",
+          label: "企业名称",
+        },
         {
           prop: "serviceName",
           label: "服务名称",
@@ -87,26 +130,27 @@ export default {
           label: "企业联系人"
         },
         {
-          prop: "companyName",
-          label: "企业名称",
-        },
-        {
           prop: "dockStatus",
           label: "对接状态",
         },
         {
           prop: "dockTime",
           label: "申请时间",
-        }
+        },
+        {
+          prop: "sortNum",
+          label: "排序",
+        },
       ],
     };
   },
 };
 </script>
 <script lang="ts" setup >
-const formConfig = [ {
-    prop: "serviceName",
-    label: "服务名称",
+const formConfig = [
+  {
+    prop: "companyName",
+    label: "企业名称",
     showInput: true,
     disabled: true
   }, {
@@ -114,14 +158,12 @@ const formConfig = [ {
     label: "企业联系方式",
     showInput: true,
     disabled: true
-  }, 
-  {
-    prop: "companyName",
-    label: "企业名称",
+  }, {
+    prop: "serviceName",
+    label: "服务名称",
     showInput: true,
     disabled: true
-  }, 
-  {
+  }, {
     prop: "companyPerson",
     label: "企业联系人",
     showInput: true,
@@ -172,6 +214,16 @@ const form2Config = [
     disabled: true
   }
 ];
+
+const form3Config = [
+  {
+    prop: "sortNum",
+    label: "排序",
+    showInput: true,
+    disabled: false
+  }
+];
+let currentRoleId = ref<string>("");
 const state = reactive({
   currentPage: 0,
   total: 0,
@@ -180,43 +232,14 @@ const state = reactive({
   name: '',
   username: '',
   culName: "",
+  showForm: false,
+  showExamineForm: false,
+  showSort: false,
+  entName: '',
   formConfig: formConfig,
   form2Config: form2Config,
+  form3Config: form3Config,
   tableData: [
-    {
-      amount: "",
-      company: "",
-      companyid: 0,
-      definition: "",
-      describe: "",
-      entryConditions: "1、具有国家高新技术企业证书或中关村高新技术企业证书的科技企业；。",
-      expenditure: "100",
-      files: [],
-      fundCompnay: "华夏银行股份有限公司",
-      fundName: "小额智融宝",
-      fundPrincipal: "1",
-      fundPrincipalTel: "2",
-      fundid: 39,
-      id: 30,
-      images: [],
-      income: "100",
-      intro: "该户债权为三笔债权共同使用同一抵押物，并办理了最高额抵押。",
-      investmentIndustry: "与北京IP合作",
-      money: "面议",
-      pageNum: 0,
-      pageSize: 0,
-      principal: "刘经理",
-      principalTel: "66295509",
-      proCompany: "北京文投大数据有限公司",
-      proType: "企业债券融资",
-      projectid: 118,
-      protName: "云南中天文化债权",
-      status: 1,
-      storageTime: "2022-07-27 11:30:44",
-      trzFundList: [],
-      trzProjectList: [],
-      type: 1
-    },
   ],
   optionsList: [],
   levelOptions: [],
@@ -228,11 +251,94 @@ const closeDialog = async (done: () => void) => {
   state.dialogVisible = false;
 };
 
+
+
+const gettrainingServicesAll = () => {
+  getfundAll();
+};
+const reset = () => {
+  state.entName = '';
+  getfundAll();
+};
+/**
+ * 修改排序
+ */
+const editSort = (row) => {
+  currentRoleId.value = row.id;
+  state.dialogVisible = true;
+  state.showSort = true;
+  state.showForm = false;
+  state.showExamineForm = false;
+  state.form3Config = state.form3Config
+    .map((e, b) => {
+      // value 替换成 e.prop
+      let result = { ...e };
+      result[e.prop] = row[e.prop];
+      return result;
+    })
+    .splice(0);
+};
+
+/**
+ * 审核
+ */
+const examine = (row) => {
+  state.formConfig.status = row.dockStatus;
+  currentRoleId.value = row.id;
+  state.dialogVisible = true;
+  state.showForm = false;
+  state.showSort = false;
+  state.showExamineForm = true;
+};
+
+/**
+   * 提交表单数据
+   */
+   const postFormData1 = (formData) => {
+  post(`${fundUpdateOne}`, {
+    id: currentRoleId.value,
+    ...formData
+  })
+    .then(function (data) {
+      getfundAll();
+    })
+    .catch((e) => {
+      console.log("e", e);
+    });
+  state.dialogVisible = false;
+  state.showExamineForm = false;
+  state.showSort = false;
+};
+
+
+
+  /**
+   * 提交表单数据
+   */
+  const postFormData = (formData) => {
+  post(`${fundUpdateOne}`, {
+    id: currentRoleId.value,
+    dockStatus: formData.status ? 1:2
+  })
+    .then(function (data) {
+      getfundAll();
+    })
+    .catch((e) => {
+      console.log("e", e);
+    });
+  state.dialogVisible = false;
+  state.showExamineForm = false;
+  state.showSort = false;
+};
+
 /**
  * 编辑表单
  */
 const detail = (row) => {
   title.value = "查看详情";
+  state.showForm = true;
+  state.showSort = false;
+  state.showExamineForm = false;
   state.dialogVisible = true;
   state.formConfig = state.formConfig
     .map((e, b) => {
@@ -259,7 +365,7 @@ const getfundAll = () => {
   post(`${fundAll}`, {
     pageNum: state.currentPage,
     pageSize: state.pageSize,
-
+    entName: state.entName
   }).then(function (data) {
     state.tableData = data.list;
     state.total = data.total;

@@ -36,11 +36,12 @@ export const constantRouterComponents = {
     'enroll': ()=> import('@/views/action/enroll.vue'), // 系统管理-活动报名
     'businessCheck': () => import('@/layout/index.vue'), // 企业监测
     'choose': () => import('@/layout/index.vue'), // 优化筛选
-    // 'businessservice': () => import('@/layout/index.vue'), // 招商服务
+    'businessservice': () => import('@/layout/index.vue'), // 招商服务
     'migration': () => import('@/views/businessservice/apply.vue'), // 招商服务-入驻申请
-    // 'simple': () => import('@/views/business/estimate.vue'), // 招商服务-企业评估
-    // 'income': () => import('@/views/busneissMessage/income.vue'), // 招商服务-财税数据
-    // 'applymanage': () => import('@/views/busneissMessage/applymanage.vue'), //招商服务-政策申报管理
+    'simple': () => import('@/views/business/estimate.vue'), // 招商服务-企业评估
+    'income': () => import('@/views/busneissMessage/income.vue'), // 招商服务-财税数据
+    'applymanage': () => import('@/views/busneissMessage/applymanage.vue'), //招商服务-政策申报管理
+    'complex': () => import('@/views/charts/complex.vue'), //招商服务-政策申报管理
     // todo 研究 企业信息使用-后不用在这里引入组件
   };
 

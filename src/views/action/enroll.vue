@@ -1,6 +1,18 @@
 <template>
   <u-container-layout>
     <div class="inline-edit-table">
+      <el-form :inline="true" :model="state" class="demo-form-inline">
+        <el-form-item label="课程名称">
+          <el-input v-model="state.actName" placeholder="请输入活动名称"/>
+        </el-form-item>
+        <el-form-item label="企业名称">
+          <el-input v-model="state.entName" placeholder="请输入企业名称"/>
+        </el-form-item>
+        <el-form-item>
+        <el-button type="primary" @click="gettrainingServicesAll">查询</el-button>
+        <el-button type="primary" @click="reset">重置</el-button>
+        </el-form-item>
+      </el-form>
       <el-table
         :data="state.tableData"
         style="width: 100%"
@@ -101,9 +113,8 @@ export default {
     return {
       applyStatusObj: {
         0: '未审核',
-        1: '审核中',
-        2: '审核通过',
-        3: '审核未通过'
+        1: '审核通过',
+        2: '审核未通过'
       },
       tableHeaderConfig: [
         {
@@ -121,10 +132,6 @@ export default {
         {
           prop: "applyCount",
           label: "报名人数",
-        },
-        {
-          prop: "entName",
-          label: "企业名称",
         },
         {
           prop: "duties",
@@ -203,6 +210,8 @@ const state = reactive({
   formConfig: Object.assign([], formConfig),
   tableData: [],
   total: 0,
+  actName: '',
+  entName: '',
   sensitiveword: "",
   dialogVisible: false,
   isResume: false,
@@ -214,6 +223,15 @@ const state = reactive({
 let currentRoleId = ref<string>("");
 const title = ref<string>("新增");
 
+
+const gettrainingServicesAll = () => {
+  getactivityApplyAll();
+};
+const reset = () => {
+  state.actName = '';
+  state.entName = '';
+  getactivityApplyAll();
+};
 /**
  * 提交表单数据
  */
@@ -268,6 +286,8 @@ const getactivityApplyAll = () => {
   post(`${activityApplyAll}`, {
     pageNum: state.currentPage,
     pageSize: state.pageSize,
+    actName: state.actName,
+    entName: state.entName
   }).then(function (data) {
     state.tableData = data.list;
     state.total = data.total;

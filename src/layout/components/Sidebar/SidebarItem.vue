@@ -1,7 +1,7 @@
 <template>
   <template v-if="!item.hidden">
     <template v-if="!item.alwaysShow&&hasOneShowingChild(item.children,item)">
-      <app-link v-if="onlyOneChild.meta" :to="resolvePath(onlyOneChild.path)">
+      <app-link v-if="onlyOneChild.meta" :to="resolvePath(onlyOneChild.path)">22
         <el-menu-item :index="resolvePath(onlyOneChild.path)">
           <el-icon :size="20">
             <component :is="onlyOneChild?.meta.icon"></component>
@@ -69,7 +69,6 @@ const hasOneShowingChild = (children = [], parent)=>{
 
 
 const resolvePath = (routePath)=>{
-  debugger;
   if (isExternal(routePath)) {
     return routePath
   }

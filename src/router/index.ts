@@ -52,8 +52,8 @@ export const constantRoutes: Array<RouteRecordRaw & extendRoute> = [
       }
     ]
   },
-  {
-    path: '/businessservice',
+/*   {
+    path: '/businessservice1',
     component: Layout,
     redirect: 'noRedirect',
     name: 'Charts',
@@ -100,7 +100,7 @@ export const constantRoutes: Array<RouteRecordRaw & extendRoute> = [
       //   meta: { title: '信息录入', roles: ['other'] }
       // },
     ]
-  },
+  }, */
   // permissionRouter
 ]
 

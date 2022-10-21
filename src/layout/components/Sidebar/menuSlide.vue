@@ -24,11 +24,9 @@
     // 在setup中获取store
     const store = useStore()
     const route = useRoute()
-    console.log('route---', route);
 
     // 获取路由
     const permission_routes = computed(()=>{
-        console.log('store.state.permission.routes---', store.state.permission.routes);
         return store.state.permission.routes
     })
 
