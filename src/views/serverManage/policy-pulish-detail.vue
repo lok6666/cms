@@ -1,11 +1,11 @@
 <template>
     <!-- 可编辑表格V2 -->
-    <div id="detail">
+    <div id="detail" style="background-color:#fff;">
       <!-- <iframe src="http://merchant.serviceshare.com/home"></iframe> -->
       <div class="Md-zcxx" style="width: 72%">
         <!-- <iframe :src="data.policyUrl" frameborder="0" style="min-width: 860px; height: 1000px;"></iframe> -->
         <div
-          v-html="data.policyContent"
+          v-html="data.policyContent.replace('扫一扫在手机打开当前页', '')"
           class="detail-policyContent"
           style="font-size: 18px"
         ></div>

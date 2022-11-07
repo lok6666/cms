@@ -8,20 +8,15 @@
           <el-form-item>
           <el-button type="primary" @click="gettrainingServicesAll">查询</el-button>
           <el-button type="primary" @click="reset">重置</el-button>
+          <el-button type="primary" @click="exportClick">导出EXECL</el-button>
           </el-form-item>
         </el-form>
-        <entTable
-        v-if="state.applyDialogVisible"
-        :tabList="state.tabList"
-        v-model:baseInfo="state.baseInfo"
-        v-model:formConfig="state.formConfig"
-        @handle="postFormData"
-        @dialogClose="closeDialog"
-      ></entTable>
         <el-table
+          id="my-table"
           :data="state.tableData"
           style="width: 100%"
           :border="true"
+          :cell-style="fn"
           :highlight-current-row="false"
           header-row-class-name="custom-header"
           row-class-name="hover-row"
@@ -49,8 +44,11 @@
               <el-button type="primary" size="small" @click.stop="detail(scope.row)">
                 查看详情
               </el-button>
-              <el-button type="primary" :disabled="scope.row.applyStatus !== 0" size="small" @click="examine(scope.row)">
+              <el-button type="primary" :disabled="scope.row.applyStatus !== 0" size="small" @click.stop="examine(scope.row)">
                 审核
+              </el-button>
+              <el-button type="primary" size="small" @click.stop="add(scope.row)">
+                添加
               </el-button>
               <!-- <el-button
                 type="danger"
@@ -63,18 +61,59 @@
           </el-table-column>
         </el-table>
         <el-dialog
+          v-model="state.dialogVisible1"
+          :title="title"
+          top="1vh"
+          :center="true"
+          width="98%"
+          @closed="closeDialog()"
+        >
+        <entTable
+            v-if="state.applyDialogVisible"
+            :tabList="state.tabList"
+            v-model:baseInfo="state.baseInfo"
+            v-model:formConfig="state.formConfig"
+            @handle="postFormData"
+            @dialogClose="closeDialog"
+          ></entTable>
+        </el-dialog>
+        <el-dialog
+          v-model="state.dialogVisible4"
+          :title="title"
+          top="5vh"
+          width="30%"
+          @closed="closeDialog()"
+        >
+          <formConpoent
+            v-if="state.dialogVisible2"
+            :disabled="false"
+            :showBtn="true"
+            v-model:formConfig="state.formConfig2"
+            @handle="postFormData2"
+            @dialogClose="closeDialog"
+          ></formConpoent>
+        </el-dialog>
+        <el-dialog
           v-model="state.dialogVisible"
           :title="title"
+          top="5vh"
           width="80%"
           @closed="closeDialog()"
         >
           <formConpoent
-            v-if="state.showForm"
-            :disabled="state.disabled"
-            v-model:formConfig="state.formConfig"
+            v-if="state.dialogVisible2"
+            :disabled="false"
+            :showBtn="true"
+            v-model:formConfig="state.formConfig2"
             @handle="postFormData"
             @dialogClose="closeDialog"
           ></formConpoent>
+          <cusTomformConpoent
+            v-if="state.showForm"
+            :disabled="state.disabled"
+            v-model:formConfig="state.formConfig"
+            @dialogClose="closeDialog"
+          ></cusTomformConpoent>
           <examineFormConpoent
             v-if="state.showExamineForm"
             @handle="postFormData"
@@ -103,13 +142,17 @@
     </u-container-layout>
   </template>
   <script lang="ts">
+  import FileSaver from 'file-saver'
+  import * as XLSX from 'xlsx';
   import { ref, reactive, provide } from "vue";
   import { map,entPatentGetMap, getSoftByNameMap, getTrademarkByNameMap, getWorksByNameMap,
   entgetRecruitByNameMap,entgetNewsByNameMap } from "./constant";
   import examineFormConpoent from "@/components/form/examineForm.vue";
   import entTable from "@/components/form/essay.vue";
   import formConpoent from "@/components/form/form.vue";
+  import cusTomformConpoent from "./form.vue";
   import {
+    entMerchantsPersonInsert,
     policyApplyList,
     activityApplyAddOne,
     activityApplyrUpdateOne,
@@ -120,7 +163,8 @@
     entgetTrademarkByName,
     entgetWorksByName,
     entgetRecruitByName,
-    entgetNewsByName
+    entgetNewsByName,
+    entMerchantsPersonList
   } from "@/config/api";
   import { ElMessage, ElMessageBox } from "element-plus";
   // import { formConfigItem } from "@/utils/interface";
@@ -145,6 +189,30 @@
         {
           prop: "policyName",
           label: "政策名称",
+          required: true,
+          showInput: true
+        },
+        {
+          prop: "policyName",
+          label: "政策名称",
+          required: true,
+          showInput: true
+        },
+        {
+          prop: "contactPerson",
+          label: "联系人",
+          required: true,
+          showInput: true
+        },
+        {
+          prop: "contactPhone",
+          label: "联系电话",
+          required: true,
+          showInput: true
+        },
+        {
+          prop: "entCode",
+          label: "社会统一代码",
           required: true,
           showInput: true
         },
@@ -177,16 +245,51 @@
       showInput: true
     },
     {
+      prop: "contactPerson",
+      label: "联系人",
+      required: true,
+      showInput: true
+    },
+    {
+      prop: "contactPhone",
+      label: "联系电话",
+      required: true,
+      showInput: true
+    },
+    {
+      prop: "entCode",
+      label: "社会统一代码",
+      required: true,
+      showInput: true
+    },
+    {
       prop: "policyFile",
       label: "政策附件",
       required: true,
       showFile: true
     },
   ];
+  const fn = ({row, column}) => {
+    if(column.label === '企业名称') {
+      return {
+      color: `#409eff`
+    }
+    };
+
+  };
   const state = reactive({
     currentPage: 0,
     pageSize: 10,
     formConfig: Object.assign([], formConfig),
+    formConfig2: [
+    {
+      prop: "listName",
+      label: "名称",
+      required: true,
+      options: [],
+      showSelect: true,
+    }
+  ],
     tableData: [],
     total: 0,
     tabList: [],
@@ -194,6 +297,9 @@
     entName: '',
     sensitiveword: "",
     dialogVisible: false,
+    dialogVisible1: false,
+    dialogVisible2: false,
+    dialogVisible4: false,
     applyDialogVisible: false,
     isResume: false,
     showForm: false,
@@ -290,6 +396,65 @@ const map7 = {
   ],
 };
 
+const add = () => {
+  state.dialogVisible4 = true;
+  state.dialogVisible2 = true;
+};
+// 左侧tab
+const getentMerchantsPersonList = () => {
+  post(`${entMerchantsPersonList}`, {
+    pageNum: state.currentPage,
+    pageSize: state.pageSize,
+  }).then(function (data) {
+    state.formConfig2[state.formConfig2.length - 1].options = data.list.map(e => {
+      return {
+        label: e.listName,
+        value: e.primaryId
+      }
+    });
+  });
+};
+getentMerchantsPersonList();
+
+/**
+ * 提交表单数据
+ */
+ const postFormData2 = (formData) => {
+  debugger;
+  let data = state.formConfig2[0].options.filter(e => e.value === formData.listName);
+  post(`${entMerchantsPersonInsert}`, {
+    listName: data[0].label,
+    listId: data[0].value,
+  })
+    .then(function (data) {
+      ElMessage.success("添加成功");
+      getentMerchantsPersonList();
+    })
+    .catch((e) => {
+      console.log("e", e);
+    });
+  state.dialogVisible3 = false;
+  state.dialogVisible2 = false;
+  console.log("submit!", formData);
+};
+// 导出表格
+const exportClick = () => {
+	var wb = XLSX.utils.table_to_book(document.querySelector('#my-table'));//关联don节点
+	/* get binary string as output */
+	var wbout = XLSX.write(wb, {
+		bookType: 'xlsx',
+		bookSST: true,
+		type: 'array'
+	})
+	try {
+		FileSaver.saveAs(new Blob([wbout], {
+			type: 'application/octet-stream'
+		}), '政策申报.xlsx')//自定义文件名
+	} catch (e) {
+		if (typeof console !== 'undefined') console.log(e, wbout);
+	}
+	return wbout
+}
 const gettrainingServicesAll = () => {
   getpolicyApplyList();
 };
@@ -336,12 +501,20 @@ const getentGetByName = (busneissName) => {
     });
     
     state.tabList = list;
-    await getentPatentGet(busneissName);
-    await getentgetSoftByName(busneissName);
-    await getTrademarkByName(busneissName);
-    await getRecruitByName(busneissName);
-    await getNewsByName(busneissName);
-    await getWorksByName(busneissName);
+    let data1 = await Promise.all([
+        getentPatentGet(busneissName), 
+        getentgetSoftByName(busneissName),
+        getTrademarkByName(busneissName),
+        getRecruitByName(busneissName),
+        getNewsByName(busneissName),
+        getWorksByName(busneissName)
+    ]);
+    state.dialogVisible = false;
+    state.showForm = false;
+    state.dialogVisible1 = true;
+    state.dialogVisible2 = false;
+    state.applyDialogVisible = true;
+    state.dialogVisible4 = false;
   });
 };
 
@@ -444,7 +617,6 @@ const getWorksByName = (busneissName) => {
       });
       list.push(obj);
       title.value = "查看详情";
-      state.applyDialogVisible = true;
     });
     state.tabList = state.tabList.concat(list);
   });
@@ -546,6 +718,9 @@ const getNewsByName = (busneissName) => {
   // todo 改写法
   const closeDialog = async (done: () => void) => {
     state.dialogVisible = false;
+    state.dialogVisible1 = false;
+    state.dialogVisible2 = false;
+    state.dialogVisible4 = false;
     state.formConfig = formConfig;
     state.applyDialogVisible = false;
   };
@@ -581,9 +756,6 @@ const getNewsByName = (busneissName) => {
    */
    const detail = (row) => {
     title.value = "查看详情";
-    state.formConfig.status = row.applyStatus;
-    state.dialogVisible = true;
-    state.showForm = true;
     state.formConfig = state.formConfig
       .map((e, b) => {
         // value 替换成 e.prop
@@ -592,6 +764,9 @@ const getNewsByName = (busneissName) => {
         return result;
       })
       .splice(0);
+    state.formConfig.status = row.applyStatus;
+    state.dialogVisible = true;
+    state.showForm = true;
   };
   
   /**
@@ -661,6 +836,9 @@ const getNewsByName = (busneissName) => {
         background: var(--el-fill-color-light);
       }
     }
+     .class-row {
+      background-color: gray;
+    } 
     .hover-row:hover {
       cursor: pointer;
       th.el-table__cell {

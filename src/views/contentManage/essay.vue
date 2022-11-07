@@ -60,14 +60,15 @@
         :border="true"
         v-loading="loading"
       >
-        <el-table-column prop="id" label="序号" />
-        <el-table-column prop="title" label="文章标题" />
-        <el-table-column prop="dataSources" label="文章来源" />
-        <el-table-column prop="releaseDate" label="发布日期" />
-        <el-table-column prop="createDate" label="创建时间" />
-        <el-table-column prop="status" label="发布状态" />
-        <el-table-column prop="operator" label="文章作者" />
-        <el-table-column prop="isTop" label="置顶">
+        <el-table-column prop="id" label="序号" type="index" width='80px'/>
+        <!-- <el-table-column prop="id" label="序号" width='80px'/> -->
+        <el-table-column prop="title" label="文章标题" min-width='200'/>
+        <el-table-column prop="dataSources" label="文章来源" width='150'/>
+        <!-- <el-table-column prop="storageTime" label="创建时间" /> -->
+        <!-- <el-table-column prop="status" label="发布状态" /> -->
+        <el-table-column prop="operator" label="文章作者" width='150'/>
+        <el-table-column prop="releaseDate" label="发布日期" width="180px"/>
+        <el-table-column prop="isTop" label="置顶" width='80px'>
           <template #default="scope">
             <el-switch
               size="large"
@@ -81,7 +82,7 @@
             />
           </template>
         </el-table-column>
-        <el-table-column prop="recommend" label="推荐">
+        <el-table-column prop="recommend" label="推荐" width='80px'>
           <template #default="scope">
             <el-switch
             size="large"
@@ -108,6 +109,7 @@
             </el-button>
             <el-button
               v-else
+              style="margin-left: 12px;margin-bottom: 3px;"
               type="primary"
               size="small"
               icon="Edit"
@@ -119,12 +121,13 @@
               type="danger"
               size="small"
               icon="Delete"
+              style="margin-bottom: 3px;"
               @click="deleteAction(scope.row, state.isResume)"
             >
               {{ state.isResume ? "彻底删除" : "删除" }}
             </el-button>
-            <el-button type="warning" v-if="!state.isResume" size="small"  @click="upItem(scope.row)">上架</el-button>
-            <el-button type="danger" v-if="!state.isResume" size="small"  @click="downItem(scope.row)">下架</el-button>
+<!--             <el-button type="warning" v-if="!state.isResume" size="small" icon="Top" @click="upItem(scope.row)">上架</el-button>
+            <el-button type="danger" v-if="!state.isResume" size="small" icon="Bottom"  @click="downItem(scope.row)">下架</el-button> -->
           </template>
         </el-table-column>
       </el-table>
@@ -154,6 +157,14 @@
           </el-form-item>
           <el-form-item label="来源" prop="dataSources">
             <el-input v-model="ruleForm.dataSources" />
+          </el-form-item>
+          <el-form-item label="发布时间" prop="releaseDate">
+            <el-date-picker
+              v-model="ruleForm.releaseDate"
+              type="datetime"
+              format="YYYY/MM/DD HH:mm:ss"
+              value-format="YYYY-MM-DD HH:mm:ss"
+            />
           </el-form-item>
           <el-form-item label="缩略图" prop="picture">
             <el-upload
@@ -226,6 +237,10 @@ import {
   articleMoveUp,
   articleMoveDown
 } from "@/config/api";
+import {
+  phoneRules,
+  emtyRules
+} from "@/config/constants";
 import { ElMessage, ElMessageBox, FormRules, UploadProps } from "element-plus";
 import { get, post } from "@/utils/request";
 
@@ -244,23 +259,12 @@ interface selectAllConfig {
 }
 
 const rules = reactive<FormRules>({
-  title: {
-    required: true,
-  },
-  operator: {
-    required: true,
-  },
-  dataSources: {
-    required: true,
-  },
-  picture: {
-  },
-  releaseDate: {
-    required: true,
-  },
-  content: {
-    required: true,
-  },
+  title: { required: true, validator: emtyRules, trigger: 'blur'},
+  operator:{ required: true, validator: emtyRules, trigger: 'blur'},
+  dataSources: { required: true, validator: emtyRules, trigger: 'blur'},
+  picture: { required: true, validator: emtyRules, trigger: 'blur'},
+  releaseDate: { required: true, validator: emtyRules, trigger: 'blur'},
+  content: { required: true, validator: emtyRules, trigger: 'blur'},
 });
 const formInline = reactive({
   title: ""
@@ -269,7 +273,7 @@ const state = reactive({
   currentPage: 0,
   tableData: [],
   total: 0,
-  pageSize: 10,
+  pageSize: 20,
   activeName: "content",
   editableTabsValue: "1",
   dialogVisible: false,
@@ -399,7 +403,7 @@ const handleClose = async (done: () => void) => {
           ...obj,
         })
           .then(function (data) {
-            console.log("data-----", data);
+            getArticleSelectAll();
           })
           .catch((e) => {
             console.log("e", e);
@@ -410,14 +414,13 @@ const handleClose = async (done: () => void) => {
           ...obj,
         })
           .then(function (data) {
-            console.log("data----", data);
+            getArticleSelectAll();
           })
           .catch((e) => {
             console.log("e", e);
           });
       }
       state.dialogVisible = false;
-      console.log("submit!", obj);
     } else {
       console.log("error submit!", fields);
     }
@@ -450,10 +453,10 @@ const beforeAvatarUpload: UploadProps["beforeUpload"] = (rawFile) => {
 const closeDialog = async (done: () => void) => {
   Object.assign(ruleForm, {
     title: "",
-    
     operator: "",
     picture: "",
     dataSources: "",
+    releaseDate: "",
     avatar: "",
     digest: "",
     id: "",
@@ -548,6 +551,7 @@ const onSubmit = () => {
 // 清空
 const onClear = () => {
   loading.value = true;
+  formInline.title = '';
   formInline.value = {};
   setTimeout(() => {
     loading.value = false;

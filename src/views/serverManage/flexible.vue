@@ -7,10 +7,12 @@
           </el-form-item>
           <el-form-item>
           <el-button type="primary" @click="gettrainingServicesAll">查询</el-button>
+          <el-button type="primary" @click="exportClick">导出EXECL</el-button>
           <el-button type="primary" @click="reset">重置</el-button>
           </el-form-item>
         </el-form>
       <el-table
+        id="my-table"
         :data="state.tableData"
         style="width: 100%"
         :border="true"
@@ -76,6 +78,8 @@
   </u-container-layout>
 </template>
 <script lang="ts">
+import FileSaver from 'file-saver'
+import * as XLSX from 'xlsx';
 import { computed, ref, reactive, onMounted, toRefs } from "vue";
 import { recruitServiceDockingAll, recruitServiceDockingUpdateOne } from "@/config/api";
 import formConpoent from "@/components/form/form.vue";
@@ -108,10 +112,10 @@ export default {
           prop: "companyPerson",
           label: "企业联系人"
         },
-        {
+/*         {
           prop: "dockStatus",
           label: "对接状态",
-        },
+        }, */
         {
           prop: "dockTime",
           label: "申请时间",
@@ -247,7 +251,24 @@ const closeDialog = async (done: () => void) => {
   state.dialogVisible = false;
 };
 
-
+// 导出表格
+const exportClick = () => {
+	var wb = XLSX.utils.table_to_book(document.querySelector('#my-table'));//关联don节点
+	/* get binary string as output */
+	var wbout = XLSX.write(wb, {
+		bookType: 'xlsx',
+		bookSST: true,
+		type: 'array'
+	})
+	try {
+		FileSaver.saveAs(new Blob([wbout], {
+			type: 'application/octet-stream'
+		}), '灵活用工管理.xlsx')//自定义文件名
+	} catch (e) {
+		if (typeof console !== 'undefined') console.log(e, wbout);
+	}
+	return wbout
+}
 
 const gettrainingServicesAll = () => {
   getrecruitServiceDockingAll();

@@ -5,12 +5,37 @@
           <el-form-item label="企业名称">
             <el-input v-model="state.entName" placeholder="请输入企业名称"/>
           </el-form-item>
-          <el-form-item>
+          <el-form-item label="年份">
+            <el-select v-model="state.incomeYear" placeholder="年份">
+            <el-option label="2022" value="2022" />
+            <el-option label="2021" value="2021" />
+            <el-option label="2020" value="2020" />
+          </el-select>
+        </el-form-item>
+          <el-form-item label="月份">
+            <el-select v-model="state.incomeMonth" placeholder="年份">
+            <el-option label="1月" value="1月" />
+            <el-option label="1-2月" value="1-2月" />
+            <el-option label="1-3月" value="1-3月" />
+            <el-option label="1-4月" value="1-4月" />
+            <el-option label="1-5月" value="1-5月" />
+            <el-option label="1-6月" value="1-6月" />
+            <el-option label="1-7月" value="1-7月" />
+            <el-option label="1-8月" value="1-8月" />
+            <el-option label="1-9月" value="1-9月" />
+            <el-option label="1-10月" value="1-10月" />
+            <el-option label="1-11月" value="1-11月" />
+            <el-option label="1-12月" value="1-12月" />
+          </el-select> 
+        </el-form-item>
+      <el-form-item>
           <el-button type="primary" @click="gettrainingServicesAll">查询</el-button>
           <el-button type="primary" @click="reset">重置</el-button>
+          <el-button type="primary" @click="exportClick">导出EXECL</el-button>
           </el-form-item>
         </el-form>
         <el-table
+          id="my-table"
           :data="state.tableData"
           style="width: 100%"
           :border="true"
@@ -31,9 +56,9 @@
               <el-button type="primary" size="small" @click="detail(scope.row)">
                 查看详情
               </el-button>
-              <el-button type="primary" size="small" @click="examine(scope.row)" :disabled="[scope.row.applyStatus !== 0]">
+              <!-- <el-button type="primary" size="small" @click="examine(scope.row)" :disabled="[scope.row.applyStatus !== 0]">
                 审核
-              </el-button>
+              </el-button> -->
             </template>
           </el-table-column>
         </el-table>
@@ -79,6 +104,8 @@
     </u-container-layout>
   </template>
   <script lang="ts">
+  import FileSaver from 'file-saver'
+  import * as XLSX from 'xlsx';
   import { ref, reactive, provide } from "vue";
   import formConpoent from "@/components/form/form.vue";
   import examineFormConpoent from "@/components/form/examineForm.vue";
@@ -244,6 +271,8 @@
     tableData: [],
     total: 0,
     entName: '',
+    incomeYear: '',
+    incomeMonth: '',
     sensitiveword: "",
     dialogVisible: false,
     showForm: false,
@@ -256,7 +285,24 @@
   const title = ref<string>("新增");
   
 
-  
+// 导出表格
+const exportClick = () => {
+	var wb = XLSX.utils.table_to_book(document.querySelector('#my-table'));//关联don节点
+	/* get binary string as output */
+	var wbout = XLSX.write(wb, {
+		bookType: 'xlsx',
+		bookSST: true,
+		type: 'array'
+	})
+	try {
+		FileSaver.saveAs(new Blob([wbout], {
+			type: 'application/octet-stream'
+		}), '财税数据.xlsx')//自定义文件名
+	} catch (e) {
+		if (typeof console !== 'undefined') console.log(e, wbout);
+	}
+	return wbout
+}
 const gettrainingServicesAll = () => {
   getentIncomeAll();
 };
@@ -321,7 +367,9 @@ const reset = () => {
     post(`${entIncomeAll}`, {
       pageNum: state.currentPage,
       pageSize: state.pageSize,
-      entName: state.entName
+      entName: state.entName,
+      incomeYear: state.incomeYear,
+      incomeMonth: state.incomeMonth
     }).then(function (data) {
       state.tableData = data.list;
       state.total = data.total;

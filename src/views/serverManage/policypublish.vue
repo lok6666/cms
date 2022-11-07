@@ -1,7 +1,34 @@
 <template>
-  <div class="list">
+  <u-container-layout>
+    <div class="inline-edit-table">
+      <el-dialog
+          v-model="applydialogVisible"
+          :title="title"
+          width="80%"
+          @closed="closeDialog()"
+        >
+        <el-form :inline="true" :model="state" class="demo-form-inline">
+          <el-form-item label="政策标题简称">
+            <el-input v-model="policyPushData.policyTitle" style="width: 500px;" maxlength="20" placeholder="请输入政策标题简称,不能超过20个字"/>
+          </el-form-item>
+          <el-form-item>
+            <el-button type="primary" style="float: right;" @click="sendMessage">推送新闻</el-button>
+          </el-form-item>
+        </el-form>
+        <el-table
+          ref="multipleTableRef"
+          :data="entTableData"
+          style="width: 100%"
+          @selection-change="handleSelectionChange"
+        >
+          <el-table-column type="selection" width="55" />
+          <el-table-column property="entName" label="公司名称"/>
+          <el-table-column property="contactsPerson" label="联系人"/>
+          <el-table-column property="contactsPhone" label="电话" show-overflow-tooltip />
+        </el-table>
+        </el-dialog>
     <div>
-      <div style="display: inline-block; padding-bottom: 10px">
+      <div style="display: inline-block; padding-bottom: 10px;margin-right: 10px;">
         <el-select
           v-model="levelValue"
           filterable
@@ -16,7 +43,7 @@
           />
         </el-select>
       </div>
-      <div style="display: inline-block">
+      <div style="display: inline-block;margin-right: 10px;">
         <el-select
           v-model="policyKind"
           filterable
@@ -31,7 +58,7 @@
           />
         </el-select>
       </div>
-      <div style="display: inline-block">
+      <div style="display: inline-block;margin-right: 10px;">
         <el-select
           v-model="typeValue"
           filterable
@@ -46,7 +73,7 @@
           />
         </el-select>
       </div>
-      <div style="display: inline-block">
+      <div style="display: inline-block;margin-right: 10px;">
         <el-select
           v-model="locationValue"
           filterable
@@ -91,40 +118,37 @@
           />
         </el-select>
       </div> -->
-      <div style="display: inline-flex">
+      <div style="display: inline-flex;padding-bottom: 10px;">
         <el-input
           v-model="formInline.username"
-          style="width: 200px"
+          style="width: 200px;margin-right: 10px;"
           placeholder="请输入标题"
         />
         <el-input
           v-model="formInline.tagKey"
-          style="width: 200px"
+          style="width: 200px;margin-right: 10px;"
           placeholder="请输入标签关键字"
         />
-        <div style="display: inline-block">
+        <div style="display: inline-block;margin-right: 10px;">
           <el-date-picker
+            style="margin-right: 10px;"
             v-model="startTime"
-            type="datetime"
+            type="date"
             placeholder="开始时间"
-            format="YYYY/MM/DD HH:mm:ss"
-            value-format="YYYY-MM-DD HH:mm:ss"
+            format="YYYY/MM/DD"
+            value-format="YYYY-MM-DD"
           /><el-date-picker
             v-model="endTime"
-            type="datetime"
+            type="date"
             placeholder="结束时间"
-            format="YYYY/MM/DD HH:mm:ss"
-            value-format="YYYY-MM-DD hh:mm:ss"
+            format="YYYY/MM/DD"
+            value-format="YYYY-MM-DD"
           />
         </div>
         <el-button type="primary" @click="onSubmit">搜索</el-button>
-        <el-button type="danger" class="button-new-tag ml-1" @click="reset"
-          >重置
-        </el-button>
+        <el-button type="danger" class="button-new-tag ml-1" @click="reset">重置</el-button>
+        <el-button type="primary" @click="add">新增</el-button>
       </div>
-    </div>
-    <div style="display: inline-flex">
-      <el-button type="primary" @click="add">新增</el-button>
     </div>
     <el-dialog
       class="form-dialog"
@@ -219,10 +243,10 @@
         <el-form-item label="发布时间" required prop="policyTime">
           <el-date-picker
             v-model="ruleForm.policyTime"
-            type="datetime"
+            type="date"
             placeholder="Pick a Date"
-            format="YYYY/MM/DD HH:mm:ss"
-            value-format="YYYY-MM-DD HH:mm:ss"
+            format="YYYY/MM/DD"
+            value-format="YYYY-MM-DD"
           />
         </el-form-item>
         <el-form-item
@@ -290,7 +314,6 @@
             @visible-change="visibleChange"
             filterable
             multiple
-            :loading="loading"
             @change="changeTag"
             @remove-tag="removeTag"
             :filter-method="fileQuery"
@@ -315,7 +338,6 @@
             filterable
             multiple
             @visible-change="visibleChange"
-            :loading="loading"
             @change="changeTag"
             @remove-tag="removeTag"
             :filter-method="explainQuery"
@@ -340,7 +362,6 @@
             filterable
             multiple
             @visible-change="visibleChange"
-            :loading="loading"
             @change="changeTag"
             @remove-tag="removeTag"
             :filter-method="noticQquery"
@@ -368,9 +389,8 @@
       class="form-dialog"
       style="color: red"
       v-model="routeDialogVisible"
-      width="100%"
+      width="80%"
       :append-to-body="true"
-      fullscreen="true"
       :title="title"
       top="1vh"
       @closed="routerCloseDialog()"
@@ -420,7 +440,7 @@
         style="width: 100%; height: 1000px"
       ></iframe>
     </el-dialog>
-    <el-tabs v-model="activeName" class="demo-tabs" @tab-click="handleClick">
+    <el-tabs v-model="activeName" type="card" @tab-click="handleClick">
       <el-tab-pane label="未标注列表" name="exist"></el-tab-pane>
       <el-tab-pane label="标注列表" name="tags"></el-tab-pane>
       <el-tab-pane label="删除" name="noExist"></el-tab-pane>
@@ -432,22 +452,20 @@
       @selection-change="handleSelectionChange"
     >
       <el-table-column property="id" fixed label="id" sortable width="80" />
-      <el-table-column property="policyTitle" label="标题" min-width="700" />
+      <el-table-column property="policyTitle" label="标题"/>
       <el-table-column
         property="policySource"
         label="来源"
         sortable
-        width="350"
       />
       <el-table-column label="发布时间" width="200">
-        <template #default="scope">{{ scope.row.policyTime }}</template>
+        <template #default="scope">{{ scope.row.policyTime || '//' }}</template>
       </el-table-column>
       <el-table-column
         prop="lastUpdateTime"
         label="删除时间"
         v-if="policyStatus"
         sortable
-        width="200"
       >
         <template #default="scope">{{ scope.row.lastUpdateTime }}</template>
       </el-table-column>
@@ -455,13 +473,12 @@
         property="policyLocation"
         label="区域"
         sortable
-        width="100"
-      >
+      > 
         <template #default="scope">{{
           locationMap[scope.row.policyLocation]
         }}</template>
       </el-table-column>
-      <el-table-column property="policyLevel" label="关联" sortable width="100">
+      <el-table-column property="policyLevel" label="关联" sortable>
         <template #default="scope">{{
           scope.row.isRelation === 0 ? "无关联" : "关联"
         }}</template>
@@ -475,7 +492,7 @@
             : "国家级"
         }}</template>
       </el-table-column> -->
-      <el-table-column property="policyType" label="状态" sortable width="100">
+      <el-table-column property="policyType" label="状态" sortable>
         <template #default="scope">{{
           scope.row.policyType === 1 ? "有效" : "失效"
         }}</template>
@@ -494,6 +511,12 @@
             type="primary"
             @click="routerTo(scope.$index, scope.row.id, scope.row)"
             >详情</el-button
+          >
+          <el-button
+            size="small"
+            type="primary"
+            @click="message(scope.row)"
+            >短信</el-button
           >
           <!-- <el-button
             size="small"
@@ -527,7 +550,12 @@
         </template>
       </el-table-column>
     </el-table>
-    <div class="demo-pagination-block">
+    <div style="
+          width: 100%;
+          display: flex;
+          justify-content: center;
+          padding-top: 20px;
+        ">
       <el-pagination
         v-model:currentPage="currentPage4"
         v-model:page-size="pageSize4"
@@ -539,13 +567,9 @@
       />
     </div>
   </div>
+  </u-container-layout>
 </template>
-<script>
-export default {
-  name: "Editable",
-};
-</script>
-<script setup>
+<script lang="ts" setup>
 import { useRouter } from "vue-router";
 import { ref, reactive, shallowRef, onMounted, onBeforeUnmount, inject } from "vue";
 
@@ -559,6 +583,8 @@ import {
   policyRelationList,
   policyFileInsert,
   host,
+  entInfoAll,
+  policyPush
 } from "@/config/api";
 import {
   levelMap,
@@ -577,6 +603,17 @@ import { Editor, Toolbar } from "@wangeditor/editor-for-vue";
 import formData from "form-data";
 import axios from "axios";
 import "@wangeditor/editor/dist/css/style.css";
+
+interface User{
+  entName: string,
+  contactsPerson: string,
+  contactsPhone: string
+}
+interface policyPush{
+  policyTitle: string,
+  policyAgency: string,
+  policyTime: string
+}
 // http request 拦截器
 axios.interceptors.request.use(function (config) {
   // 配置config
@@ -591,6 +628,7 @@ const pageSize4 = ref(10);
 const ruleFormRef = ref();
 const policyRuleFormRef = ref();
 const iframeSrc = ref("");
+const policyTitleDesc = ref("");
 const policyRuleForm = ref({
   title: "",
   source: "",
@@ -600,7 +638,6 @@ const policyRuleForm = ref({
   file: [],
 });
 const title = ref("新增");
-const loading = ref(true);
 let ruleForm = reactive({
   policyTitle: "",
   policyLocation: "",
@@ -628,15 +665,23 @@ const total = ref(0);
 const pageNum = ref(1);
 const pageSize = ref(10);
 const tableData = ref([]);
+const entTableData = ref([]);
+const entTotal = ref(0);
 const levelValue = ref("");
 const typeValue = ref("有效");
 const policyKind = ref("通知公告");
 const dialogVisible = ref(false);
 const routeDialogVisible = ref(false);
+const applydialogVisible = ref(false);
 const detailRow = ref();
 const announcementVisible = ref(false);
 const locationValue = ref("shijingshan");
 const isRelationValue = ref(0);
+const policyPushData: policyPush = reactive({
+policyTitle: '',
+policyAgency: '',
+policyTime: ''
+});
 const personValue = ref("");
 const inputName = ref("");
 const tagName = ref("");
@@ -657,6 +702,42 @@ onMounted(() => {
     // valueHtml.value = state.content;
   }, 1500);
 });
+//  文章内容列表
+const getentInfoAll = () => {
+  axios.post(`${entInfoAll}`, {
+    pageNum: pageNum.value,
+    pageSize: pageSize.value,
+    attestationStatus: 1,
+  }).then(function (res) {
+    entTableData.value = res.data.list;
+    entTotal.value = res.data.total;
+  });
+};
+
+const multipleSelection = ref<User []>([])
+const handleSelectionChange = (val: User[]) => {
+  multipleSelection.value = val;
+}
+const message = (row) => {
+  title.value = row.policyTitle;
+  // policyPushData.policyTitle = row.policyTitle;
+  policyPushData.policyAgency = row.policyAgency;
+  policyPushData.policyTime = row.policyTime;
+  applydialogVisible.value = true;
+  getentInfoAll();
+};
+const sendMessage = () => {
+  debugger;
+  console.log('multipleSelection---', multipleSelection.value);
+  axios.post(`${policyPush}`, multipleSelection.value.map(e => {
+    return {
+      receiver: e.contactsPhone,
+      ...policyPushData,
+    }
+  })).then(e => {
+    applydialogVisible.value = false;
+  });
+};
 
 const toolbarConfig = {
   // 插入哪些菜单
@@ -774,7 +855,6 @@ const changeTag = (e) => {
 };
 const visibleChange = (e) => {
   policyRuleForm.value.options = [];
-  loading.value = true;
 };
 // 自定义搜索
 const fileQuery = (e) => {
@@ -794,7 +874,6 @@ const query = (e, policyKind, options) => {
     })
     .then(({ data }) => {
       policyRuleForm.value[options] = data.data;
-      loading.value = false;
     });
 };
 
@@ -922,6 +1001,7 @@ const disable = () => {
 };
 const closeDialog = () => {
   dialogVisible.value = false;
+  applydialogVisible.value = false;
   for (const i in ruleForm) {
     ruleForm[i] = "";
   }
@@ -1076,47 +1156,8 @@ const routerTo = (index, id, row) => {
   title.value = "详情";
   window.localStorage.id = id;
   window.localStorage.policyKind = row.policyKind;
-  iframeSrc.value = `${location.host}#/policy-pulish-detail?id=${id}`;
+  iframeSrc.value = `${location.origin}#/policy-pulish-detail?id=${id}`;
   routeDialogVisible.value = true;
-  // router.push({
-  //   name: "EditableV2",
-  //   params: { id, policyKind: row.policyKind }
-  // });
- /*  axios
-    .post(
-      `http://gateway.serviceshare.com/zhenghe-api-webapp/api/enterprise/getLoginSignKey`,
-        {
-          "username": "13835872907@qq.com"
-        }
-    ).then(e => {
-        axios
-    .post(
-      `http://gateway.serviceshare.com/zhenghe-api-webapp/api/enterprise/login`,
-      {
-        username: "13835872907@qq.com",
-        password:
-          "rtmsL8/jSoBr1KgHAmlkWWdO2Lu/HSHnF57ISLc73FB6EksqBpF1jwHv5mW2iG3J0v07RUqoP/oKJ5wSTdvH0QCCbdyW238FdE8ByzqQTgtnT1Yp8NJ2U2c6aTi50qMEWUm3gqqgGz3BDXc0Vig8mahqZ6J9z41Wx+faVMjdUTc=",
-        domain: "merchant.serviceshare.com",
-        invite: null,
-      }
-    ).then(
-      ({
-        data: {
-          result: { token },
-        },
-      }) => {
-        window.localStorage.token = token;
-        axios.get(
-          `http://gateway.serviceshare.com/design-api-webapp/api/enterprise/validateLogin?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE2NjEzMTc2NDEsInVzZXJuYW1lIjoiMTAyMTcifQ.MykwgiB_NYcmfZSbs_L1N5EzBVnyE6VWuVEyX1GSzoU`
-        )
-          .then(() => {
-            ;
-            document.getElementsByTagName('iframe');
-            window.open("http://merchant.serviceshare.com/home");
-          });
-      }
-    );
-    }); */
 };
 // 删除
 const deleteTable = (id) => {
@@ -1162,7 +1203,20 @@ const onClear = () => {
 };
 </script>
 <style scoped>
-.list {
+.edit-input {
+  padding-right: 100px;
+}
+.cancel-btn {
+  position: absolute;
+  right: 15px;
+  top: 10px;
+}
+.inline-edit-table {
+  width: 100%;
+}
+</style>
+<style scoped>
+/* .list {
   display: flex;
   flex-direction: column;
   width: 100%;
@@ -1181,5 +1235,5 @@ const onClear = () => {
 .el-overlay-dialog {
   overflow: auto;
   margin-bottom: 16px;
-}
+} */
 </style>

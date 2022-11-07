@@ -133,7 +133,6 @@ const getTree = () => {
     url: `${treeTable}`
   }).then(function (data) {
     tableData.value = data;
-    console.log('data--', data);
   });
 };
 getTree();

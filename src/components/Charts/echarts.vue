@@ -1,9 +1,9 @@
 <template>
-  <el-form :inline="true" :model="formInline" class="demo-form-inline">
+  <el-form :inline="true" :model="formInline" class="demo-form-inline" v-if="state.isShowSearch">
         <el-form-item label="标题">
           <el-input v-model="state.title" placeholder="请输入公司名称"/>
         </el-form-item>
-        <el-form-item label="标题">
+        <el-form-item label="年份">
           <el-select v-model="state.region" placeholder="年份">
             <el-option label="2022" value="2022" />
             <el-option label="2021" value="2021" />
@@ -26,6 +26,10 @@ import {
 import { deleteItem, get, post } from "@/utils/request";
 const chartsRef = ref<HTMLElement|null>()
 const props = defineProps({
+  isShowSearch: {
+    type: Boolean,
+    default: true
+  },
   className: {
     type: String,
     default: 'chart'
@@ -101,7 +105,8 @@ const options = {
 const state = reactive({
   options,
   title: '北京文投大数据有限公司',
-  region: 2022
+  region: 2022,
+  isShowSearch: props.isShowSearch
 });
 let chart:EChartsType
 const initChart = () => {

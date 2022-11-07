@@ -1,21 +1,21 @@
 <template>
   <u-container-layout>
-    <div style="display: flex; justify-content: flex-end">
-      <el-button type="primary" @click="add">
-        <el-icon><plus /></el-icon>添加
-      </el-button>
-    </div>
     <el-form :inline="true" :model="state" class="demo-form-inline">
       <el-form-item label="课程名称">
         <el-input v-model="state.name" placeholder="请输入课程名称" @change="handleChange"/>
       </el-form-item>
       <el-form-item>
        <el-button type="primary" @click="gettrainingServicesAll">查询</el-button>
+       <el-button type="primary" @click="exportClick">导出EXECL</el-button>
+       <el-button type="primary" @click="add">
+        <el-icon><plus /></el-icon>添加
+      </el-button>
       </el-form-item>
     </el-form>
     
     <div class="inline-edit-table">
       <el-table
+        id="my-table"
         :data="state.tableData"
         style="width: 100%"
         :border="true"
@@ -23,6 +23,7 @@
       >
         <el-table-column
           v-for="(item, index) in tableHeaderConfig"
+          sortable
           :key="index"
           :prop="item.prop"
           :label="item.label"
@@ -90,6 +91,12 @@
   </u-container-layout>
 </template>
 <script lang="ts">
+  import FileSaver from 'file-saver'
+  import * as XLSX from 'xlsx';
+  import {
+  phoneRules,
+  emtyRules
+} from "@/config/constants";
 import { computed, ref, reactive, onMounted, toRefs } from "vue";
 import { trainingServicesAll, trainingServicesInsert, trainingServicesDeleteOne, trainingServicesUpdateOne } from "@/config/api";
 import formConpoent from "@/components/form/form.vue";
@@ -101,6 +108,10 @@ export default {
   data() {
     return {
       tableHeaderConfig: [
+      {
+        prop: "sortNum",
+        label: "排序"
+      },
       {
         prop: "serviceName",
         label: "课程名称"
@@ -138,33 +149,40 @@ export default {
 let currentRoleId = ref<string>("");
 const activeValue = 1;
 const inactiveValue = 0;
-const formConfig = [{
+const formConfig = [
+  {
+    prop: "sortNum",
+    label: "排序",
+    showInput: true,
+    rules: { required: true, validator: emtyRules, trigger: 'blur'},
+  },
+  {
     prop: "serviceName",
     label: "课程名称",
-    required: true,
+    rules: { required: true, validator: emtyRules, trigger: 'blur'},
     showInput: true
   }, {
     prop: "serviceImages",
     label: "课程缩略图",
-    required: true,
+    rules: { required: true, validator: emtyRules, trigger: 'blur'},
     upload: true
   },{
     prop: "bigType",
     label: "课程大类",
-    required: true,
+    rules: { required: true, validator: emtyRules, trigger: 'blur'},
     showInput: true
   }, {
     prop: "smallType",
     label: "课程小类",
-    required: true,
+    rules: { required: true, validator: emtyRules, trigger: 'blur'},
     showInput: true
   },
   {
     prop: "serviceUrl",
     label: "课程链接",
-    required: true,
+    rules: { required: true, validator: emtyRules, trigger: 'blur'},
     showInput: true
-  }
+  },
 ];
 const state = reactive({
   currentPage: 0,
@@ -183,7 +201,24 @@ const state = reactive({
 });
 const title = ref("新增");
 
-
+// 导出表格
+const exportClick = () => {
+	var wb = XLSX.utils.table_to_book(document.querySelector('#my-table'));//关联don节点
+	/* get binary string as output */
+	var wbout = XLSX.write(wb, {
+		bookType: 'xlsx',
+		bookSST: true,
+		type: 'array'
+	})
+	try {
+		FileSaver.saveAs(new Blob([wbout], {
+			type: 'application/octet-stream'
+		}), '行业课程.xlsx')//自定义文件名
+	} catch (e) {
+		if (typeof console !== 'undefined') console.log(e, wbout);
+	}
+	return wbout
+}
 const handleChange = (val) => {
   state.serviceName = val;
 };

@@ -1,19 +1,20 @@
 <template>
   <u-container-layout>
-    <div style="display: flex; justify-content: flex-end">
-      <el-button type="primary" @click="add">
-        <el-icon><plus /></el-icon>添加
-      </el-button>
-    </div>
     <el-form :inline="true" :model="state" class="demo-form-inline">
-      <el-form-item label="资金名称">
-        <el-input v-model="state.name" placeholder="请输入资金名称" />
+      <el-form-item label="服务名称">
+          <el-input v-model="state.username" placeholder="请输入服务名称" />
       </el-form-item>
-      <el-form-item label="企业名称">
-          <el-input v-model="state.username" placeholder="请输入企业名称" />
+      <el-form-item label="服务商名称">
+          <el-input v-model="state.serviceBank" placeholder="请输入服务商名称" />
       </el-form-item>
       <el-form-item>
        <el-button type="primary" @click="getfinancialServicesAll">查询</el-button>
+      </el-form-item>
+      <el-form-item>
+        <el-button type="primary" @click="add">添加</el-button>
+      </el-form-item>
+      <el-form-item>
+        <el-button type="primary" @click="exportClick">导出EXECL</el-button>
       </el-form-item>
     </el-form>
     
@@ -99,6 +100,8 @@
   </u-container-layout>
 </template>
 <script lang="ts">
+import FileSaver from 'file-saver'
+import * as XLSX from 'xlsx';
 import { computed, ref, reactive, onMounted, toRefs } from "vue";
 import { suppliersAll, financialServicesAll, financialServicesUpdateOne, financialServicesDeleteOne, financialServicesInsert } from "@/config/api";
 import formConpoent from "@/components/form/form.vue";
@@ -115,21 +118,25 @@ export default {
       },
       tableHeaderConfig: [
         {
+          prop: "sortNum",
+          label: "排序",
+        },
+        {
           prop: "serviceName",
           label: "服务名称",
         },
         {
-          prop: "serviceFlag",
-          label: "上下架",
-        },
-        {
-          prop: "serviceQuota",
-          label: "额度范围",
+          prop: "serviceBank",
+          label: "服务商"
         },
         {
           prop: "serviceImages",
           label: "机构logo",
           showImg: true
+        },
+        {
+          prop: "serviceQuota",
+          label: "额度范围",
         },
         {
           prop: "serviceTerm",
@@ -144,9 +151,9 @@ export default {
           label: "担保方式"
         },
         {
-          prop: "supplierId",
-          label: "服务商ID"
-        }
+          prop: "serviceFlag",
+          label: "上下架",
+        },
       ],
     };
   },
@@ -155,6 +162,12 @@ export default {
 <script lang="ts" setup >
 let currentRoleId = ref<string>("");
 const formConfig = [
+  {
+    prop: "sortNum",
+    label: "排序",
+    showInput: true,
+    required: true,
+  },
   {
     prop: "serviceName",
     label: "服务名称",
@@ -213,6 +226,7 @@ const state = reactive({
   dialogVisible: false,
   name: '',
   username: '',
+  serviceBank: '',
   culName: "",
   formConfig: formConfig,
   tableData: [
@@ -222,7 +236,24 @@ const state = reactive({
 });
 const title = ref("新增");
 
-
+// 导出表格
+const exportClick = () => {
+	var wb = XLSX.utils.table_to_book(document.querySelector('#my-table'));//关联don节点
+	/* get binary string as output */
+	var wbout = XLSX.write(wb, {
+		bookType: 'xlsx',
+		bookSST: true,
+		type: 'array'
+	})
+	try {
+		FileSaver.saveAs(new Blob([wbout], {
+			type: 'application/octet-stream'
+		}), '金融服务.xlsx')//自定义文件名
+	} catch (e) {
+		if (typeof console !== 'undefined') console.log(e, wbout);
+	}
+	return wbout
+}
 
 /**
  * 上架
@@ -343,6 +374,8 @@ const deleteAction = (row, isResume) => {
  */
 const getfinancialServicesAll = () => {
   post(`${financialServicesAll}`, {
+    serviceName: state.username,
+    serviceBank: state.serviceBank,
     pageNum: state.currentPage,
     pageSize: state.pageSize
   }).then(function (data) {

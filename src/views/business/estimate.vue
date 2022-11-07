@@ -2,12 +2,14 @@
   <u-container-layout>
     <div class="inline-edit-table">
       <formConpoent
+        :isSHowCloseBtn="true"
         v-if="state.dialogVisible"
         :tabList="state.tabList"
         v-model:baseInfo="state.baseInfo"
         v-model:formConfig="state.formConfig"
         @handle="postFormData"
         @dialogClose="closeDialog"
+        v-loading="loading"
       ></formConpoent>
       <div v-else>
         <el-form :inline="true" :model="state" class="demo-form-inline">
@@ -17,13 +19,22 @@
           <el-form-item>
           <el-button type="primary" @click="gettrainingServicesAll">查询</el-button>
           <el-button type="primary" @click="reset">重置</el-button>
+          <el-button type="primary" @click="exportClick">导出EXECL</el-button>
           </el-form-item>
         </el-form>
+        <el-tabs
+            v-model="state.activeName"
+            type="card"
+            class="demo-tabs"
+            @tab-click="handleClick"
+        >
+            <el-tab-pane :label="item" :name="item" v-for="item in state.tabList"></el-tab-pane>
+        </el-tabs>
         <el-table
+          id="my-table"
           :data="state.tableData"
           style="width: 100%"
           :border="true"
-          v-loading="loading"
         >
         <el-table-column
           v-for="(item, index) in tableHeaderConfig"
@@ -77,6 +88,8 @@
   </u-container-layout>
 </template>
 <script lang="ts">
+import FileSaver from 'file-saver'
+import * as XLSX from 'xlsx';
 import { ref, reactive, provide } from "vue";
 // import { busneissData } from "./data";
 import { map,entPatentGetMap, getSoftByNameMap, getTrademarkByNameMap, getWorksByNameMap,
@@ -240,6 +253,9 @@ const state = reactive({
   tableData: [],
   total: 0,
   entName: '',
+  tabList: [
+        '1', '2', '3'
+    ],
   searchKey: '',
   sensitiveword: "",
   dialogVisible: false,
@@ -250,7 +266,24 @@ const state = reactive({
 let currentRoleId = ref<string>("");
 const title = ref<string>("新增");
 
-
+ // 导出表格
+const exportClick = () => {
+var wb = XLSX.utils.table_to_book(document.querySelector('#my-table'));//关联don节点
+/* get binary string as output */
+var wbout = XLSX.write(wb, {
+  bookType: 'xlsx',
+  bookSST: true,
+  type: 'array'
+})
+try {
+  FileSaver.saveAs(new Blob([wbout], {
+    type: 'application/octet-stream'
+  }), '企业评估.xlsx')//自定义文件名
+} catch (e) {
+  if (typeof console !== 'undefined') console.log(e, wbout);
+}
+return wbout
+}
 const gettrainingServicesAll = () => {
   getbusinessEstimateAll();
 };
@@ -318,7 +351,7 @@ const getbusinessEstimateAll = () => {
   post(`${businessEstimateAll}`, {
     pageNum: state.currentPage,
     pageSize: state.pageSize,
-    entName: state.entName
+    companyName: state.entName
   }).then(function (data) {
     state.tableData = data.list;
     state.total = data.total;
@@ -360,14 +393,22 @@ const getentGetByName = (busneissName) => {
       });
       list.push(obj);
     });
-    
     state.tabList = list;
-    await getentPatentGet(busneissName);
+     let data1 = await Promise.all([
+        getentPatentGet(busneissName), 
+        getentgetSoftByName(busneissName),
+        getTrademarkByName(busneissName),
+        getRecruitByName(busneissName),
+        getNewsByName(busneissName),
+        getWorksByName(busneissName)
+    ]);
+    state.dialogVisible = true;
+/*     await getentPatentGet(busneissName);
     await getentgetSoftByName(busneissName);
     await getTrademarkByName(busneissName);
     await getRecruitByName(busneissName);
-    await getNewsByName(busneissName);
-    await getWorksByName(busneissName);
+    await getNewsByName(busneissName); */
+    // await getWorksByName(busneissName);
   });
 };
 
@@ -454,7 +495,7 @@ const getWorksByName = (busneissName) => {
   return get(`${entgetWorksByName}/${busneissName}`, {
   }).then(function (data) {
     let list = [];
-    Object.keys(map5).forEach((i, index) => {
+  Object.keys(map5).forEach((i, index) => {
       let obj = {
         tabName: i,
         id: index,
@@ -469,9 +510,9 @@ const getWorksByName = (busneissName) => {
       });
       list.push(obj);
       title.value = "查看详情";
-      state.dialogVisible = true;
     });
     state.tabList = state.tabList.concat(list);
+    return true;
   });
 };
 
@@ -511,14 +552,14 @@ const getNewsByName = (busneissName) => {
         id: index,
         optionsList: []
       };
-/*       map7[i].forEach((key, index) => {
+/*        map7[i].forEach((key, index) => {
         debugger;
         obj.optionsList.push({
               id: index,
               ...entgetNewsByNameMap[key],
               businessMessage: data[index][key]
           });
-      }); */
+      });  */
       data.length > 0 && obj.optionsList.push({
           id: 0,
           ...entgetNewsByNameMap['EVENT'],

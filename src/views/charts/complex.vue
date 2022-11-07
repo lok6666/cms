@@ -16,7 +16,7 @@
 </template>
 <script setup lang="ts">
 import { ref, reactive, provide } from "vue";
-import testCharts from "./components/echarts.vue";
+import testCharts from "@/components/Charts/echarts.vue";
 import LineCharts from './components/complex/line/index'
 import BarCharts from './components/complex/bar/index'
 const state = reactive({

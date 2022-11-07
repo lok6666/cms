@@ -1,6 +1,6 @@
 <template>
   <u-container-layout>
-    <el-button type="primary" size="small" icon="close" @click="close" style="float: right;">
+    <el-button type="primary" size="small" icon="close" @click="close" style="float: right;" v-if="state.isSHowCloseBtn">
       关闭
     </el-button>
     <!-- <div style="margin-bottom: 20px;">基本信息</div> -->
@@ -27,8 +27,16 @@
             <div style="font-size: 20px;">评分等级</div>
             <div style="color: #3CB371">{{state.overallGrade}}</div>
           </div>
+          <div style="display: flex;flex-direction: column;align-items: center;">
+            <div style="font-size: 20px;">创新能力</div>
+            <div style="color: #3CB371">{{state.creativityGrade}}</div>
+          </div>
+          <div style="display: flex;flex-direction: column;align-items: center;">
+            <div style="font-size: 20px;">发展潜力</div>
+            <div style="color: #3CB371">{{state.developmentGrade}}</div>
+          </div>
         </div>
-        <div id="charts" style="width: 50%; height: 300px;">22</div>
+        <div id="charts" ref="charts" style="width: 50%; height: 300px;"></div>
     </div>
     <el-tabs
       v-model="activeName"
@@ -58,7 +66,7 @@
             class="business-essay-inline-edit-table"
             style="width: 87%"
           >
-            <div v-for="item in i.optionsList" :key="item.id" style="width: 90%">
+            <div v-for="item in i.optionsList" :key="item.id" style="width: 90%;overflow-x:scroll;">
               <h3 :id="item.title">{{ item.title }}</h3>
                 <el-tabs v-if="item.useComType === 'yearDesc'" type="carid" v-model="activeYear" @tab-click="articleHandleClick1">
                   <el-tab-pane v-for="(i, index) in item.businessMessage" :label="i.NBYEAR" :name="i['NBYEAR']" :key="index">
@@ -77,10 +85,10 @@
                   </el-tab-pane>
                 </el-tabs>
                 <el-descriptions :border="true"
-                        :column="2" v-if="item.useComType === 'bescInfo'">
+                        :column="2" v-if="item.useComType === 'bescInfo' && item.businessMessage.length !== 0">
                   <el-descriptions-item label="企业名称" name="ENTNAME">{{item.businessMessage[0].ENTNAME}}</el-descriptions-item>
                   <el-descriptions-item label="法定代表人" name="FRDB">{{item.businessMessage[0].FRDB}}</el-descriptions-item>
-                  <el-descriptions-item label="统一社会信用代码" name="SHXYDM">{{item.businessMessage[0].SHXYDM}}</el-descriptions-item>
+                  <el-descriptions-item label="信用代码" name="SHXYDM">{{item.businessMessage[0].SHXYDM}}</el-descriptions-item>
                   <el-descriptions-item label="行业门类" name="INDUSTRY_CODE">{{item.businessMessage[0].INDUSTRY_CODE}}</el-descriptions-item>
                   <el-descriptions-item label="注册资本" name="REGCAP">{{item.businessMessage[0].REGCAP}}</el-descriptions-item>
                   <el-descriptions-item label="经营状态" name="ENTSTATUS">{{item.businessMessage[0].ENTSTATUS}}</el-descriptions-item>
@@ -96,13 +104,14 @@
                   <el-descriptions-item label="登记地城市代码" name="CITYCODE">{{item.businessMessage[0].CITYCODE}}</el-descriptions-item>
                   <el-descriptions-item label="地理坐标" name="JWD">{{item.businessMessage[0].JWD}}</el-descriptions-item>
                   <el-descriptions-item label="组织机构代码" name="ORGID">{{item.businessMessage[0].ORGID}}</el-descriptions-item>
-                  <el-descriptions-item label="ENGNAME" name="企业英文名">{{item.businessMessage[0].ENGNAME}}</el-descriptions-item>
+                  <el-descriptions-item label="企业英文名" name="ENGNAME">{{item.businessMessage[0].ENGNAME}}</el-descriptions-item>
                   <el-descriptions-item label="企业官网" name="WEBSITE">{{item.businessMessage[0].WEBSITE}}</el-descriptions-item>
-                  <el-descriptions-item label="OPFROM" name="经营期限自">{{item.businessMessage[0].OPFROM}}</el-descriptions-item>
+                  <el-descriptions-item label="经营期限自" name="OPFROM">{{item.businessMessage[0].OPFROM}}</el-descriptions-item>
                   <el-descriptions-item label="经营期限至" name="OPTO">{{item.businessMessage[0].OPTO}}</el-descriptions-item>
                   <el-descriptions-item label="经营业务范围" name="OPSCOPE">{{item.businessMessage[0].OPSCOPE}}</el-descriptions-item>
                 </el-descriptions>
-                <el-descriptions :border="true" :column="2" v-if="item.useComType === 'yearInfo'">=
+                <div v-if="item.useComType === 'bescInfo' && item.businessMessage.length === 0" style="padding-left: 20px;">暂无数据</div>
+                <el-descriptions :border="true" :column="2" v-if="item.useComType === 'yearInfo' && item.businessMessage.length !== 0">
                   <el-descriptions-item label="企业名称" name="ENTNAME">{{item.businessMessage[0].ENTNAME}}</el-descriptions-item>
                   <el-descriptions-item label="统一社会信用代码" name="SHXYDM">{{item.businessMessage[0].SHXYDM}}</el-descriptions-item>
                   <el-descriptions-item label="企业联系电话" name="TEL">{{item.businessMessage[0].TEL}}</el-descriptions-item>
@@ -118,6 +127,7 @@
                   <el-descriptions-item label="有限责任公司本年度是否发生股东股权转让" name="ISGQZR">{{item.businessMessage[0].ISGQZR}}</el-descriptions-item>
                   <el-descriptions-item label="企业是否有投资信息或购买其他公司股权" name="ISGMGQ">{{item.businessMessage[0].ISGMGQ}}</el-descriptions-item>
                 </el-descriptions>
+                <div v-if="item.useComType === 'yearInfo' && item.businessMessage.length === 0" style="padding-left: 20px;">暂无数据</div>
               <el-descriptions
                 :border="true"
                 :column="2"
@@ -131,13 +141,14 @@
                   >{{ value }}</el-descriptions-item
                 >
               </el-descriptions>
+              <div v-if="item.useComType === 'singleDesc' && item.businessMessage.length === 0" style="padding-left: 20px;">暂无数据</div>
               <el-table
                 v-if="item.useComType === 'table'"
                 :data="item.businessMessage"
                 header-row-class-name="custom-header"
                 :border="true"
               > 
-                <el-table-column v-for='(value, key, index) of item.businessConfig' :prop="key" :label="value" :key='index'>
+                <el-table-column v-for='(value, key, index) of item.businessConfig' :prop="key" :label="value" :key='index' :width="key === 'TYPEDETAILDES'? '500px': ''">
                   <template #default="scope"  v-if="key === 'CONRATIO'">
                     {{scope.row.CONRATIO * 100}}%
                   </template>
@@ -167,6 +178,9 @@ interface prop {
   tabList: {
     type: Array<Object>;
   },
+  isSHowCloseBtn: {
+    type: Boolean
+  },
   baseInfo: {
     type: Object;
   }
@@ -181,14 +195,13 @@ const state = reactive({
   activeYear: '2020',
   editableTabsValue: "1",
   dialogVisible: false,
-  
   businessConfig,
   priseConfig,
   tabList: props.tabList,
-  baseInfo: props.baseInfo
+  baseInfo: props.baseInfo,
+  isSHowCloseBtn: props.isSHowCloseBtn
 });
-let chart:EChartsType;
-
+let chart = ref("eChart" + Date.now() + Math.random());
 const articleHandleClick = (tab, event) => {
   state.activeName = tab.props.title;
   document.querySelector(`#${tab.props.label}`).scrollIntoView({
@@ -204,7 +217,8 @@ const close = (): void => {
   emit("dialogClose");
 };
 const initChart = (data): void => {
-  let chart = echarts.init(document.getElementById('charts'))
+  let chart = echarts.init(document.getElementById('charts'));
+  chart.clear();
   chart.setOption({
       radar: [
         {
@@ -243,11 +257,12 @@ const getEntAppraise = (busneissName) => {
   }).then(function (data) {
     state.overall = data.overall;
     state.overallGrade = data.overallGrade;
-    chart = initChart(state.priseConfig.map(e => data[e])); 
+    state.creativityGrade = data.creativityGrade;
+    state.developmentGrade = data.developmentGrade;
+    chart = initChart(state.priseConfig.map(e => data[e]));
   });
 };
 getEntAppraise();
-
 // Mounted 生命周期 querySelectorAll 才生效
 onMounted(() => {
   window.addEventListener('resize',function (){

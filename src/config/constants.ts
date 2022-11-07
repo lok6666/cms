@@ -14,6 +14,7 @@ export const constantRouterComponents = {
     'fund': ()=> import('@/views/serverManage/fund.vue'), // 服务管理-金融服务
     'policypublish': ()=> import('@/views/serverManage/policypublish.vue'), // 服务管理-金融服务
     'other': ()=> import('@/views/serverManage/other.vue'), // 服务管理-企业服务
+    'building': ()=> import('@/views/serverManage/building.vue'), // 服务管理-企业服务
     'flexible': ()=> import('@/views/serverManage/flexible.vue'), // 服务管理-灵活用工服务
     'envelope': ()=> import('@/views/serverManage/envelope.vue'), // 服务管理-站内信
     'supplier': ()=> import('@/views/serverManage/other1.vue'), // 服务管理-供应商服务
@@ -30,6 +31,7 @@ export const constantRouterComponents = {
     'busneiss-message': () => import('@/layout/index.vue'), // 企业信息-资源管理,
     'busneiss-basic': () => import('@/views/busneissMessage/basic.vue'), // 企业信息-基本信息,
     'busneiss-propagate': () => import('@/views/busneissMessage/propagate.vue'), // 企业信息-基本信息,
+    'busneisstag': () => import('@/views/busneissMessage/busneisstag.vue'), // 企业信息-企业标签
     'filling': () => import('@/views/busneissMessage/filling.vue'), // 企业信息-备案信息
     'action': () => import('@/layout/index.vue'), // 活动
     'publish': ()=> import('@/views/action/publish.vue'), // 活动管理-活动发布
@@ -41,7 +43,9 @@ export const constantRouterComponents = {
     'simple': () => import('@/views/business/estimate.vue'), // 招商服务-企业评估
     'income': () => import('@/views/busneissMessage/income.vue'), // 招商服务-财税数据
     'applymanage': () => import('@/views/busneissMessage/applymanage.vue'), //招商服务-政策申报管理
-    'complex': () => import('@/views/charts/complex.vue'), //招商服务-政策申报管理
+    'complex': () => import('@/views/charts/complex.vue'), //招商服务-招商效果
+    'applyList': () => import('@/views/businessservice/applyList.vue'), // 招商服务-意向企业
+    'settledList': () => import('@/views/businessservice/settledList.vue'), // 招商服务-入驻企业
     // todo 研究 企业信息使用-后不用在这里引入组件
   };
 
@@ -82,3 +86,56 @@ export const priseConfig = [
   'risk',
   'vigor'
 ];
+
+// 数字校验
+export const incomeTypeRules = (rule, value, callback) => {
+  // 必须为数字
+  if(!/^(-?\d+)(\.\d+)?$/.test(value) && value) {
+    callback('格式有误');
+  } else {
+    callback();
+  }  
+};
+
+
+// 数字校验
+export const typeRules = (rule, value, callback) => {
+  // 必须为数字
+  if(!/^[0-9]+([.]{1}[0-9]+){0,1}$/.test(value) && value) {
+    callback('请输入数字');
+  } else {
+    callback();
+  }  
+};
+// 社会统一代码验证
+export const socialUniformCodeRules = (rule, value, callback) => {
+  if(!/[0-9A-HJ-NPQRTUWXY]{2}\d{6}[0-9A-HJ-NPQRTUWXY]{10}/.test(value)) {
+    callback('社会统一代码格式有误');
+  } else {
+    callback('');
+  };
+};
+// 身份证
+export const cardCodeRules = (rule, value, callback) => {
+  if(!/^[1-9]\d{5}(18|19|([23]\d))\d{2}((0[1-9])|(10|11|12))(([0-2][1-9])|10|20|30|31)\d{3}[0-9Xx]$/.test(value)) {
+    callback('身份证格式有误');
+  } else {
+    callback('');
+  };
+};
+// 手机号
+export const phoneRules = (rule, value, callback) => {
+  if(!/^1([358][0-9]|4[579]|66|7[0135678]|9[89])[0-9]{8}$/.test(value)) {
+    callback('手机号格式有误');
+  }else {
+    callback()
+  }
+};
+//不为空
+export const emtyRules = (rule, value, callback) => {
+  if(value) {
+    callback();
+  } else {
+    callback('不能为空');
+  }
+};

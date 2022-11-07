@@ -1,6 +1,5 @@
-// export const host:string = 'http://172.16.4.62:28182';
-export const host:string = 'http://172.16.4.62:28182';
-//const host:string = 'http://enterprise.bjwcxf.com:28191';
+export const host =  process.env.NODE_ENV === 'development'? "http://172.16.4.62:28182": "http://enterprise.bjwcxf.com:28191";
+//\export const host = "http://enterprise.bjwcxf.com:28191";
 // 登录接口
 export const login = `${host}/auth/login`
 
@@ -83,6 +82,12 @@ export const entServicesUpdateOne = `${host}/entServices/update` // 金融更新
 export const entServicesDeleteOne = `${host}/entServices/delete` // 金融删除
 export const entServicesInsert = `${host}/entServices/insert` // 行业新增
 
+/*服务库管理-企业服务管理*/
+export const buildingsAll = `${host}/buildings/list` //  金融数据
+export const buildingsUpdateOne = `${host}/buildings/update` // 金融更新
+export const buildingsDeleteOne = `${host}/buildings/delete` // 金融删除
+export const buildingsInsert = `${host}/buildings/insert` // 行业新增
+
 /*服务库管理-服务对接管理*/
 export const entServiceDockingAll = `${host}/entServiceDocking/list` //
 export const entServiceDockingUpdate = `${host}/entServiceDocking/update` //
@@ -91,6 +96,36 @@ export const entServiceDockingUpdate = `${host}/entServiceDocking/update` //
 /*政策申报*/
 export const policyApplyList = `${host}/policyApply/list`// 获取活动详情
 
+
+/*政策推送*/
+export const policyPush = `${host}/policy/policyPush`// 获取活动详情
+
+/*企业信息-企业标签*/
+export  const policyMatchList = `${host}/policyMatchTags/list` // 信息列表
+export  const policyMatchTagsUpdate = `${host}/policyMatchTags/update` // 政策匹配企业标签列表
+
+/*意向企业-企业招商意向名单导入*/
+export  const entMerchantsList = `${host}/entMerchantsList/list` // 企业信息导入
+export  const entMerchantsInsert = `${host}/entMerchantsList/insert` // 企业信息导入
+export  const entMerchantsUpdate = `${host}/entMerchantsList/update` // 企业信息导入
+export  const entMerchantsdelete = `${host}/entMerchantsList/delete` // 企业信息删除
+export  const entMerchantsImportExcel = `${host}/entMerchantsList/importExcel` // 企业信息导入
+
+/*入驻企业-企业招商意向名单导入*/
+export  const entMerchantsSuccessList = `${host}/entMerchantsSuccessList/list` // 企业信息导入
+export  const entMerchantsSuccessListInsert = `${host}/entMerchantsSuccessList/insert` // 企业信息导入
+export  const entMerchantsSuccessListUpdate = `${host}/entMerchantsSuccessList/update` // 企业信息导入
+export  const entMerchantsSuccessListdelete = `${host}/entMerchantsSuccessList/delete` // 企业信息删除
+export  const entMerchantsSuccessListImportExcel = `${host}/entMerchantsSuccessList/importExcel` // 企业信息导入
+
+/*招商意向名单名称导入*/
+export  const entMerchantsPersonList = `${host}/entMerchants/list` // 企业信息导入
+export  const entMerchantsPersonInsert = `${host}/entMerchants/insert` // 企业信息新增
+export  const entMerchantsPersondelete = `${host}/entMerchants/delete` // 企业信息导入
+
+/*入驻企业-意向企业-过程跟踪*/
+export  const entDynamicList = `${host}/entDynamic/list` // 企业信息导入
+export  const entDynamicInsert = `${host}/entDynamic/insert` // 企业信息新增
 
 /*服务库管理-供应商管理*/
 export const suppliersAll = `${host}/supplier/list` //  金融数据
@@ -128,9 +163,15 @@ export const entFilingGet = `${host}/entFiling/get` // 企业备案详情
 /*政策发布*/
 export  const policyUpdate = `${host}/policyTags/update` //  文章类型
 export  const policyDetail = `${host}/policyTags/get` //  政策详情
-export  const policyList = `${host}/policyTags/list` //  政策列表
+export  const policyList = `${host}/policyTags/listAdmin` //  政策列表
 export  const policyInsert = `${host}/policyTags/insert` //  政策列表
 export  const policyUpload = `${host}/upload` //  上传
+
+
+/*政策申报-课程报名*/
+export const policyApplyById = `${host}/policyApply/get`// 获取活动详情
+export const policyApplyUpdateOne = `${host}/policyApply/update`//  更新
+export const policyApplyInsert = `${host}/policyApply/insert`//  插入
 
 /*政策关联*/
 export  const policyTagList = `${host}/policyTags/listNoPage` //  政策解读列表

@@ -122,11 +122,6 @@ const editorConfig = {
         var config = {
           method: "post",
           url: `${upLoad}`, //上传图片地址
-          headers: {
-            "Content-Type": "multipart/form-data",
-            "Access-Control-Allow-Origin": "*",
-            Authorization: "Bearer " + localStorage.getItem("token"),
-          },
           userId: 1,
           type: "image",
           data: data,

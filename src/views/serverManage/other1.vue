@@ -89,6 +89,10 @@
 </template>
 <script lang="ts">
 import { computed, ref, reactive, onMounted, toRefs } from "vue";
+import {
+  phoneRules,
+  emtyRules
+} from "@/config/constants";
 import { suppliersAll, suppliersInsert, suppliersUpdateOne, suppliersDeleteOne } from "@/config/api";
 import formConpoent from "@/components/form/form.vue";
 import { ElMessage, ElMessageBox, FormRules, UploadProps } from "element-plus";
@@ -179,7 +183,7 @@ const formConfig = [
   {
     prop: "supplierName",
     label: "供应商名称",
-    required: true,
+    rules: { required: true, validator: emtyRules, trigger: 'blur'},
     showInput: true
   },
   {
@@ -219,37 +223,37 @@ const formConfig = [
         value: '7'
       }
     ],
-    required: true,
+    rules: { required: true, validator: emtyRules, trigger: 'blur'},
     showSelect: true
   },
   {
     prop: "supplierPerson",
     label: "供应商联系人",
-    required: true,
+    rules: { required: true, validator: emtyRules, trigger: 'blur'},
     showInput: true
   },
   {
     prop: "supplierContact",
     label: "联系方式",
-    required: true,
+    rules: { required: true, validator: phoneRules, trigger: 'blur'},
     showInput: true
   },
   {
     prop: "supplierAddress",
     label: "供应商地址",
-    required: true,
+    rules: { required: true, validator: emtyRules, trigger: 'blur'},
     showInput: true
   },
   {
     prop: "supplierLogo",
     label: "供应商logo",
-    required: true,
+    rules: { required: true, validator: emtyRules, trigger: 'blur'},
     upload: true
   },
   {
     prop: "supplierContent",
     label: "供应商简介",
-    required: true,
+    rules: { required: true, validator: emtyRules, trigger: 'blur'},
     showWangEditor: true
   }
 ];

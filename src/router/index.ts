@@ -42,14 +42,9 @@ export const constantRoutes: Array<RouteRecordRaw & extendRoute> = [
     path: '/',
     name: 'layout',
     component: Layout,
-    redirect: '/home',
+    redirect: '/businessservice/migration',
     children: [
-      {
-        path: '/home',
-        component: () => import('@/views/home/index.vue'),
-        name: 'home',
-        meta: { title: '首页', affix: true, role: ['other'] }
-      }
+     
     ]
   },
 /*   {

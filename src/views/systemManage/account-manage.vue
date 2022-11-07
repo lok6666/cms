@@ -116,7 +116,6 @@
           <el-form-item label="头像" prop="picture">
             <el-upload
               class="avatar-uploader"
-              action="#"
               :show-file-list="false"
               :before-upload="beforeAvatarUpload"
             >
@@ -153,6 +152,7 @@ import {
   sysUserAddOne,
   sysUserDeleteOne,
   sysUserUpdateOne,
+  upLoad
 } from "@/config/api";
 import { ElMessage, ElMessageBox, UploadProps } from "element-plus";
 import { Delete, Download, Plus, ZoomIn } from "@element-plus/icons-vue";
@@ -188,6 +188,7 @@ const getSysUserSelectAll = () => {
 };
 getSysUserSelectAll();
 const beforeAvatarUpload: UploadProps["beforeUpload"] = (rawFile) => {
+  debugger;
   var axios = require("axios");
   var FormData = require("form-data");
   var data = new FormData();
@@ -198,8 +199,9 @@ const beforeAvatarUpload: UploadProps["beforeUpload"] = (rawFile) => {
     method: "post",
     url: `${upLoad}`, //上传图片地址
     type: "image",
-    data: data,
+    data,
   };
+
   axios.defaults.crossDomain = true;
   axios.defaults.headers.common["Access-Control-Allow-Origin"] = "*";
   axios(config)

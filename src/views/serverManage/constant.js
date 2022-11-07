@@ -9,6 +9,7 @@ const levelMap = {
   };
   
   const locationMap = {
+    china: '中国',
     shijingshan: "石景山",
     beijing: "北京",
   };

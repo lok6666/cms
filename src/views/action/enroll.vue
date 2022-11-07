@@ -11,14 +11,17 @@
         <el-form-item>
         <el-button type="primary" @click="gettrainingServicesAll">查询</el-button>
         <el-button type="primary" @click="reset">重置</el-button>
+        <el-button type="primary" @click="exportClick">导出EXECL</el-button>
         </el-form-item>
       </el-form>
       <el-table
+        id="my-table"
         :data="state.tableData"
         style="width: 100%"
         :border="true"
         v-loading="loading"
       >
+      <el-table-column type="index" label="序号" width="50" />
         <el-table-column
           v-for="(item, index) in tableHeaderConfig"
           :key="index"
@@ -95,6 +98,8 @@
   </u-container-layout>
 </template>
 <script lang="ts">
+import FileSaver from 'file-saver'
+import * as XLSX from 'xlsx';
 import { ref, reactive, provide } from "vue";
 import examineFormConpoent from "@/components/form/examineForm.vue";
 import formConpoent from "@/components/form/form.vue";
@@ -117,10 +122,10 @@ export default {
         2: '审核未通过'
       },
       tableHeaderConfig: [
-        {
+/*         {
           prop: "id",
           label: '序号'
-        },
+        }, */
         {
           prop: "actName",
           label: "活动名称",
@@ -223,7 +228,24 @@ const state = reactive({
 let currentRoleId = ref<string>("");
 const title = ref<string>("新增");
 
-
+// 导出表格
+const exportClick = () => {
+	var wb = XLSX.utils.table_to_book(document.querySelector('#my-table'));//关联don节点
+	/* get binary string as output */
+	var wbout = XLSX.write(wb, {
+		bookType: 'xlsx',
+		bookSST: true,
+		type: 'array'
+	})
+	try {
+		FileSaver.saveAs(new Blob([wbout], {
+			type: 'application/octet-stream'
+		}), '活动报名.xlsx')//自定义文件名
+	} catch (e) {
+		if (typeof console !== 'undefined') console.log(e, wbout);
+	}
+	return wbout
+}
 const gettrainingServicesAll = () => {
   getactivityApplyAll();
 };
@@ -250,7 +272,7 @@ const postFormData = (formData) => {
   } else {
     post(`${activityApplyrUpdateOne}`, {
       id: currentRoleId.value,
-      applyStatus: formData.status
+      applyStatus: formData.status ? 1 : 2
     })
       .then(function (data) {
         getactivityApplyAll();
@@ -319,7 +341,8 @@ getactivityApplyAll();
  */
  const examine = (row) => {
   title.value = "审核";
-  currentRoleId.value = row.id;
+  debugger;
+  currentRoleId.value = row.actId;
   state.dialogVisible = true;
   state.showExamineForm = true;
   state.showForm = false;

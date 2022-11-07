@@ -12,3 +12,10 @@ export function setToken(token) {
 export function removeToken() {
   return localStorage.TokenKey =''
 }
+
+export function getUserId() {
+  return localStorage.userId
+}
+export function setUserId(userId) {
+  return localStorage.userId = userId
+}

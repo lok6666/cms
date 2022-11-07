@@ -2,7 +2,8 @@
 <template>
   <u-container-layout>
     <div>
-      <el-row class="row-bg" :gutter="10">
+      HELLO WORLD
+<!--       <el-row class="row-bg" :gutter="10">
         <el-col :xs="24" :sm="12" :lg="8">
           <el-card class="box-card" style="height: 100%">
             <div class="personal">
@@ -109,7 +110,7 @@
           </el-card>
 
         </el-col>
-      </el-row>
+      </el-row> -->
     </div>
   </u-container-layout>
 

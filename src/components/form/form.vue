@@ -2,113 +2,115 @@
   <u-container-layout>
     <span v-if="title">{{ state.title }}</span>
     <!--看了源码,为了required校验,必须在form标签循环-->
-    <el-form
-      ref="formRef"
-      style="width: 80%;display:inline"
-      v-for="(item, i) in state.formConfig"
-      :key="i"
-      :disabled="state.disabled"
-      :model="item"
-      class="demo-dynamic"
-      label-width="120px"
-      label-position="right"
-    >
-      <el-form-item
-        :rules="[{ required: item.required, message: `${item.label}为必填项` }]"
-        :prop="item.prop"
-        :label="item.label"
+    <div :style="customStyle">
+      <el-form
+        ref="formRef"
+        style="width: 80%;display:inline"
+        v-for="(item, i) in state.formConfig"
+        :key="i"
+        :disabled="state.disabled"
+        :model="item"
+        class="demo-dynamic"
+        label-width="140px"
+        label-position="right"
       >
-        {{ item[i] }}
-        <!--输入框-->
-        <el-input v-model="item[item.prop]" v-if="item.showInput" />
-        <!--输入框-->
-        <el-input v-model="item[item.prop]" type="textarea" v-if="item.showTextarea" />
-        <!--时间选择器-->
-        <el-date-picker
-          v-model="item[item.prop]"
-          type="datetime"
-          v-if="item.showDatePicker"
-          :placeholder="item[placeholder]"
-          format="YYYY/MM/DD HH:mm:ss"
-          value-format="YYYY-MM-DD HH:mm:ss"
-        />
-        <!--年选择器-->
-        <el-date-picker
-          v-model="item[item.prop]"
-          type="year"
-          v-if="item.showYearPicker"
-          placeholder="Pick a year"
-        />
-        <!--月选择器-->
-        <el-date-picker
-          v-model="item[item.prop]"
-          type="month"
-          v-if="item.showMonthPicker"
-          placeholder="Pick a month"
-        />
-        <!--todo有待改造-->
-        <el-select
-          v-model="item[item.prop]"
-          placeholder="请选择"
-          :filterable="item.filterable"
-          v-if="item.showSelect"
+        <el-form-item
+        :rules="item.rules || [{ required: item.required, message: `${item.label}为必填项`,validator: item.validator }]"
+          :prop="item.prop"
+          :label="item.label"
         >
-          <el-option
-            v-for="i in item.options"
-            :key="i.value"
-            :label="i.label"
-            :value="i.value"
+          {{ item[i] }}
+          <!--输入框-->
+          <el-input :readonly="state.disabled" v-model="item[item.prop]" v-if="item.showInput" />
+          <!--输入框-->
+          <el-input v-model="item[item.prop]" type="textarea" v-if="item.showTextarea" />
+          <!--时间选择器-->
+          <el-date-picker
+            v-model="item[item.prop]"
+            type="datetime"
+            v-if="item.showDatePicker"
+            :placeholder="item[placeholder]"
+            format="YYYY/MM/DD HH:mm:ss"
+            value-format="YYYY-MM-DD HH:mm:ss"
           />
-        </el-select>
-         <!--附件文件-->
-        <!--照片墙-->
-        <div v-if="item.zlupload && item[item.prop]" class="avatar-uploader">
-          <img
-            v-for="i in JSON.parse(item[item.prop])"
-            :src="i.url"
-            style="width: 120px; height: 80px"
-            class="avatar"
+          <!--年选择器-->
+          <el-date-picker
+            v-model="item[item.prop]"
+            type="year"
+            v-if="item.showYearPicker"
+            placeholder="Pick a year"
           />
-        </div>
-          <div v-else-if="item.showFile && item[item.prop]" class="avatar-uploader" style="display: flex;flex-direction: column;">
-            <div v-for="(items, i) in Object.values(JSON.parse(item[item.prop]))">
-              {{JSON.parse(items)[0].label}}: <a :href="JSON.parse(items)[0].url">{{JSON.parse(items)[0].name}}</a>
-            </div>  
-          </div>
-        <!--上传图片-->
-        <div @click="getIndex(i)" v-else-if="item.upload">
-          <el-upload
-            class="avatar-uploader"
-            :show-file-list="false"
-            v-if="item.upload"
-            :before-upload="beforeAvatarUpload"
+          <!--月选择器-->
+          <el-date-picker
+            v-model="item[item.prop]"
+            type="month"
+            v-if="item.showMonthPicker"
+            placeholder="Pick a month"
+          />
+          <!--todo有待改造-->
+          <el-select
+            v-model="item[item.prop]"
+            placeholder="请选择"
+            :filterable="item.filterable"
+            v-if="item.showSelect"
           >
+            <el-option
+              v-for="i in item.options"
+              :key="i.value"
+              :label="i.label"
+              :value="i.value"
+            />
+          </el-select>
+          <!--附件文件-->
+          <!--照片墙-->
+          <div v-if="item.zlupload && item[item.prop]" class="avatar-uploader">
             <img
-              v-if="item[item.prop]"
-              :src="item[item.prop]"
-              style="width: 178px; height: 178px"
-              @click="getIndex(i, item)"
+              v-for="i in JSON.parse(item[item.prop])"
+              :src="i.url"
+              style="width: 120px; height: 80px"
               class="avatar"
             />
-            <video
-              v-else-if="item.video"
-              :src="item.video"
-              controls
-              style="width: 178px; height: 178px"
-              class="avatar"
-            ></video>
-            <el-icon v-else class="avatar-uploader-icon" @click="getIndex(i, item)"><Plus /></el-icon>
-          </el-upload>
-        </div>
-        <!--富文本编辑-->
-        <div @click="getIndex(i)" ref="uploadSingle" :indexValue="i" v-if="item.showWangEditor">
-          <editor 
-          :content="item[item.prop]"
-          @handle="changeContent"
-        ></editor>
-        </div>
-      </el-form-item>
-    </el-form>
+          </div>
+<!--             <div v-else-if="item.showFile && item[item.prop]" class="avatar-uploader" style="display: flex;flex-direction: column;">
+              <div v-for="(items, i) in Object.values(JSON.parse(item[item.prop]))">
+                {{JSON.parse(items)[0].label}}: <a :href="JSON.parse(items)[0].url">{{JSON.parse(items)[0].name}}</a>
+              </div>  
+            </div> -->
+          <!--上传图片-->
+          <div @click="getIndex(i)" v-else-if="item.upload">
+            <el-upload
+              class="avatar-uploader"
+              :show-file-list="false"
+              v-if="item.upload"
+              :before-upload="beforeAvatarUpload"
+            >
+              <img
+                v-if="item[item.prop]"
+                :src="item[item.prop]"
+                style="width: 178px; height: 178px"
+                @click="getIndex(i, item)"
+                class="avatar"
+              />
+              <video
+                v-else-if="item.video"
+                :src="item.video"
+                controls
+                style="width: 178px; height: 178px"
+                class="avatar"
+              ></video>
+              <el-icon v-else class="avatar-uploader-icon" @click="getIndex(i, item)"><Plus /></el-icon>
+            </el-upload>
+          </div>
+          <!--富文本编辑-->
+          <div @click="getIndex(i)" ref="uploadSingle" :indexValue="i" v-if="item.showWangEditor">
+            <editor 
+            :content="item[item.prop]"
+            @handle="changeContent"
+          ></editor>
+          </div>
+        </el-form-item>
+      </el-form>
+    </div>
     <div v-if="state.showBtn" style="float: right">
       <el-button type="primary" @click="submitForm(formRef)">保存</el-button>
       <el-button @click="resetForm(formRef)">取消</el-button>
@@ -135,6 +137,10 @@ interface prop{
   showBtn: {
     type: Boolean,
     default: true
+  },
+  customStyle: {
+    type: Object,
+    default: {}
   },
   disabled: {
     type: Boolean,
@@ -164,17 +170,15 @@ const formRef = ref<FormInstance>();
  * 表单校验
  */
 const validateForm = (formEl: FormInstance | undefined) => {
-  let add: number = 0;
   return new Promise((resolve, reject) => {
-    formEl.forEach(async (el) => {
+    formEl.forEach(async (el, i) => {
       el.validate((v) => {
-        ++add;
         // 当存在校验失败的情况直接返回
         if (!v) {
           resolve(false);
         }
         // 遍历结束返回
-        else if (add === formEl.length) {
+        else if (i === formEl.length - 1) {
           resolve(true);
         }
       });

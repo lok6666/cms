@@ -2,7 +2,7 @@
   <div class="login-container">
     <div class="login-box">
       <!--登录功能-->
-      <div style="color: white;text-align: center;margin-bottom: 15px">登录系统-密码账号随便填 admin admin</div>
+      <div style="color: white;text-align: center;margin-bottom: 15px">后台管理系统</div>
       <div class="login-box-content-right">
           <!--login-Form-->
           <el-form
@@ -78,8 +78,8 @@
     }
   }
   const ruleForm = reactive({
-    username: 'admin',
-    password: 'admin',
+    username: '',
+    password: '',
   })
 
   const rules = reactive({

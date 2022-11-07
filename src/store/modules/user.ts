@@ -1,12 +1,15 @@
 import { Module } from "vuex";
-import { getToken, setToken, removeToken } from '@/utils/auth'
+import { getToken, setToken, removeToken, getUserId, setUserId } from '@/utils/auth'
 import { get, post, deleteItem } from "@/utils/request";
 import {
     login,
 } from "@/config/api";
 const state = {
     token: getToken(),
-    userInfo: localStorage.userInfo ? JSON.parse(localStorage.userInfo) : {},
+    userId: getUserId(),
+    userInfo: {
+        username: ''
+    },
     roles: localStorage.roles ? JSON.parse(localStorage.roles) : [],
 }
 
@@ -14,13 +17,17 @@ const mutations = {
     SET_TOKEN: (state, token) => {
         state.token = token
     },
-    SET_USERID: (state, userInfo) => {
-        localStorage.userInfo = JSON.stringify(userInfo)
-        state.userInfo = userInfo
+    SET_USERID: (state, userId) => {
+        localStorage.userInfo = userId
+        state.userId = userId
     },
     SET_ROLES: (state, roles) => {
         localStorage.roles = JSON.stringify(roles)
         state.roles = roles
+    },
+    SET_USERNAME: (state, username) => {
+        localStorage.username = username
+        state.userInfo.username = username
     }
 }
 
@@ -30,24 +37,19 @@ const actions = {
     login({ commit, dispatch }, userInfo) {
         const { username, password } = userInfo
         return new Promise(async (resolve, reject) => {
-            // post(`http://172.16.130.92:28191/policyRelation/update`, {
-            //     id: 1304,
-            //     policyId: 4,
-            //     noticeId: 4
-            // }).then(function (data) {
-            // });
-            // 登录接口
             post(`${login}`, {
                 headers: {
                     "Access-Control-Allow-Origin": "*",
                 },
-                username: "admin",
-                password: "12345"
+                username,
+                password,
             }).then(async function ({ token, userId }) {
+                commit('SET_USERNAME', username)
                 commit('SET_TOKEN', token)
-                // commit('SET_USERID', userId)
+                commit('SET_USERID', userId)
                 await dispatch('getInfo', ['admin']) // 获取权限列表 默认就是超级管理员，因为没有进行接口请求 写死
                 setToken(token)
+                setUserId(userId)
                 resolve(token)
             });
         })

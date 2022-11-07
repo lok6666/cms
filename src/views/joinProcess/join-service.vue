@@ -8,9 +8,11 @@
           <el-form-item>
           <el-button type="primary" @click="gettrainingServicesAll">查询</el-button>
           <el-button type="primary" @click="reset">重置</el-button>
+          <el-button type="primary" @click="exportClick">导出EXECL</el-button>
           </el-form-item>
         </el-form>
       <el-table
+        id="my-table"
         :data="state.tableData"
         style="width: 100%"
         :border="true"
@@ -91,6 +93,8 @@
   </u-container-layout>
 </template>
 <script lang="ts">
+import FileSaver from 'file-saver'
+import * as XLSX from 'xlsx';
 import { computed, ref, reactive, onMounted, toRefs, } from "vue";
 import { entServiceDockingAll, entServiceDockingUpdate, suppliersAll } from "@/config/api";
 import formConpoent from "@/components/form/form.vue";
@@ -210,6 +214,24 @@ const closeDialog = async (done: () => void) => {
 };
 
 
+// 导出表格
+const exportClick = () => {
+	var wb = XLSX.utils.table_to_book(document.querySelector('#my-table'));//关联don节点
+	/* get binary string as output */
+	var wbout = XLSX.write(wb, {
+		bookType: 'xlsx',
+		bookSST: true,
+		type: 'array'
+	})
+	try {
+		FileSaver.saveAs(new Blob([wbout], {
+			type: 'application/octet-stream'
+		}), '企业服务对接管理.xlsx')//自定义文件名
+	} catch (e) {
+		if (typeof console !== 'undefined') console.log(e, wbout);
+	}
+	return wbout
+}
 const gettrainingServicesAll = () => {
   getentServiceDockingAll();
 };

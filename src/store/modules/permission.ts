@@ -6,7 +6,7 @@ import { constantRouterComponents } from '@/config/constants';
 import { getMenuByUserId } from '@/config/api';
 import { el } from "element-plus/es/locale";
 import router from '../../router'
-import { setToken } from '@/utils/auth'
+import { setToken, getUserId } from '@/utils/auth'
 /**
  * 使用 meta.role 来确定当前用户是否具有权限
  * @param roles
@@ -97,7 +97,9 @@ const mutations = {
 const actions = {
     getRoutes({ commit }, roles) {
         return new Promise(resolve => {
-            post(`${getMenuByUserId}`, {})
+            post(`${getMenuByUserId}`, {
+                id: getUserId(),
+            })
             .then(function (data) {
                 const routers = generator(data);
                 console.log('routers-----------', routers);

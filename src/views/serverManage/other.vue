@@ -1,24 +1,24 @@
 <template>
   <u-container-layout>
-    <div style="display: flex; justify-content: flex-end">
-      <el-button type="primary" @click="add">
-        <el-icon><plus /></el-icon>添加
-      </el-button>
-    </div>
     <el-form :inline="true" :model="state" class="demo-form-inline">
-      <el-form-item label="资金名称">
-        <el-input v-model="state.name" placeholder="请输入资金名称" />
+      <el-form-item label="服务名称">
+          <el-input v-model="state.serviceName" placeholder="请输入服务名称" />
       </el-form-item>
-      <el-form-item label="企业名称">
-          <el-input v-model="state.username" placeholder="请输入企业名称" />
+      <el-form-item label="服务商名称">
+          <el-input v-model="state.supplierName" placeholder="请输入服务商名称" />
       </el-form-item>
       <el-form-item>
        <el-button type="primary" @click="getentServicesAll">查询</el-button>
+       <el-button type="primary" @click="exportClick">导出EXECL</el-button>
+       <el-button type="primary" @click="add">
+        <el-icon><plus /></el-icon>添加
+      </el-button>
       </el-form-item>
     </el-form>
     
     <div class="inline-edit-table">
       <el-table
+        id="my-table"
         :data="state.tableData"
         style="width: 100%"
         :border="true"
@@ -36,7 +36,7 @@
             {{serviceFlagstatus[scope.row.serviceFlag]}}
           </template>
           <template #default="scope" v-if="item.prop === 'serviceType'">
-            {{serviceTypetatus[scope.row.serviceType]}}
+            {{serviceTypetatus[scope.row.serviceType] || '不限'}}
           </template>
         </el-table-column>
         <el-table-column prop="operator" label="操作" width="200" fixed="right">
@@ -84,6 +84,8 @@
   </u-container-layout>
 </template>
 <script lang="ts">
+import FileSaver from 'file-saver'
+import * as XLSX from 'xlsx';
 import { computed, ref, reactive, onMounted, toRefs } from "vue";
 import { entServicesAll, entServicesInsert, entServicesUpdateOne, entServicesDeleteOne } from "@/config/api";
 import formConpoent from "@/components/form/form.vue";
@@ -99,12 +101,11 @@ export default {
         1: '上架'
       },
       serviceTypetatus: {
-        0: '不限',
-        1: '文化/互联网科技资讯',
-        2: '政策资质',
-        3: '资质类',
-        4: '知识产权',
-        5: '工商财税'
+        0: '知识产权',
+        1: '资质认定',
+        2: '工商业务',
+        3: '财税服务',
+        4: '政府补贴'
       },
       tableHeaderConfig: [
       {
@@ -120,8 +121,20 @@ export default {
         label: "上下架",
       },
       {
+        prop: "supplierName",
+        label: "服务商",
+      },
+      {
         prop: "serviceType",
         label: "服务类型",
+      },
+      {
+        prop: "supplierPerson",
+        label: "联系人",
+      },
+      {
+        prop: "supplierContact",
+        label: "联系人方式",
       },
       // {
       //   prop: "supplierName",
@@ -168,27 +181,27 @@ const formConfig = [
     options: [
       {
         label: '不限',
-        value: '0'
-      },
-      {
-        label: '文化/互联网科技资讯',
-        value: '1'
-      },
-      {
-        label: '法律服务',
-        value: '2'
-      },
-      {
-        label: '政策资质',
-        value: '3'
+        value: ''
       },
       {
         label: '知识产权',
-        value: '4'
+        value: '0'
       },
       {
-        label: '工商财税',
-        value: '5'
+        label: '资质认定',
+        value: '1'
+      },
+      {
+        label: '工商业务',
+        value: '2'
+      },
+      {
+        label: '财税服务',
+        value: '3'
+      },
+      {
+        label: '政府补贴',
+        value: '4'
       }
     ],
     required: true,
@@ -229,7 +242,14 @@ const formConfig = [
     label: "服务缩略图",
     required: true,
     upload: true
-  },{
+  },
+  {
+    prop: "serviceTags",
+    label: "企业服务标签",
+    required: true,
+    upload: true
+  },
+  {
     prop: "serviceSynopsis",
     label: "服务简介",
     required: true,
@@ -242,7 +262,8 @@ const state = reactive({
   pageSize: 10,
   dialogVisible: false,
   name: '',
-  username: '',
+  serviceName: '',
+  supplierName: '',
   culName: "",
   formConfig: formConfig,
   tableData: [],
@@ -260,7 +281,24 @@ let currentRoleId = ref<string>("");
   state.dialogVisible = true;
 };
 
-
+// 导出表格
+const exportClick = () => {
+	var wb = XLSX.utils.table_to_book(document.querySelector('#my-table'));//关联don节点
+	/* get binary string as output */
+	var wbout = XLSX.write(wb, {
+		bookType: 'xlsx',
+		bookSST: true,
+		type: 'array'
+	})
+	try {
+		FileSaver.saveAs(new Blob([wbout], {
+			type: 'application/octet-stream'
+		}), '企业服务管理.xlsx')//自定义文件名
+	} catch (e) {
+		if (typeof console !== 'undefined') console.log(e, wbout);
+	}
+	return wbout
+}
 /**
  * 提交表单数据
  */
@@ -383,7 +421,9 @@ ElMessageBox.confirm("你确定要下架当前项吗?", "温馨提示", {
 const getentServicesAll = () => {
   post(`${entServicesAll}`, {
     pageNum: state.currentPage,
-    pageSize: state.pageSize
+    pageSize: state.pageSize,
+    serviceName: state.serviceName,
+    supplierName: state.supplierName
   }).then(function (data) {
     state.tableData = data.list;
     state.total = data.total;
