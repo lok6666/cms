@@ -26,11 +26,11 @@
             <el-button
               :type="[i.isSelect ? 'primary' : '']"
               v-for="(i, index) in state.status"
-              @click="handleClick(index)"
+              @click.stop="handleClick(index)"
               >{{ i.label }}</el-button
             >
           </el-form-item>
-          <el-form-item label="对接时间">
+          <el-form-item label="导入时间">
             <div style="width: 300px">
               <el-date-picker
                 v-model="state.value2"
@@ -66,15 +66,16 @@
                 style="display: inline; margin-right: 10px"
                 placeholder="招商专员"
               />
+              
             </div>
             <div style="display: flex; align-items: center">
               <el-button
                 type="primary"
-                @click="getentMerchantsList"
+                @click.stop="getentMerchantsList"
                 icon="Search"
                 >查询</el-button
               >
-              <el-button type="primary" @click="reset" icon="Refresh"
+              <el-button type="primary" @click.stop="reset" icon="Refresh"
                 >重置</el-button
               >
             </div>
@@ -87,7 +88,7 @@
                 :effect="[tag.primaryId === state.primaryId ? 'dark' : 'plain']"
                 style="margin-right: 10px; cursor: pointer"
                 closable
-                @click="clickTab(tag)"
+                @click.stop="clickTab(tag)"
                 :disable-transitions="false"
                 @close="removeTab(tag.primaryId)"
               >
@@ -106,7 +107,7 @@
                 v-else
                 class="button-new-tag ml-1"
                 size="small"
-                @click="showInput"
+                @click.stop="showInput"
               >
                 增加筛选名单
               </el-button> -->
@@ -122,8 +123,8 @@
                   justify-content: flex-end;
                 "
               >
-                <el-button type="success" icon="DocumentAdd" @click="add"
-                  >新增</el-button
+                <el-button type="success" icon="DocumentAdd" @click.stop="add"
+                  >添加</el-button
                 >
                 <el-upload
                   :before-upload="importClick"
@@ -142,8 +143,8 @@
                     download="clz.xlsx"
                     href="http://minio.bjwcxf.com/cultural-file/template/ent_merchants_list.xlsx"
                     >下载模板</a
-                  ></el-button
-                >
+                  ></el-button>
+                  <el-button type="primary" icon="IceCreamSquare" @click.stop="exportClick2">导出EXECL</el-button>
               </div>
             </div>
           </el-form-item>
@@ -176,9 +177,9 @@
                     <div style="margin: 10px 0px;">招聘专员：{{item.hctd}}</div>
                   </div>
                   <div style="display: flex;flex-direction: column;">
-                    <el-button style="margin: 10px 0px;" type="danger" size="small" @click="detail(scope.row)">效果跟踪</el-button>
-                    <el-button style="margin: 10px 0px;" type="success" size="small" @click="edit(scope.row)">动态跟踪</el-button>
-                    <el-button style="margin: 10px 0px;" type="primary" size="small" @click="edit(scope.row)">编辑内容</el-button>
+                    <el-button style="margin: 10px 0px;" type="danger" size="small" @click.stop="detail(scope.row)">效果跟踪</el-button>
+                    <el-button style="margin: 10px 0px;" type="success" size="small" @click.stop="edit(scope.row)">动态跟踪</el-button>
+                    <el-button style="margin: 10px 0px;" type="primary" size="small" @click.stop="edit(scope.row)">编辑内容</el-button>
                   </div>
                 </div>
               </div>
@@ -188,9 +189,15 @@
             id="my-table"
             :data="state.tableData"
             style="width: 100%"
+            :cell-style="fn"
+            header-row-class-name="custom-header"
+            row-class-name="hover-row"
             :header-cell-style="{ 'background-color': `#ecf5ff` }"
             :border="true"
+            @row-click="routerTo1"
+            @selection-change="handleSelectionChange"
           >
+            <el-table-column align="center" type="selection" width="60"></el-table-column>
             <el-table-column
               v-for="(item, index) in tableHeaderConfig"
               :key="index"
@@ -210,7 +217,7 @@
                     type="success"
                     icon="Edit"
                     size="small"
-                    @click="edit(scope.row)"
+                    @click.stop="edit(scope.row)"
                   >
                     编辑
                   </el-button>
@@ -218,7 +225,7 @@
                     type="danger"
                     icon="Delete"
                     size="small"
-                    @click="detail(scope.row)"
+                    @click.stop="detail(scope.row)"
                   >
                     删除
                   </el-button>
@@ -226,7 +233,7 @@
                     type="primary"
                     icon="view"
                     size="small"
-                    @click="routerTo(scope.row)"
+                    @click.stop="routerTo(scope.row)"
                   >
                     企业评估
                   </el-button>
@@ -234,7 +241,7 @@
                     type="primary"
                     icon="Medal"
                     size="small"
-                    @click="dtTo(scope.row)"
+                    @click.stop="dtTo(scope.row)"
                   >
                     动态追踪
                   </el-button>
@@ -282,7 +289,7 @@
               <el-button
                 :type="[i.isSelect ? 'primary' : '']"
                 v-for="(i, index) in state.options"
-                @click="handleClick2(index)"
+                @click.stop="handleClick2(index)"
                 >{{ i.label }}</el-button
               >
             </div>
@@ -325,8 +332,9 @@
 <script lang="ts">
 import FileSaver from "file-saver";
 import * as XLSX from "xlsx";
+import { export_json_to_excel } from "@/execl/Export2Excel";
 import busneissDetail from "@/components/form/busneissDetail.vue";
-import { ref, reactive, provide, nextTick } from "vue";
+import { ref, reactive, provide, nextTick, getCurrentInstance } from "vue";
 // import { busneissData } from "./data";
 import {
   map,
@@ -442,7 +450,7 @@ const formConfig: formConfigItem[] = [
   {
     prop: "entStatus",
     label: "招商状态",
-    rules: { required: true, validator: emtyRules, trigger: 'blur'},
+    rules: { required: true, validator: emtyRules, trigger: 'change'},
     options: [
       {
         value: "待接洽",
@@ -571,7 +579,13 @@ const formConfig: formConfigItem[] = [
     showSelect: true,
   }, */
 ];
-
+const fn = ({row, column}) => {
+    if(column.label === '企业名称') {
+      return {
+      color: `#409eff`
+    }
+    };
+  };
 const map1 = {
   工商信息: [
     "BASICINFO",
@@ -640,11 +654,19 @@ const map7 = {
 };
 const InputRef = ref<InstanceType<typeof ElInput>>();
 
+const routerTo1 = async (row) => {
+  title.value = '企业评估';
+  state.busneissName = row.companyName;
+  state.applyDialogVisible = true;
+};
 const routerTo = (row) => {
   state.busneissName = row.companyName;
   state.applyDialogVisible = true;
 };
+let minTime = ref<String>('');
+let {ctx:that, proxy} = getCurrentInstance()
 const dtTo = (row) => {
+  title.value = '动态追踪';
   state.companyName = row.companyName;
   post(`${entDynamicList}`, {
     companyName: row.companyName
@@ -652,6 +674,8 @@ const dtTo = (row) => {
   .then(function (res) {
     state.dialogVisible = true;
     state.timeList = res.list;
+    minTime.value = res.list[0] ? res.list[0].dynamicNextTime : '';
+    proxy.$forceUpdate();
     state.dialogVisible3 = true;
   })
   .catch((e) => {
@@ -664,7 +688,6 @@ const dateChange = (value) => {
   state.endTime = value[1];
   getentMerchantsList();
 };
-
 const handleClick = (index) => {
   // state.status[state.statusIndex].isSelect = false;
   state.status[index].isSelect = !state.status[index].isSelect;
@@ -673,7 +696,6 @@ const handleClick = (index) => {
   } else {
     state.listIds.push(state.status[index].value);
   }
-  console.log("state.listId0---", state.listIds);
   getentMerchantsList();
 };
 const handleClick2 = (index) => {
@@ -694,13 +716,13 @@ const handleClick2 = (index) => {
       state.timeList = res.list;
     });
 };
-// 修改
+// 编辑
 const edit = (row) => {
   state.listName = row.listName;
   state.listId = row.listId;
   state.primaryId = row.primaryId;
   state.isAdd = false;
-  title.value = "修改";
+  title.value = "编辑";
   state.dialogVisible = true;
   state.dialogVisible1 = true;
   currentRoleId.value = row.id;
@@ -750,6 +772,21 @@ const postFormData2 = (formData) => {
     .then(function (data) {
       ElMessage.success("添加成功");
       getentMerchantsPersonList();
+      state.formConfig = state.formConfig.map((e, b) => {
+    let result = { ...e };  
+    delete result[e.prop];
+    return result;
+  });
+  state.formConfig2 = state.formConfig2.map((e, b) => {
+    let result = { ...e };  
+    delete result[e.prop];
+    return result;
+  });
+  state.formConfig3 = state.formConfig3.map((e, b) => {
+    let result = { ...e };  
+    delete result[e.prop];
+    return result;
+  });
     })
     .catch((e) => {
       console.log("e", e);
@@ -771,7 +808,23 @@ const postFormData3 = (formData) => {
       post(`${entDynamicList}`, {
         companyName: state.companyName
       }).then(e => {
-        state.timeList = res.list;
+        ElMessage.success("添加成功");
+        state.timeList = e.list;
+        state.formConfig = state.formConfig.map((e, b) => {
+          let result = { ...e };  
+          delete result[e.prop];
+          return result;
+        });
+        state.formConfig2 = state.formConfig2.map((e, b) => {
+          let result = { ...e };  
+          delete result[e.prop];
+          return result;
+        });
+        state.formConfig3 = state.formConfig3.map((e, b) => {
+          let result = { ...e };  
+          delete result[e.prop];
+          return result;
+        });
       });
     })
     .catch((e) => {
@@ -826,11 +879,11 @@ const detail = (row) => {
     .catch(() => {});
 };
 const options1 = [
-  {
+/*   {
     value: "",
     label: "全部",
     isSelect: false,
-  },
+  }, */
   {
     value: "微信",
     label: "微信",
@@ -856,6 +909,7 @@ const state = reactive({
   currentPage: 0,
   pageSize: 5,
   timeList: [],
+  selectionList: [],
   activeName: "待沟通",
   applyDialogVisible: false,
   formConfig: Object.assign([], formConfig),
@@ -872,14 +926,14 @@ const state = reactive({
     {
       prop: "dynamicType",
       label: "跟进方式",
-      required: true,
+      rules: { required: true, validator: emtyRules, trigger: 'blur'},
       options: options1,
       showSelect: true,
     },
     {
       prop: "followUpStatus",
       label: "跟进状态",
-      required: true,
+      rules: { required: true, validator: emtyRules, trigger: 'blur'},
       options: [
         {
           value: "未回复",
@@ -908,20 +962,22 @@ const state = reactive({
       prop: "dynamicTime",
       label: "动态日期",
       placeholder: "动态日期",
-      required: true,
+      rules: { required: true, validator: emtyRules, trigger: 'blur'},
       showDatePicker: true,
+      getMaxTime: () => new Date()
     },
     {
       prop: "dynamicNextTime",
       label: "下一次跟进日期",
-      placeholder: "下一次跟进日期",
+      rules: { required: true, validator: emtyRules, trigger: 'blur'},
       required: true,
       showDatePicker: true,
+      getMinTime: () => minTime.value
     },
     {
       prop: "dynamicContent",
       label: "备注",
-      required: true,
+      rules: { required: true, validator: emtyRules, trigger: 'blur'},
       showTextarea: true,
     },
   ],
@@ -984,8 +1040,73 @@ const state = reactive({
 });
 
 let currentRoleId = ref<string>("");
-const title = ref<string>("新增");
+const title = ref<string>("添加");
 
+const handleSelectionChange = (row) => {
+  console.log('row', row);
+  state.selectionList = row; 
+};
+const formatJson  = (filterVal, jsonData) => {
+  return jsonData.map(v => filterVal.map(j => v[j]));
+}
+// 导出表格
+const exportClick2 = () => {
+  if(state.selectionList.length === 0) {
+    ElMessage({
+        message: '请选择要导出的数据',
+        type: 'warning'
+      })
+  } else {
+    const tableHeaderConfig = [
+/*         {
+          prop: "listName",
+          label: "名单分组",
+        }, */
+        {
+          prop: "companyName",
+          label: "企业名称",
+        },
+        {
+          prop: "contactPerson",
+          label: "企业联系人",
+        },
+        {
+          prop: "contactPhone",
+          label: "联系人手机",
+        },
+        /*         {
+          prop: "entCode",
+          label: "社会统一代码",
+        }, */
+        {
+          prop: "entSource",
+          label: "招商来源",
+        },
+        {
+          prop: "hctd",
+          label: "招商专员",
+        },
+        {
+          prop: "entLocal",
+          label: "地址",
+        },
+        {
+          prop: "storageTime",
+          label: "导入时间",
+        },
+        {
+          prop: "entStatus",
+          label: "状态",
+        },
+      ];
+  const tHeader = tableHeaderConfig.map(e => e.label);
+  const filterVal = tableHeaderConfig.map(e => e.prop);
+  const list = state.selectionList;
+  const data = formatJson(filterVal, list);
+  export_json_to_excel(tHeader, data, '意向企业');
+  }
+
+};
 // 导入表格
 const importClick = (e) => {
   var axios = require("axios");
@@ -1022,7 +1143,7 @@ const exportClick = () => {
       new Blob([wbout], {
         type: "application/octet-stream",
       }),
-      "企业评估.xlsx"
+      "意向企业"
     ); //自定义文件名
   } catch (e) {
     if (typeof console !== "undefined") console.log(e, wbout);
@@ -1039,6 +1160,7 @@ const reset = () => {
   state.endTime = "";
   state.entLocal = "";
   state.entSource = "";
+  state.hctd = "";
   getentMerchantsList();
 };
 const add = () => {
@@ -1051,19 +1173,34 @@ const add = () => {
  * 提交表单数据
  */
 const postFormData = (formData) => {
-  post(`${state.isAdd ? entMerchantsInsert : entMerchantsUpdate}`, {
+   post(`${state.isAdd ? entMerchantsInsert : entMerchantsUpdate}`, {
     listName: state.listName,
     primaryId: state.primaryId,
     listId: state.listId,
     ...formData,
   })
     .then(function (data) {
-      // ElMessage.success("添加成功");
+       ElMessage.success("添加成功");
       getentMerchantsList();
+      state.formConfig = state.formConfig.map((e, b) => {
+    let result = { ...e };  
+    delete result[e.prop];
+    return result;
+  });
+  state.formConfig2 = state.formConfig2.map((e, b) => {
+    let result = { ...e };  
+    delete result[e.prop];
+    return result;
+  });
+  state.formConfig3 = state.formConfig3.map((e, b) => {
+    let result = { ...e };  
+    delete result[e.prop];
+    return result;
+  });
     })
     .catch((e) => {
       console.log("e", e);
-    });
+    }); 
   state.dialogVisible = false;
   state.dialogVisible1 = false;
 };
@@ -1075,6 +1212,21 @@ const closeDialog = async (done: () => void) => {
   state.dialogVisible2 = false;
   state.dialogVisible3 = false;
   state.applyDialogVisible = false;
+  state.formConfig = state.formConfig.map((e, b) => {
+    let result = { ...e };  
+    delete result[e.prop];
+    return result;
+  });
+  state.formConfig2 = state.formConfig2.map((e, b) => {
+    let result = { ...e };  
+    delete result[e.prop];
+    return result;
+  });
+  state.formConfig3 = state.formConfig3.map((e, b) => {
+    let result = { ...e };  
+    delete result[e.prop];
+    return result;
+  });
 };
 //  文章内容列表
 const getentMerchantsList = () => {
@@ -1367,8 +1519,20 @@ const formInline = reactive({
 .inline-edit-table {
   width: 100%;
   .custom-header {
-    display: none;
+    background: gray;
+    th.el-table__cell {
+      // background: var(--el-fill-color-light);
+    }
   }
+  .hover-row>td.el-table__cell {
+    background-color: white !important;
+  } 
+  .hover-row:hover {
+      cursor: pointer;
+      th.el-table__cell {
+        background-color: none !important;
+      }
+    }
 }
 </style>
 <style>

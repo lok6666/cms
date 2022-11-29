@@ -8,13 +8,13 @@
           <el-input v-model="state.serviceBank" placeholder="请输入服务商名称" />
       </el-form-item>
       <el-form-item>
-       <el-button type="primary" @click="getfinancialServicesAll">查询</el-button>
+       <el-button type="primary" @click.stop="getfinancialServicesAll">查询</el-button>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" @click="add">添加</el-button>
+        <el-button type="primary" @click.stop="add">添加</el-button>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" @click="exportClick">导出EXECL</el-button>
+        <el-button type="primary" icon="IceCreamSquare" @click.stop="exportClick2">导出EXECL</el-button>
       </el-form-item>
     </el-form>
     
@@ -24,10 +24,13 @@
         style="width: 100%"
         :border="true"
         v-loading="loading"
+        @selection-change="handleSelectionChange"
       >
+        <el-table-column align="center" type="selection" width="60"></el-table-column>
         <el-table-column
           v-for="(item, index) in tableHeaderConfig"
           :key="index"
+          :show-overflow-tooltip="true"
           sortable
           :prop="item.prop"
           :label="item.label"
@@ -43,13 +46,13 @@
           />
         </template>
         </el-table-column>
-        <el-table-column prop="operator" label="操作" width="200" fixed="right">
+        <el-table-column prop="operator" label="操作" width="280" fixed="right">
           <template #default="scope">
             <el-button
               type="primary"
               size="small"
               
-              @click="edit(scope.row)"
+              @click.stop="edit(scope.row)"
             >
               编辑
             </el-button>
@@ -57,11 +60,11 @@
                 type="danger"
                 size="small"
                 icon="Delete"
-                @click="deleteAction(scope.row, state.isResume)"
+                @click.stop="deleteAction(scope.row, state.isResume)"
                 >删除</el-button
               >
-              <el-button type="warning" size="small"  @click="upItem(scope.row)">上架</el-button>
-              <el-button type="danger" size="small"  @click="downItem(scope.row)">下架</el-button>
+              <el-button type="warning" size="small"  @click.stop="upItem(scope.row)">上架</el-button>
+              <el-button type="danger" size="small"  @click.stop="downItem(scope.row)">下架</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -72,6 +75,7 @@
         @closed="closeDialog()"
       >
         <formConpoent
+          v-if="state.dialogVisible"
           :showBtn="true"
           v-model:formConfig="state.formConfig"
           @handle="postFormData"
@@ -100,8 +104,9 @@
   </u-container-layout>
 </template>
 <script lang="ts">
-import FileSaver from 'file-saver'
-import * as XLSX from 'xlsx';
+import FileSaver from "file-saver";
+import * as XLSX from "xlsx";
+import { export_json_to_excel } from "@/execl/Export2Excel";
 import { computed, ref, reactive, onMounted, toRefs } from "vue";
 import { suppliersAll, financialServicesAll, financialServicesUpdateOne, financialServicesDeleteOne, financialServicesInsert } from "@/config/api";
 import formConpoent from "@/components/form/form.vue";
@@ -205,12 +210,10 @@ const formConfig = [
     required: true,
   },
   {
-    prop: "supplierId",
+    prop: "serviceBank",
     label: "服务商",
-    options: [
-    ],
+    showInput: true,
     required: true,
-    showSelect: true
   },
   {
     prop: "serviceContent",
@@ -231,11 +234,73 @@ const state = reactive({
   formConfig: formConfig,
   tableData: [
   ],
+  selectionList: [],
   optionsList: [],
   levelOptions: [],
 });
-const title = ref("新增");
+const title = ref("添加");
 
+const handleSelectionChange = (row) => {
+  console.log('row', row);
+  state.selectionList = row; 
+};
+const formatJson  = (filterVal, jsonData) => {
+  return jsonData.map(v => filterVal.map(j => v[j]));
+}
+// 导出表格
+const exportClick2 = () => {
+  if(state.selectionList.length === 0) {
+    ElMessage({
+        message: '请选择要导出的数据',
+        type: 'warning'
+      })
+  } else {
+    const tableHeaderConfig = [
+        {
+          prop: "sortNum",
+          label: "排序",
+        },
+        {
+          prop: "serviceName",
+          label: "服务名称",
+        },
+        {
+          prop: "serviceBank",
+          label: "服务商"
+        },
+        {
+          prop: "serviceImages",
+          label: "机构logo",
+          showImg: true
+        },
+        {
+          prop: "serviceQuota",
+          label: "额度范围",
+        },
+        {
+          prop: "serviceTerm",
+          label: "期限",
+        },
+        {
+          prop: "serviceRange",
+          label: "利率范围",
+        },
+        {
+          prop: "serviceType",
+          label: "担保方式"
+        },
+        {
+          prop: "serviceFlag",
+          label: "上下架",
+        },
+      ];
+  const tHeader = tableHeaderConfig.map(e => e.label);
+  const filterVal = tableHeaderConfig.map(e => e.prop);
+  const list = state.selectionList;
+  const data = formatJson(filterVal, list);
+  export_json_to_excel(tHeader, data, '金融服务');
+  }
+};
 // 导出表格
 const exportClick = () => {
 	var wb = XLSX.utils.table_to_book(document.querySelector('#my-table'));//关联don节点
@@ -248,7 +313,7 @@ const exportClick = () => {
 	try {
 		FileSaver.saveAs(new Blob([wbout], {
 			type: 'application/octet-stream'
-		}), '金融服务.xlsx')//自定义文件名
+		}), '金融服务')//自定义文件名
 	} catch (e) {
 		if (typeof console !== 'undefined') console.log(e, wbout);
 	}
@@ -322,7 +387,7 @@ getsuppliersAll();
  * 添加
  */
 const add = (row) => {
-  title.value = "新增";
+  title.value = "添加";
   currentRoleId.value = row.id;
   state.dialogVisible = true;
 };
@@ -331,7 +396,11 @@ const add = (row) => {
 // todo 改写法
 const closeDialog = async (done: () => void) => {
   state.dialogVisible = false;
-  state.formConfig = formConfig;
+  state.formConfig = state.formConfig.map((e, b) => {
+    let result = { ...e };  
+    delete result[e.prop];
+    return result;
+  });
 };
 
 /**
@@ -425,6 +494,11 @@ const loading = ref(false);
     })
       .then(function (data) {
         getfinancialServicesAll();
+        state.formConfig = state.formConfig.map((e, b) => {
+          let result = { ...e };  
+          delete result[e.prop];
+          return result;
+        });
       })
       .catch((e) => {
         console.log("e", e);

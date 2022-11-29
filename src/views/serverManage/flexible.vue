@@ -6,9 +6,9 @@
             <el-input v-model="state.entName" placeholder="请输入企业名称"/>
           </el-form-item>
           <el-form-item>
-          <el-button type="primary" @click="gettrainingServicesAll">查询</el-button>
-          <el-button type="primary" @click="exportClick">导出EXECL</el-button>
-          <el-button type="primary" @click="reset">重置</el-button>
+          <el-button type="primary" icon="Search" @click.stop="gettrainingServicesAll">查询</el-button>
+          <el-button type="primary" icon="IceCreamSquare" @click.stop="exportClick2">导出EXECL</el-button>
+          <el-button type="primary" icon="Refresh" @click.stop="reset">重置</el-button>
           </el-form-item>
         </el-form>
       <el-table
@@ -17,12 +17,14 @@
         style="width: 100%"
         :border="true"
         v-loading="loading"
+        @selection-change="handleSelectionChange"
       >
-      <el-table-column type="index" label="序号" width="80" />
+        <el-table-column align="center" type="selection" width="60"></el-table-column>
+        <el-table-column type="index" label="序号" width="80" />
         <el-table-column
           v-for="(item, index) in tableHeaderConfig"
           :key="index"
-          sortable
+          :width="item.width"
           :prop="item.prop"
           :label="item.label"
         >
@@ -35,9 +37,9 @@
             style="width: 50px; height: 50px"
           />
         </el-table-column>
-        <el-table-column prop="operator" label="操作" width="200" fixed="right">
+        <el-table-column prop="operator" label="操作" width="120" fixed="right">
           <template #default="scope">
-            <el-button type="primary" size="small" @click="detail(scope.row)">
+            <el-button type="primary" size="small" @click.stop="detail(scope.row)">
               查看详情
             </el-button>
           </template>
@@ -78,8 +80,9 @@
   </u-container-layout>
 </template>
 <script lang="ts">
-import FileSaver from 'file-saver'
-import * as XLSX from 'xlsx';
+import FileSaver from "file-saver";
+import * as XLSX from "xlsx";
+import { export_json_to_excel } from "@/execl/Export2Excel";
 import { computed, ref, reactive, onMounted, toRefs } from "vue";
 import { recruitServiceDockingAll, recruitServiceDockingUpdateOne } from "@/config/api";
 import formConpoent from "@/components/form/form.vue";
@@ -92,8 +95,7 @@ export default {
     return {
       dockStatusObj: {
           0: '未对接',
-          1: '对接中',
-          2: '111'
+          1: '对接中'
         },
       tableHeaderConfig: [
         {
@@ -205,52 +207,72 @@ const state = reactive({
   culName: "",
   formConfig: formConfig,
   form2Config: form2Config,
+  selectionList: [],
   tableData: [
-    {
-      amount: "",
-      company: "",
-      companyid: 0,
-      definition: "",
-      describe: "",
-      entryConditions: "1、具有国家高新技术企业证书或中关村高新技术企业证书的科技企业；。",
-      expenditure: "100",
-      files: [],
-      fundCompnay: "华夏银行股份有限公司",
-      fundName: "小额智融宝",
-      fundPrincipal: "1",
-      fundPrincipalTel: "2",
-      fundid: 39,
-      id: 30,
-      images: [],
-      income: "100",
-      intro: "该户债权为三笔债权共同使用同一抵押物，并办理了最高额抵押。",
-      investmentIndustry: "与北京IP合作",
-      money: "面议",
-      pageNum: 0,
-      pageSize: 0,
-      principal: "刘经理",
-      principalTel: "66295509",
-      proCompany: "北京文投大数据有限公司",
-      proType: "企业债券融资",
-      projectid: 118,
-      protName: "云南中天文化债权",
-      status: 1,
-      storageTime: "2022-07-27 11:30:44",
-      trzFundList: [],
-      trzProjectList: [],
-      type: 1
-    },
   ],
+  dockStatusObj: {
+          0: '未对接',
+          1: '对接中',
+          2: '111'
+        },
   optionsList: [],
   levelOptions: [],
 });
-const title = ref("新增");
+const title = ref("添加");
 
 // todo 改写法
 const closeDialog = async (done: () => void) => {
   state.dialogVisible = false;
 };
 
+const handleSelectionChange = (row) => {
+  console.log('row', row);
+  state.selectionList = row; 
+};
+const formatJson  = (filterVal, jsonData) => {
+  return jsonData.map(v => filterVal.map(j => v[j]));
+}
+// 导出表格
+const exportClick2 = () => {
+  if(state.selectionList.length === 0) {
+    ElMessage({
+        message: '请选择要导出的数据',
+        type: 'warning'
+      })
+  } else {
+    const tableHeaderConfig = [
+        {
+          prop: "companyName",
+          label: "企业名称",
+        },
+        {
+          prop: "serviceName",
+          label: "服务名称",
+        },
+        {
+          prop: "companyContact",
+          label: "企业联系方式",
+        },
+        {
+          prop: "companyPerson",
+          label: "企业联系人"
+        },
+/*         {
+          prop: "dockStatus",
+          label: "对接状态",
+        }, */
+        {
+          prop: "dockTime",
+          label: "申请时间",
+        }
+      ];
+  const tHeader = tableHeaderConfig.map(e => e.label);
+  const filterVal = tableHeaderConfig.map(e => e.prop);
+  const list = state.selectionList;
+  const data = formatJson(filterVal, list);
+  export_json_to_excel(tHeader, data, '灵活用工管理');
+  }
+};
 // 导出表格
 const exportClick = () => {
 	var wb = XLSX.utils.table_to_book(document.querySelector('#my-table'));//关联don节点
@@ -263,7 +285,7 @@ const exportClick = () => {
 	try {
 		FileSaver.saveAs(new Blob([wbout], {
 			type: 'application/octet-stream'
-		}), '灵活用工管理.xlsx')//自定义文件名
+		}), '灵活用工管理')//自定义文件名
 	} catch (e) {
 		if (typeof console !== 'undefined') console.log(e, wbout);
 	}
@@ -287,6 +309,9 @@ const detail = (row) => {
     .map((e, b) => {
       // value 替换成 e.prop
       let result = { ...e };
+      if(e.prop === 'dockStatus') {
+        row[e.prop] = row[e.prop] === '未对接' || row[e.prop] === '对接中' ? row[e.prop] : state.dockStatusObj[row[e.prop]];
+      };
       result[e.prop] = row[e.prop];
       return result;
     })
@@ -308,7 +333,7 @@ const getrecruitServiceDockingAll = () => {
   post(`${recruitServiceDockingAll}`, {
     pageNum: state.currentPage,
     pageSize: state.pageSize,
-    entName: state.entName
+    companyName: state.entName
   }).then(function (data) {
     state.tableData = data.list;
     state.total = data.total;

@@ -8,13 +8,13 @@
       <menu-slide v-if="mode==='horizontal'"/>
       <div class="left" v-if="mode==='vertical'">
         <div>
-          <el-icon class="icon" v-if="isCollapse" @click="handleCollapse"><expand /></el-icon>
-          <el-icon class="icon" v-else @click="handleCollapse"><fold/></el-icon>
+          <el-icon class="icon" v-if="isCollapse" @click.stop="handleCollapse"><expand /></el-icon>
+          <el-icon class="icon" v-else @click.stop="handleCollapse"><fold/></el-icon>
         </div>
         <u-hamburger/>
       </div>
       <div class="right">
-        <u-info/>
+        <!-- <u-info/> -->
         <u-screen-full/>
         <el-dropdown @command="commandAction">
           <span class="el-dropdown-link">
@@ -66,7 +66,9 @@
   })
 
   const userInfo = computed(()=>{
-    return store.state.user.userInfo
+    return {
+      username: localStorage.username
+    }
   })
 
 

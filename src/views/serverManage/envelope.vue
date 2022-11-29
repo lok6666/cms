@@ -1,7 +1,7 @@
 <template>
   <u-container-layout>
     <div style="display: flex; justify-content: flex-end">
-      <el-button type="primary" @click="add">
+      <el-button type="primary" @click.stop="add">
         <el-icon><plus /></el-icon>添加
       </el-button>
     </div>
@@ -13,7 +13,7 @@
           <el-input v-model="state.username" placeholder="请输入企业名称" />
       </el-form-item>
       <el-form-item>
-       <el-button type="primary" @click="gettrainingServicesAll">查询</el-button>
+       <el-button type="primary" icon="Search" @click.stop="gettrainingServicesAll">查询</el-button>
       </el-form-item>
     </el-form>
     
@@ -38,7 +38,7 @@
         </template>
         <template #default="scope" v-if="item.showSwitch">
           <el-switch
-          @click="changeStatus(scope.row, state.tableData[scope.$index].serviceStatus)"
+          @click.stop="changeStatus(scope.row, state.tableData[scope.$index].serviceStatus)"
             v-model="state.tableData[scope.$index].serviceStatus"
             :active-value="activeValue"
             :inactive-value="inactiveValue"
@@ -51,7 +51,7 @@
             <el-button
               type="primary"
               size="small"           
-              @click="edit(scope.row)"
+              @click.stop="edit(scope.row)"
             >
               编辑
             </el-button>
@@ -183,14 +183,14 @@ const state = reactive({
   optionsList: [],
   levelOptions: [],
 });
-const title = ref("新增");
+const title = ref("添加");
 
 
 /**
  * 添加
  */
 const add = (row) => {
-  title.value = "新增";
+  title.value = "添加";
   currentRoleId.value = row.id;
   state.dialogVisible = true;
 };

@@ -29,9 +29,9 @@
           </el-select> 
         </el-form-item>
       <el-form-item>
-          <el-button type="primary" @click="gettrainingServicesAll">查询</el-button>
-          <el-button type="primary" @click="reset">重置</el-button>
-          <el-button type="primary" @click="exportClick">导出EXECL</el-button>
+          <el-button type="primary" icon="Search" @click.stop="gettrainingServicesAll">查询</el-button>
+          <el-button type="primary" icon="Refresh" @click.stop="reset">重置</el-button>
+          <el-button type="primary" icon="IceCreamSquare" @click.stop="exportClick2">导出EXECL</el-button>
           </el-form-item>
         </el-form>
         <el-table
@@ -40,7 +40,9 @@
           style="width: 100%"
           :border="true"
           v-loading="loading"
+          @selection-change="handleSelectionChange"
         >
+          <el-table-column align="center" type="selection" width="60"></el-table-column>
           <el-table-column
             v-for="(item, index) in tableHeaderConfig"
             :key="index"
@@ -51,12 +53,12 @@
               {{applyStatusObj[scope.row.applyStatus]}}
             </template>
           </el-table-column>
-          <el-table-column prop="operator" label="操作" width="200" fixed="right">
+          <el-table-column prop="operator" label="操作" width="120" fixed="right">
             <template #default="scope">
-              <el-button type="primary" size="small" @click="detail(scope.row)">
+              <el-button type="primary" icon="Document" size="small" @click.stop="detail(scope.row)">
                 查看详情
               </el-button>
-              <!-- <el-button type="primary" size="small" @click="examine(scope.row)" :disabled="[scope.row.applyStatus !== 0]">
+              <!-- <el-button type="primary" size="small" @click.stop="examine(scope.row)" :disabled="[scope.row.applyStatus !== 0]">
                 审核
               </el-button> -->
             </template>
@@ -104,8 +106,9 @@
     </u-container-layout>
   </template>
   <script lang="ts">
-  import FileSaver from 'file-saver'
-  import * as XLSX from 'xlsx';
+  import FileSaver from "file-saver";
+  import * as XLSX from "xlsx";
+  import { export_json_to_excel } from "@/execl/Export2Excel";
   import { ref, reactive, provide } from "vue";
   import formConpoent from "@/components/form/form.vue";
   import examineFormConpoent from "@/components/form/examineForm.vue";
@@ -268,6 +271,7 @@
     currentPage: 0,
     pageSize: 10,
     formConfig: formConfig,
+    selectionList: [],
     tableData: [],
     total: 0,
     entName: '',
@@ -282,8 +286,79 @@
   });
   
   let currentRoleId = ref<string>("");
-  const title = ref<string>("新增");
+  const title = ref<string>("添加");
+
   
+const handleSelectionChange = (row) => {
+  console.log('row', row);
+  state.selectionList = row; 
+};
+const formatJson  = (filterVal, jsonData) => {
+  return jsonData.map(v => filterVal.map(j => v[j]));
+}
+// 导出表格
+const exportClick2 = () => {
+  if(state.selectionList.length === 0) {
+    ElMessage({
+        message: '请选择要导出的数据',
+        type: 'warning'
+      })
+  } else {
+    const tableHeaderConfig = [{
+                prop: "entName",
+                label: "企业名称"
+            },{
+                prop: "incomeYear",
+                label: "年份"
+            },{
+                prop: "incomeMonth",
+                label: "月份"
+            },{
+            prop: "businessIncome",
+            label: "营业收入(万)",
+            },{
+            prop: "cultureIncome",
+            label: "文化产业相关营业收入(万)",
+
+            },{
+            prop: "totalProfit",
+            label: "利润总额(万)",
+            },{
+            prop: "netProfit",
+            label: "净利润(万)",
+            },{
+            prop: "totalAssets",
+            label: "资产总额(万)"
+            },{
+            prop: "netAssets",
+            label: "净资产(万)",
+            },{
+            prop: "totalLiability",
+            label: "负债总额(万)"
+            },{
+            prop: "equity",
+            label: "所有者权益(万)",
+            },{
+            prop: "payTaxes",
+            label: "纳税额(不含个人所得税)(万)",
+            },{
+            prop: "addedTax",
+            label: "增值税(万)",
+            },{
+            prop: "corporateIncomeTax",
+            label: "企业所得税(万)",
+            },{
+            prop: "individualIncomeTax",
+            label: "个人所得税(万)"
+            }
+        ];
+  const tHeader = tableHeaderConfig.map(e => e.label);
+  const filterVal = tableHeaderConfig.map(e => e.prop);
+  const list = state.selectionList;
+  const data = formatJson(filterVal, list);
+  export_json_to_excel(tHeader, data, '财税数据');
+  }
+};
 
 // 导出表格
 const exportClick = () => {
@@ -297,7 +372,7 @@ const exportClick = () => {
 	try {
 		FileSaver.saveAs(new Blob([wbout], {
 			type: 'application/octet-stream'
-		}), '财税数据.xlsx')//自定义文件名
+		}), '财税数据')//自定义文件名
 	} catch (e) {
 		if (typeof console !== 'undefined') console.log(e, wbout);
 	}
@@ -308,6 +383,8 @@ const gettrainingServicesAll = () => {
 };
 const reset = () => {
   state.entName = '';
+  state.incomeYear = '';
+  state.incomeMonth = '';
   getentIncomeAll();
 };
   /**

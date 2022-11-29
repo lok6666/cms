@@ -24,7 +24,7 @@
       </el-form-item>
     </el-form>
     <div  style="float: right">
-      <el-button type="primary" @click="submitForm(formRef)">立即提交</el-button>
+      <el-button type="primary" @click.stop="submitForm(formRef)">立即提交</el-button>
     </div>
   </u-container-layout>
 </template>
@@ -57,7 +57,7 @@ const formRef = ref<FormInstance>();
  */
 const submitForm = async (formEl: FormInstance | undefined) => {
     emit("handle", ruleForm);
-    ElMessage.success("提交成功");
+    // ElMessage.success("提交成功");
 };
 
 /**

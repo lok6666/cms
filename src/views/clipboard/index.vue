@@ -3,7 +3,7 @@
         <el-card style="margin-bottom: 20px">
             <div style="margin-bottom: 10px">输入内容，并点击复制按钮</div>
             <el-input v-model="inputData" placeholder="请输入" style="width:400px;max-width:100%;" />
-            <el-button type="primary" @click="handleCopy(inputData,$event)">
+            <el-button type="primary" @click.stop="handleCopy(inputData,$event)">
                 <el-icon style="margin-right: 6px"><document-copy /></el-icon> 复制
             </el-button>
         </el-card>

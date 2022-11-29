@@ -6,9 +6,9 @@
             <el-input v-model="state.entName" placeholder="请输入企业名称"/>
           </el-form-item>
           <el-form-item>
-          <el-button type="primary" @click="gettrainingServicesAll">查询</el-button>
-          <el-button type="primary" @click="reset">重置</el-button>
-          <el-button type="primary" @click="exportClick">导出EXECL</el-button>
+          <el-button type="primary" icon="Search" @click.stop="gettrainingServicesAll">查询</el-button>
+          <el-button type="primary" icon="Refresh" @click.stop="reset">重置</el-button>
+          <el-button type="primary" icon="IceCreamSquare" @click.stop="exportClick2">导出EXECL</el-button>
           </el-form-item>
         </el-form>
         <el-table
@@ -17,26 +17,35 @@
           style="width: 100%"
           :border="true"
           v-loading="loading"
+          @selection-change="handleSelectionChange"
         >
+        <el-table-column align="center" type="selection" width="60"></el-table-column>
           <el-table-column
             v-for="(item, index) in tableHeaderConfig"
             :key="index"
+            :width="item.width"
             :prop="item.prop"
             :label="item.label"
           >
           <template #default="scope" v-if="item.prop === 'applyStatus'">
               {{applyStatusObj[scope.row.applyStatus]}}
             </template>
+            <template #default="scope" v-if="item.prop === 'entLevel'">
+              {{vipType[scope.row.entLevel]}}
+            </template>
           <template #default="scope" v-if="item.prop === 'entScale'">
               {{busStatusObj[scope.row.entScale]}}
           </template>
           </el-table-column>
-          <el-table-column prop="operator" label="操作" width="200" fixed="right">
+          <el-table-column prop="operator" label="操作" width="270" fixed="right">
             <template #default="scope">
-              <el-button type="primary" size="small" @click="detail(scope.row)">
+              <el-button type="primary" size="small" @click.stop="detail(scope.row)">
                 查看详情
               </el-button>
-              <el-button type="primary" size="small" @click="examine(scope.row)" :disabled="[scope.row.applyStatus !== 0]">
+              <el-button type="primary" size="small" @click.stop="changeVip(scope.row)">
+                修改会员等级
+              </el-button>
+              <el-button type="primary" size="small" @click.stop="examine(scope.row)" :disabled="[scope.row.applyStatus !== 0]">
                 审核
               </el-button>
             </template>
@@ -50,10 +59,18 @@
         >
           <formConpoent
             v-if="state.showForm"
-            :disabled="state.disabled"
+            :disabled="true"
             v-model:formConfig="state.formConfig"
             @handle="postFormData"
             @dialogClose="closeDialog"
+          ></formConpoent>
+          <formConpoent
+            v-if="state.showForm2"
+            :disabled="state.disabled"
+            v-model:formConfig="state.formConfig2"
+            @handle="postFormData2"
+            @dialogClose="closeDialog"
+            :showBtn="true"
           ></formConpoent>
           <examineFormConpoent
             v-if="state.showExamineForm"
@@ -84,15 +101,16 @@
     </u-container-layout>
   </template>
   <script lang="ts">
-  import FileSaver from 'file-saver'
-  import * as XLSX from 'xlsx';
+import FileSaver from "file-saver";
+import * as XLSX from "xlsx";
+import { export_json_to_excel } from "@/execl/Export2Excel";
   import { ref, reactive, provide } from "vue";
   import formConpoent from "@/components/form/form.vue";
   import examineFormConpoent from "@/components/form/examineForm.vue";
   import {
     entInfoAll,
     entApplAddOne,
-    entApplyUpdateOne,
+    entInfoUpdate,
     entApplyDelete,
   } from "@/config/api";
   import { ElMessage, ElMessageBox } from "element-plus";
@@ -103,6 +121,13 @@
     name: "sensitive-manage",
     data() {
       return {
+        vipType: {
+          0: '非会员',
+          1: '一万权益包',
+          2: '三万权益包',
+          3: '五万权益包',
+          4: '十万权益包'
+        },
         applyStatusObj: {
           0: '未审核',
           1: '审核中',
@@ -117,6 +142,12 @@
           5: '微'
         },
         tableHeaderConfig: [
+        {
+      prop: "username",
+      label: "用户名",
+      required: true,
+      showInput: true
+  },
   {
       prop: "entName",
       label: "企业名称",
@@ -238,6 +269,11 @@
       }
     ], 
     showSelect: true,
+  },
+  {
+    prop: "entLevel",
+    label: "会员等级",
+    showInput: true
   },
   /* {
     prop: "entScale",
@@ -284,6 +320,114 @@
     showTextarea?: boolean;
   }
 const formConfig: formConfigItem[] = [
+{
+    prop: "username",
+    label: "用户名",
+    required: false,
+    showInput: true
+  },
+  {
+      prop: "entName",
+      label: "企业名称",
+      required: true,
+      showInput: true
+  },
+  {
+    prop: "entCode",
+    label: "统一社会信用代码",
+    showInput: true,
+    required: true,
+    code: 10000
+  },
+  {
+    prop: "contactsPerson",
+    label: "联系人",
+    required: true,
+    showInput: true,
+  },
+  {
+      prop: "contactsPhone",
+      label: "联系人电话",
+      required: true,
+      showInput: true,
+      telPhone: '17732336725'
+  },
+  {
+    prop: "officeAddress",
+    label: "办公地址",
+    showInput: true
+  },
+  {
+    prop: "insuredNum",
+    label: "参保人数",
+    required: false,
+    showInput: true
+  }
+];
+  const state = reactive({
+    currentPage: 0,
+    pageSize: 10,
+    formConfig: formConfig,
+    formConfig2: [{
+    prop: "entLevel",
+    label: "会员等级",
+    entLevel: '0',
+    options: [
+      {
+        label: '非会员',
+        value: '0'
+      },
+      {
+        label: '一万权益包',
+        value: '1'
+      },
+      {
+        label: '三万权益包',
+        value: '2'
+      },
+      {
+        label: '五万权益包',
+        value: '3'
+      },
+      {
+        label: '十万权益包',
+        value: '4'
+      }
+    ],
+    showSelect: true,
+  }],
+    tableData: [],
+    selectionList: [],
+    total: 0,
+    entName: '',
+    sensitiveword: "",
+    dialogVisible: false,
+    showForm: false,
+    showForm2: false,
+    showExamineForm: false,
+    isResume: false,
+    // disabled: true
+  });
+  
+  let currentRoleId = ref<string>("");
+  const title = ref<string>("添加");
+  
+const handleSelectionChange = (row) => {
+  console.log('row', row);
+  state.selectionList = row; 
+};
+const formatJson  = (filterVal, jsonData) => {
+  return jsonData.map(v => filterVal.map(j => v[j]));
+}
+// 导出表格
+const exportClick2 = () => {
+  if(state.selectionList.length === 0) {
+    ElMessage({
+        message: '请选择要导出的数据',
+        type: 'warning'
+      })
+  } else {
+    const tableHeaderConfig = [
   {
       prop: "entName",
       label: "企业名称",
@@ -407,51 +551,46 @@ const formConfig: formConfigItem[] = [
     showSelect: true,
   },
   {
+    prop: "entLevel",
+    label: "会员等级",
+    showInput: true
+  },
+  /* {
     prop: "entScale",
     label: "企业规模",
     options: [
       {
-        label: '特大',
+        label: '特大型企业',
         value: '1'
       },
       {
-        label: '大',
+        label: '大型企业',
         value: '2'
       },
       {
-        label: '中',
+        label: '中型企业',
         value: '3'
       },
       {
-        label: '小',
+        label: '小型企业',
         value: '4'
       },
       {
-        label: '微',
+        label: '微型企业',
         value: '5'
       }
     ],
     showSelect: true,
-  }];
-  const state = reactive({
-    currentPage: 0,
-    pageSize: 10,
-    formConfig: formConfig,
-    tableData: [],
-    total: 0,
-    entName: '',
-    sensitiveword: "",
-    dialogVisible: false,
-    showForm: false,
-    showExamineForm: false,
-    isResume: false,
-    disabled: true
-  });
-  
-  let currentRoleId = ref<string>("");
-  const title = ref<string>("新增");
-  
+  } */
+];
+  const tHeader = tableHeaderConfig.map(e => e.label);
+  const filterVal = tableHeaderConfig.map(e => e.prop);
+  const list = state.selectionList;
+  const data = formatJson(filterVal, list);
+  export_json_to_excel(tHeader, data, '基本信息');
+  }
 
+};
   // 导出表格
 const exportClick = () => {
 	var wb = XLSX.utils.table_to_book(document.querySelector('#my-table'));//关联don节点
@@ -464,7 +603,7 @@ const exportClick = () => {
 	try {
 		FileSaver.saveAs(new Blob([wbout], {
 			type: 'application/octet-stream'
-		}), '基本信息.xlsx')//自定义文件名
+		}), '基本信息')//自定义文件名
 	} catch (e) {
 		if (typeof console !== 'undefined') console.log(e, wbout);
 	}
@@ -493,6 +632,24 @@ const reset = () => {
       })
       .splice(0);
   };
+
+    /**
+   * 表单详情
+   */
+   const changeVip = (row) => {
+    title.value = "查看详情";
+    state.dialogVisible = true;
+    state.showForm2 = true;
+    currentRoleId.value = row.entId;
+/*     state.formConfig2 = state.formConfig2
+      .map((e, b) => {
+        // value 替换成 e.prop
+        let result = { ...e };
+        result[e.prop] = row[e.prop];
+        return result;
+      })
+      .splice(0); */
+  };
   
   /**
    * 审核
@@ -508,8 +665,9 @@ const reset = () => {
    * 提交表单数据
    */
   const postFormData = (formData) => {
-    post(`${entApplyUpdateOne}`, {
+    post(`${entInfoUpdate}`, {
       id: currentRoleId.value,
+      ...formData,
       applyStatus: formData.status
     })
       .then(function (data) {
@@ -521,12 +679,30 @@ const reset = () => {
     state.dialogVisible = false;
     state.showExamineForm = false;
   };
+    /**
+   * 提交表单数据
+   */
+   const postFormData2 = (formData) => {
+    post(`${entInfoUpdate}`, {
+      entId: currentRoleId.value,
+      ...formData,
+    })
+      .then(function (data) {
+        getentInfoAll();
+      })
+      .catch((e) => {
+        console.log("e", e);
+      });
+    state.dialogVisible = false;
+    state.showForm2 = false;
+  };
   
   // todo 改写法
   const closeDialog = async (done: () => void) => {
     state.dialogVisible = false;
     state.showExamineForm = false;
     state.showForm = false;
+    state.showForm2 = false;
   };
   
   //  文章内容列表

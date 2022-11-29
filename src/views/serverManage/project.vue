@@ -5,9 +5,9 @@
         <el-input v-model="state.name" placeholder="请输入课程名称" @change="handleChange"/>
       </el-form-item>
       <el-form-item>
-       <el-button type="primary" @click="gettrainingServicesAll">查询</el-button>
-       <el-button type="primary" @click="exportClick">导出EXECL</el-button>
-       <el-button type="primary" @click="add">
+       <el-button type="primary" icon="Search" @click.stop="gettrainingServicesAll">查询</el-button>
+       <el-button type="primary" icon="IceCreamSquare" @click.stop="exportClick2">导出EXECL</el-button>
+       <el-button type="primary" @click.stop="add">
         <el-icon><plus /></el-icon>添加
       </el-button>
       </el-form-item>
@@ -20,11 +20,17 @@
         style="width: 100%"
         :border="true"
         v-loading="loading"
+        @selection-change="handleSelectionChange"
       >
+        <el-table-column align="center" type="selection" width="60"></el-table-column>
+      <!-- <el-table-column type="index" label="序号" width="60" /> -->
         <el-table-column
           v-for="(item, index) in tableHeaderConfig"
+          :show-overflow-tooltip="true"
           sortable
+          table-layout="auto"
           :key="index"
+          :width="item.width"
           :prop="item.prop"
           :label="item.label"
         >
@@ -36,7 +42,7 @@
         </template>
         <template #default="scope" v-if="item.showSwitch">
           <el-switch
-          @click="changeStatus(scope.row, state.tableData[scope.$index].serviceStatus)"
+          @click.stop="changeStatus(scope.row, state.tableData[scope.$index].serviceStatus)"
             v-model="state.tableData[scope.$index].serviceStatus"
             :active-value="activeValue"
             :inactive-value="inactiveValue"
@@ -49,10 +55,11 @@
             <el-button
               type="primary"
               size="small"           
-              @click="edit(scope.row)"
+              @click.stop="edit(scope.row)"
             >
               编辑
             </el-button>
+            <el-button type="info" size="small" @click.stop="deleteAction(scope.row)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -91,8 +98,9 @@
   </u-container-layout>
 </template>
 <script lang="ts">
-  import FileSaver from 'file-saver'
-  import * as XLSX from 'xlsx';
+import FileSaver from "file-saver";
+import * as XLSX from "xlsx";
+import { export_json_to_excel } from "@/execl/Export2Excel";
   import {
   phoneRules,
   emtyRules
@@ -101,7 +109,7 @@ import { computed, ref, reactive, onMounted, toRefs } from "vue";
 import { trainingServicesAll, trainingServicesInsert, trainingServicesDeleteOne, trainingServicesUpdateOne } from "@/config/api";
 import formConpoent from "@/components/form/form.vue";
 import { ElMessage, ElMessageBox, FormRules, UploadProps } from "element-plus";
-import { get, post } from "@/utils/request";
+import { deleteItem, get, post } from "@/utils/request";
 import { tr } from "element-plus/es/locale";
 export default {
   name: "sensitive-manage",
@@ -110,7 +118,8 @@ export default {
       tableHeaderConfig: [
       {
         prop: "sortNum",
-        label: "排序"
+        label: "排序",
+        width: '100'
       },
       {
         prop: "serviceName",
@@ -128,17 +137,18 @@ export default {
       },{
         prop: "serviceContent",
         label: "课程简介"
+      },
+      {
+        prop: "serviceUrl",
+        label: "课程链接"
       },{
         prop: "publicDate",
         label: "发布日期"
       },{
         prop: "serviceStatus",
         label: "课程状态",
-        showSwitch: true
-      },
-      {
-        prop: "serviceUrl",
-        label: "课程链接"
+        showSwitch: true,
+        width: '100'
       }
       ],
     };
@@ -195,12 +205,70 @@ const state = reactive({
   formConfig: formConfig,
   tableData: [
   ],
+  selectionList: [],
   serviceName: '',
   optionsList: [],
   levelOptions: [],
 });
-const title = ref("新增");
+const title = ref("添加");
 
+
+const handleSelectionChange = (row) => {
+  console.log('row', row);
+  state.selectionList = row; 
+};
+const formatJson  = (filterVal, jsonData) => {
+  return jsonData.map(v => filterVal.map(j => v[j]));
+}
+// 导出表格
+const exportClick2 = () => {
+  if(state.selectionList.length === 0) {
+    ElMessage({
+        message: '请选择要导出的数据',
+        type: 'warning'
+      })
+  } else {
+    const tableHeaderConfig = [
+      {
+        prop: "sortNum",
+        label: "排序"
+      },
+      {
+        prop: "serviceName",
+        label: "课程名称"
+      }, {
+        prop: "serviceImages",
+        label: "课程缩略图",
+        showImg: true
+      },{
+        prop: "bigType",
+        label: "课程大类"
+      }, {
+        prop: "smallType",
+        label: "课程小类"
+      },{
+        prop: "serviceContent",
+        label: "课程简介"
+      },
+      {
+        prop: "serviceUrl",
+        label: "课程链接"
+      },{
+        prop: "publicDate",
+        label: "发布日期"
+      },{
+        prop: "serviceStatus",
+        label: "课程状态",
+        showSwitch: true
+      }
+      ];
+  const tHeader = tableHeaderConfig.map(e => e.label);
+  const filterVal = tableHeaderConfig.map(e => e.prop);
+  const list = state.selectionList;
+  const data = formatJson(filterVal, list);
+  export_json_to_excel(tHeader, data, '行业课程');
+  }
+};
 // 导出表格
 const exportClick = () => {
 	var wb = XLSX.utils.table_to_book(document.querySelector('#my-table'));//关联don节点
@@ -213,7 +281,7 @@ const exportClick = () => {
 	try {
 		FileSaver.saveAs(new Blob([wbout], {
 			type: 'application/octet-stream'
-		}), '行业课程.xlsx')//自定义文件名
+		}), '行业课程')//自定义文件名
 	} catch (e) {
 		if (typeof console !== 'undefined') console.log(e, wbout);
 	}
@@ -226,7 +294,7 @@ const handleChange = (val) => {
  * 添加
  */
 const add = (row) => {
-  title.value = "新增";
+  title.value = "添加";
   currentRoleId.value = row.id;
   state.dialogVisible = true;
 };
@@ -241,6 +309,11 @@ const postFormData = (formData) => {
     })
       .then(function (data) {
         gettrainingServicesAll();
+        state.formConfig = state.formConfig.map((e, b) => {
+          let result = { ...e };  
+          delete result[e.prop];
+          return result;
+        });
       })
       .catch((e) => {
         console.log("e", e);
@@ -262,10 +335,31 @@ const postFormData = (formData) => {
   console.log("submit!", formData);
 };
 
+
+/**
+ * 删除
+ */
+ const deleteAction = (row) => {
+  ElMessageBox.confirm("你确定要删除当前项吗?", "温馨提示", {
+    confirmButtonText: "确定",
+    cancelButtonText: "取消",
+    type: "warning",
+  }).then(() => {
+      deleteItem(`${trainingServicesDeleteOne}/${row.id}`).then(function (data) {
+        gettrainingServicesAll();
+      });
+      ElMessage.success("删除成功");
+    })
+    .catch(() => {});
+};
 // todo 改写法
 const closeDialog = async (done: () => void) => {
   state.dialogVisible = false;
-  state.formConfig = formConfig;
+  state.formConfig = state.formConfig.map((e, b) => {
+    let result = { ...e };  
+    delete result[e.prop];
+    return result;
+  });
 };
 
 // todo 课程状态

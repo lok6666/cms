@@ -8,9 +8,9 @@
         <el-input v-model="state.supplierName" placeholder="请输入服务商名称" />
       </el-form-item> -->
       <el-form-item>
-        <el-button type="primary" @click="getbuildingsAll">查询</el-button>
-        <el-button type="primary" @click="exportClick">导出EXECL</el-button>
-        <el-button type="primary" @click="add">
+        <el-button type="primary" @click.stop="getbuildingsAll">查询</el-button>
+        <el-button type="primary" icon="IceCreamSquare" @click.stop="exportClick2">导出EXECL</el-button>
+        <el-button type="primary" @click.stop="add">
           <el-icon><plus /></el-icon>添加
         </el-button>
       </el-form-item>
@@ -23,11 +23,13 @@
         style="width: 100%"
         :border="true"
         v-loading="loading"
+        @selection-change="handleSelectionChange"
       >
-        <el-table-column type="index" width="50" />
+        <el-table-column align="center" type="selection" width="60"></el-table-column>
         <el-table-column
           v-for="(item, index) in tableHeaderConfig"
           :key="index"
+          :show-overflow-tooltip="true"
           sortable
           :prop="item.prop"
           :label="item.label"
@@ -41,19 +43,15 @@
         </el-table-column>
         <el-table-column prop="operator" label="操作" width="200" fixed="right">
           <template #default="scope">
-            <el-button type="primary" size="small" @click="edit(scope.row)"
-              >编辑</el-button
-            >
-<!--             <el-button type="success" size="small" @click="edit(scope.row)"
+            <el-button type="primary" size="small" icon="Edit"  @click.stop="edit(scope.row)">编辑</el-button>
+<!--             <el-button type="success" size="small" @click.stop="edit(scope.row)"
               >审批</el-button
             > -->
-            <el-button type="info" size="small" @click="deleteAction(scope.row)"
-              >删除</el-button
-            >
-<!--             <el-button type="warning" size="small" @click="upItem(scope.row)"
+            <el-button type="info" size="small" @click.stop="deleteAction(scope.row)">删除</el-button>
+<!--             <el-button type="warning" size="small" @click.stop="upItem(scope.row)"
               >上架</el-button
             >
-            <el-button type="danger" size="small" @click="downItem(scope.row)"
+            <el-button type="danger" size="small" @click.stop="downItem(scope.row)"
               >下架</el-button
             > -->
           </template>
@@ -97,10 +95,12 @@
 <script lang="ts">
 import FileSaver from "file-saver";
 import * as XLSX from "xlsx";
+import { export_json_to_excel } from "@/execl/Export2Excel";
 import { computed, ref, reactive, onMounted, toRefs } from "vue";
 import {
   phoneRules,
-  emtyRules
+  emtyRules,
+  typeRules
 } from "@/config/constants";
 import {
   buildingsAll,
@@ -126,8 +126,15 @@ export default {
         2: "工商业务",
         3: "财税服务",
         4: "政府补贴",
+        5: "企业服务包",
       },
       tableHeaderConfig: [
+        {
+          prop: "sortNum",
+          label: "排序",
+          required: true,
+          showInput: true,
+        },
         {
           prop: "buildingName",
           label: "楼宇名称",
@@ -159,12 +166,12 @@ export default {
           required: true,
           showInput: true,
         },
-        {
+/*         {
           prop: "buildingService",
           label: "楼宇服务",
           required: true,
           showInput: true,
-        },
+        }, */
         {
           prop: "buildingTotalArea",
           label: "楼宇总面积",
@@ -203,6 +210,12 @@ export default {
 <script lang="ts" setup>
 const formConfig = [
   {
+    prop: "sortNum",
+    label: "序号",
+    rules: { required: true, validator: emtyRules, trigger: 'blur'},
+    showInput: true,
+  },
+  {
     prop: "buildingName",
     label: "楼宇名称",
     rules: { required: true, validator: emtyRules, trigger: 'blur'},
@@ -212,7 +225,7 @@ const formConfig = [
     prop: "buildingInfo",
     label: "楼宇简介",
     rules: { required: true, validator: emtyRules, trigger: 'blur'},
-    showInput: true,
+    showTextarea: true,
   },
   {
     prop: "buildingImages",
@@ -222,7 +235,7 @@ const formConfig = [
   },
   {
     prop: "buildingArea",
-    label: "楼宇面积",
+    label: "楼宇面积(㎡)",
     rules: { required: true, validator: emtyRules, trigger: 'blur'},
     showInput: true,
   },
@@ -232,23 +245,22 @@ const formConfig = [
     rules: { required: true, validator: emtyRules, trigger: 'blur'},
     showInput: true,
   },
-
   {
     prop: "buildingRent",
-    label: "楼宇租金",
+    label: "楼宇租金(元/㎡·天)",
     rules: { required: true, validator: emtyRules, trigger: 'blur'},
     showInput: true,
   },
-  {
+/*   {
     prop: "buildingService",
     label: "楼宇服务",
     rules: { required: true, validator: emtyRules, trigger: 'blur'},
     showInput: true,
-  },
+  }, */
   {
     prop: "buildingTotalArea",
-    label: "楼宇总面积",
-    rules: { required: true, validator: emtyRules, trigger: 'blur'},
+    label: "楼宇总面积(㎡)",
+    rules: { required: true, validator: typeRules, trigger: 'blur'},
     showInput: true,
   },
   {
@@ -260,7 +272,7 @@ const formConfig = [
   {
     prop: "contactsPerson",
     label: "联系人",
-    rules: { required: true, validator: phoneRules, trigger: 'blur'},
+    rules: { required: true, validator: emtyRules, trigger: 'blur'},
     showInput: true,
   },
   {
@@ -286,21 +298,113 @@ const state = reactive({
   supplierName: "",
   culName: "",
   formConfig: formConfig,
+  selectionList: [],
   tableData: [],
   optionsList: [],
   levelOptions: [],
 });
-const title = ref("新增");
+const title = ref("添加");
 let currentRoleId = ref<string>("");
 /**
  * 添加
  */
 const add = (row) => {
-  title.value = "新增";
+  title.value = "添加";
   currentRoleId.value = row.id;
   state.dialogVisible = true;
 };
+ 
+const handleSelectionChange = (row) => {
+  console.log('row', row);
+  state.selectionList = row; 
+};
+const formatJson  = (filterVal, jsonData) => {
+  return jsonData.map(v => filterVal.map(j => v[j]));
+}
+// 导出表格
+const exportClick2 = () => {
+  if(state.selectionList.length === 0) {
+    ElMessage({
+        message: '请选择要导出的数据',
+        type: 'warning'
+      })
+  } else {
+    const tableHeaderConfig = [
+        {
+          prop: "buildingName",
+          label: "楼宇名称",
+          required: true,
+          showInput: true,
+        },
+        {
+          prop: "buildingInfo",
+          label: "楼宇简介",
+          required: true,
+          showInput: true,
+        },
+        {
+          prop: "buildingArea",
+          label: "楼宇面积",
+          required: true,
+          showInput: true,
+        },
+        {
+          prop: "buildingAddress",
+          label: "楼宇地址",
+          required: true,
+          showInput: true,
+        },
 
+        {
+          prop: "buildingRent",
+          label: "楼宇租金",
+          required: true,
+          showInput: true,
+        },
+/*         {
+          prop: "buildingService",
+          label: "楼宇服务",
+          required: true,
+          showInput: true,
+        }, */
+        {
+          prop: "buildingTotalArea",
+          label: "楼宇总面积",
+          required: true,
+          showInput: true,
+        },
+        {
+          prop: "buildingPeripheral",
+          label: "周边配套",
+          required: true,
+          showInput: true,
+        },
+/*         {
+          prop: "buildingDetail",
+          label: "楼宇详情",
+          required: true,
+          showTextarea: true,
+        }, */
+        {
+          prop: "contactsPerson",
+          label: "联系人",
+          required: true,
+          showInput: true,
+        },
+        {
+          prop: "contactsPhone",
+          label: "联系方式",
+          required: true,
+          showInput: true,
+        },
+      ];
+  const tHeader = tableHeaderConfig.map(e => e.label);
+  const filterVal = tableHeaderConfig.map(e => e.prop);
+  const list = state.selectionList;
+  const data = formatJson(filterVal, list);
+  export_json_to_excel(tHeader, data, '楼宇管理');
+  }
+};
 // 导出表格
 const exportClick = () => {
   var wb = XLSX.utils.table_to_book(document.querySelector("#my-table")); //关联don节点
@@ -315,7 +419,7 @@ const exportClick = () => {
       new Blob([wbout], {
         type: "application/octet-stream",
       }),
-      "企业服务管理.xlsx"
+      "楼宇管理"
     ); //自定义文件名
   } catch (e) {
     if (typeof console !== "undefined") console.log(e, wbout);
@@ -332,6 +436,11 @@ const postFormData = (formData) => {
     })
       .then(function (data) {
         getbuildingsAll();
+        state.formConfig = state.formConfig.map((e, b) => {
+          let result = { ...e };  
+          delete result[e.prop];
+          return result;
+        });
       })
       .catch((e) => {
         console.log("e", e);
@@ -356,11 +465,11 @@ const postFormData = (formData) => {
 const closeDialog = async (done: () => void) => {
   state.dialogVisible = false;
   state.formConfig = formConfig;
-/*   this.applyMessageForm1 = this.applyMessageForm1.map((e, b) => {
-    let result = { ...e };  
-    delete result[e.prop];
-    return result;
-  }); */
+  state.formConfig = state.formConfig.map((e, b) => {
+          let result = { ...e };  
+          delete result[e.prop];
+          return result;
+        });
 };
 
 /**

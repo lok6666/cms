@@ -9,7 +9,7 @@
         <md-editor v-model="text" />
       </div>
       <div style="margin-top: 20px;flex-shrink: 0">
-        <el-button type="primary" @click="submit">提交</el-button>
+        <el-button type="primary" @click.stop="submit">提交</el-button>
       </div>
     </u-container-layout>
 </template>

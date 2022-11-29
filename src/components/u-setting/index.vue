@@ -2,11 +2,11 @@
     <div>
         <div class="m-setting-fix">
             <div class="item">
-                <div class="item-child" @click="operator(1)">
+                <div class="item-child" @click.stop="operator(1)">
                     <el-icon size="30" color="#3698fd" style="margin-bottom: 8px"><brush /></el-icon>
                     主题配置
                 </div>
-                <div class="item-child item-child2" @click="operator(2)">
+                <div class="item-child item-child2" @click.stop="operator(2)">
                     <el-icon size="30"
                              color="#3698fd"
                              style="margin-bottom: 8px"><Link /></el-icon>

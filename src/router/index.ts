@@ -21,7 +21,17 @@ interface extendRoute {
  * hidden 如果“hidden:true”不会显示在侧边栏中（默认值为false）
  * keepAlive 设为true 缓存
  */
-
+export const baseRoutes: Array<RouteRecordRaw & extendRoute> = [
+  {
+    path: '/',
+    name: 'layout',
+    component: Layout,
+    redirect: '/businessservice/migration',
+    children: [
+     
+    ]
+  }
+];
 
 export const constantRoutes: Array<RouteRecordRaw & extendRoute> = [
   {
@@ -37,15 +47,6 @@ export const constantRoutes: Array<RouteRecordRaw & extendRoute> = [
     component: () => import('@/views/serverManage/policy-pulish-detail.vue'),
     hidden: true,
     meta: { title: '政策详情', }
-  },
-  {
-    path: '/',
-    name: 'layout',
-    component: Layout,
-    redirect: '/businessservice/migration',
-    children: [
-     
-    ]
   },
 /*   {
     path: '/businessservice1',

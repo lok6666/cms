@@ -3,7 +3,7 @@
     <div class="inline-edit-table">
       资源管理
       <div style="display: flex; justify-content: flex-end">
-        <el-button type="primary" @click="add"
+        <el-button type="primary" @click.stop="add"
           ><el-icon><plus /></el-icon> 添加</el-button
         >
       </div>
@@ -14,18 +14,22 @@
         :border="true"
         default-expand-all
       >
-        <el-table-column prop="title" label="资源名称" sortable  />
+        <el-table-column prop="title" label="资源名称" :show-overflow-tooltip="true"
+          sortable  />
         <el-table-column
           prop="resourceId"
           label="资源编码"
+          :show-overflow-tooltip="true"
           sortable  
         />
         <el-table-column
           prop="parentId"
           label="父资源编码"
+          :show-overflow-tooltip="true"
           sortable
         />
-        <el-table-column prop="href" label="资源链接" sortable  />
+        <el-table-column prop="href" label="资源链接" :show-overflow-tooltip="true"
+          sortable  />
         <el-table-column
           prop="operator"
           label="操作"
@@ -38,7 +42,7 @@
               type="success"
               size="small"
               icon="CircleCheckFilled"
-              @click="confirmEdit(scope.row)"
+              @click.stop="confirmEdit(scope.row)"
             >
               保存
             </el-button>
@@ -47,7 +51,7 @@
               type="primary"
               size="small"
               icon="Edit"
-              @click="edit(scope.row)"
+              @click.stop="edit(scope.row)"
             >
               编辑
             </el-button>
@@ -56,7 +60,7 @@
               type="danger"
               size="small"
               icon="Delete"
-              @click="deleteAction(scope.row)"
+              @click.stop="deleteAction(scope.row)"
             >
               删除
             </el-button>
@@ -93,8 +97,8 @@
         </el-form>
         <template #footer>
           <span class="dialog-footer">
-            <el-button @click="dialogVisible = false">取消</el-button>
-            <el-button type="primary" @click="handleClose(ruleFormRef)"
+            <el-button @click.stop="dialogVisible = false">取消</el-button>
+            <el-button type="primary" @click.stop="handleClose(ruleFormRef)"
               >确定</el-button
             >
           </span>
@@ -114,7 +118,7 @@ import { get, post, deleteItem } from "@/utils/request";
 let tableData = ref([]);
 const ruleFormRef = ref();
 const dialogVisible = ref(false);
-const title = ref("新增");
+const title = ref("添加");
 const baseData = {
   name: "",
   username: "",
@@ -172,7 +176,7 @@ const handleClose = async (done: () => void) => {
 
 // 添加
 const add = () => {
-  title.value = "新增";
+  title.value = "添加";
   dialogVisible.value = true;
   ruleForm.value = baseData;
 };

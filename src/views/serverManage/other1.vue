@@ -2,7 +2,7 @@
   <u-container-layout>
     服务商
     <div style="display: flex; justify-content: flex-end">
-      <el-button type="primary" @click="add">
+      <el-button type="primary" @click.stop="add">
         <el-icon><plus /></el-icon>添加
       </el-button>
     </div>
@@ -14,7 +14,7 @@
           <el-input v-model="state.username" placeholder="请输入企业名称" />
       </el-form-item>
       <el-form-item>
-       <el-button type="primary" @click="getsuppliersAll">查询</el-button>
+       <el-button type="primary" @click.stop="getsuppliersAll">查询</el-button>
       </el-form-item>
     </el-form>
     
@@ -44,11 +44,11 @@
         </el-table-column>
         <el-table-column prop="operator" label="操作" width="200" fixed="right">
           <template #default="scope">
-            <el-button type="primary" size="small"  @click="edit(scope.row)">编辑</el-button>
-            <!-- <el-button type="success" size="small"  @click="edit(scope.row)">审批</el-button> -->
-            <!-- <el-button type="info" size="small"  @click="deleteAction(scope.row)">删除</el-button>
-            <el-button type="warning" size="small"  @click="upItem(scope.row)">上架</el-button>
-            <el-button type="danger" size="small"  @click="downItem(scope.row)">下架</el-button> -->
+            <el-button type="primary" size="small"  icon="Edit" @click.stop="edit(scope.row)">编辑</el-button>
+            <!-- <el-button type="success" size="small"  @click.stop="edit(scope.row)">审批</el-button> -->
+            <!-- <el-button type="info" size="small"  @click.stop="deleteAction(scope.row)">删除</el-button>
+            <el-button type="warning" size="small"  @click.stop="upItem(scope.row)">上架</el-button>
+            <el-button type="danger" size="small"  @click.stop="downItem(scope.row)">下架</el-button> -->
           </template>
         </el-table-column>
       </el-table>
@@ -270,13 +270,13 @@ const state = reactive({
   optionsList: [],
   levelOptions: [],
 });
-const title = ref("新增");
+const title = ref("添加");
 let currentRoleId = ref<string>("");
 /**
  * 添加
  */
  const add = (row) => {
-  title.value = "新增";
+  title.value = "添加";
   currentRoleId.value = row.supplierId;
   state.dialogVisible = true;
 };

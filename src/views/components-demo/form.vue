@@ -66,10 +66,10 @@
           <el-input v-model="ruleForm.desc" type="textarea" />
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="submitForm(ruleFormRef)"
+          <el-button type="primary" @click.stop="submitForm(ruleFormRef)"
           >立即创建</el-button
           >
-          <el-button @click="resetForm(ruleFormRef)">重置</el-button>
+          <el-button @click.stop="resetForm(ruleFormRef)">重置</el-button>
         </el-form-item>
       </el-form>
     </div>

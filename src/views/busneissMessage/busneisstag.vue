@@ -6,11 +6,11 @@
           <el-input v-model="state.entName" placeholder="请输入企业名称" />
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="gettrainingServicesAll"
+          <el-button type="primary" @click.stop="gettrainingServicesAll"
             >查询</el-button
           >
-          <el-button type="primary" @click="reset">重置</el-button>
-          <el-button type="primary" @click="exportClick">导出EXECL</el-button>
+          <el-button type="primary" icon="Refresh" @click.stop="reset">重置</el-button>
+          <el-button type="primary" icon="IceCreamSquare" @click.stop="exportClick2">导出EXECL</el-button>
         </el-form-item>
       </el-form>
       <el-table
@@ -19,7 +19,9 @@
         style="width: 100%"
         :border="true"
         v-loading="loading"
+        @selection-change="handleSelectionChange"
       >
+        <el-table-column align="center" type="selection" width="60"></el-table-column>
         <el-table-column
           v-for="(item, index) in tableHeaderConfig"
           :key="index"
@@ -33,12 +35,12 @@
             {{ busStatusObj[scope.row.entScale] }}
           </template>
         </el-table-column>
-        <el-table-column prop="operator" label="操作" width="200" fixed="right">
+        <el-table-column prop="operator" label="操作" width="100" fixed="right">
           <template #default="scope">
-            <el-button type="primary" size="small" @click="detail(scope.row)">
-              修改
+            <el-button type="primary" size="small" @click.stop="detail(scope.row)">
+              编辑
             </el-button>
-            <!--              <el-button type="primary" size="small" @click="examine(scope.row)" :disabled="[scope.row.applyStatus !== 0]">
+            <!--              <el-button type="primary" size="small" @click.stop="examine(scope.row)" :disabled="[scope.row.applyStatus !== 0]">
                 审核
               </el-button> -->
           </template>
@@ -90,6 +92,7 @@
 <script lang="ts">
 import FileSaver from "file-saver";
 import * as XLSX from "xlsx";
+import { export_json_to_excel } from "@/execl/Export2Excel";
 import { ref, reactive, provide } from "vue";
 import formConpoent from "@/components/form/form.vue";
 import examineFormConpoent from "@/components/form/examineForm.vue";
@@ -797,6 +800,7 @@ const state = reactive({
   pageSize: 10,
   formConfig: formConfig,
   tableData: [],
+  selectionList: [],
   total: 0,
   entName: "",
   companyid: "",
@@ -809,8 +813,92 @@ const state = reactive({
 });
 
 let currentRoleId = ref<string>("");
-const title = ref<string>("新增");
+const title = ref<string>("添加");
+  const handleSelectionChange = (row) => {
+  console.log('row', row);
+  state.selectionList = row; 
+};
+  const formatJson  = (filterVal, jsonData) => {
+  return jsonData.map(v => filterVal.map(j => v[j]));
+}
+// 导出表格
+const exportClick2 = () => {
+  if(state.selectionList.length === 0) {
+    ElMessage({
+        message: '请选择要导出的数据',
+        type: 'warning'
+      })
+  } else {
+    const tableHeaderConfig = [
+        {
+          prop: "companyName",
+          label: "企业名称",
+        },
+        {
+          prop: "jigou",
+          label: "产业空间",
+        },
+        {
+          prop: "diyu",
+          label: "地域",
+        },
+        {
+          prop: "shangshi",
+          label: "上市状态",
+        },
+        {
+          prop: "keyan",
+          label: "研发机构",
+        },
+        {
+          prop: "fenlei",
+          label: "企业分类",
+        },
+        {
+          prop: "xiangmu",
+          label: "项目分类",
+        },
+        {
+          prop: "zuzhi",
+          label: "组织形式",
+        },
+        {
+          prop: "yewu",
+          label: "业务领域",
+        },
+        {
+          prop: "chuangxin",
+          label: "创新成果",
+        },
+        {
+          prop: "caiwu",
+          label: "财务数据",
+        },
+        {
+          prop: "zizhi",
+          label: "企业资质",
+        },
+        {
+          prop: "guimo",
+          label: "企业规模",
+        },
+        {
+          prop: "nianxian",
+          label: "成立年限",
+        },
+        {
+          prop: "quxian",
+          label: "企业规模",
+        },
+      ];
+  const tHeader = tableHeaderConfig.map(e => e.label);
+  const filterVal = tableHeaderConfig.map(e => e.prop);
+  const list = state.selectionList;
+  const data = formatJson(filterVal, list);
+  export_json_to_excel(tHeader, data, '企业标签');
+  }
 
+};
 // 导出表格
 const exportClick = () => {
   var wb = XLSX.utils.table_to_book(document.querySelector("#my-table")); //关联don节点
@@ -825,7 +913,7 @@ const exportClick = () => {
       new Blob([wbout], {
         type: "application/octet-stream",
       }),
-      "企业标签.xlsx"
+      "企业标签"
     ); //自定义文件名
   } catch (e) {
     if (typeof console !== "undefined") console.log(e, wbout);

@@ -1,8 +1,8 @@
 <template>
   <u-container-layout>
     <div>
-      <el-button type="primary" @click="print(1)">打印图片</el-button>
-      <el-button type="primary" @click="print(2)">打印表格</el-button>
+      <el-button type="primary" @click.stop="print(1)">打印图片</el-button>
+      <el-button type="primary" @click.stop="print(2)">打印表格</el-button>
     </div>
     <div style="margin-top: 20px">
       <img :src="im1" style="width: 50%;"/>

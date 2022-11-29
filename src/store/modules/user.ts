@@ -28,7 +28,11 @@ const mutations = {
     SET_USERNAME: (state, username) => {
         localStorage.username = username
         state.userInfo.username = username
+    },
+    SET_DEFULTUSERNAME: (state, username) => {
+        localStorage.defaultName = username
     }
+
 }
 
 
@@ -43,15 +47,18 @@ const actions = {
                 },
                 username,
                 password,
-            }).then(async function ({ token, userId }) {
-                commit('SET_USERNAME', username)
+            }).then(async function ({ token, userId, userRealName }) {
+                commit('SET_DEFULTUSERNAME', username)
+                commit('SET_USERNAME', userRealName)
                 commit('SET_TOKEN', token)
                 commit('SET_USERID', userId)
                 await dispatch('getInfo', ['admin']) // 获取权限列表 默认就是超级管理员，因为没有进行接口请求 写死
                 setToken(token)
                 setUserId(userId)
                 resolve(token)
-            });
+            }).catch(e => {
+                reject();
+            })
         })
     },
     // 获取用户信息 ，如实际应用中 可以通过token通过请求接口在这里获取用户信息

@@ -2,8 +2,8 @@
 <template>
   <u-container-layout class="row">
     <div style="margin-bottom: 10px">卡片拖拽排序</div>
-    <el-button class="btn " @click="sorter" type="primary" style="margin-bottom: 20px">还原</el-button>
-    <el-button class="btn " @click="getDataAction" type="primary" style="margin-bottom: 20px;margin-left: 20px">获取数据</el-button>
+    <el-button class="btn " @click.stop="sorter" type="primary" style="margin-bottom: 20px">还原</el-button>
+    <el-button class="btn " @click.stop="getDataAction" type="primary" style="margin-bottom: 20px;margin-left: 20px">获取数据</el-button>
     <div class="col-6" style="">
       <el-row :gutter="10">
         <draggable

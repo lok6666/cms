@@ -2,14 +2,14 @@
   <u-container-layout>
     <div class="inline-edit-table">
       <el-form :inline="true" :model="formInline" class="demo-form-inline">
-        <el-form-item label="">
+        <el-form-item label="活动名称">
             <el-input v-model="state.activityName" placeholder="请输入活动名称" style="width: 300px; margin-right: 10px;margin-bottom: 10px;"/>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="onSubmit">搜索</el-button>
-          <el-button type="primary" @click="onClear">清空</el-button>
-          <el-button type="primary" @click="add">添加</el-button>
-          <el-button type="primary" @click="exportClick">导出EXECL</el-button>
+          <el-button type="primary" @click.stop="onSubmit">搜索</el-button>
+          <el-button type="primary" @click.stop="onClear">清空</el-button>
+          <el-button type="primary" @click.stop="add">添加</el-button>
+          <el-button type="primary" icon="IceCreamSquare" @click.stop="exportClick2">导出EXECL</el-button>
         </el-form-item>
       </el-form>
       <el-table
@@ -18,7 +18,9 @@
         style="width: 100%"
         :border="true"
         v-loading="loading"
+        @selection-change="handleSelectionChange"
       >
+      <el-table-column align="center" type="selection" width="60"></el-table-column>
         <el-table-column
           v-for="(item, index) in tableHeaderConfig"
           :key="index"
@@ -42,14 +44,14 @@
               type="primary"
               size="small"
               icon="Edit"
-              @click="edit(scope.row)"
-              >修改</el-button
+              @click.stop="edit(scope.row)"
+              >编辑</el-button
             >
             <el-button
               type="danger"
               size="small"
               icon="Delete"
-              @click="deleteAction(scope.row)"
+              @click.stop="deleteAction(scope.row)"
               >删除</el-button
             >
           </template>
@@ -57,11 +59,13 @@
       </el-table>
       <el-dialog
         v-model="state.dialogVisible"
+        :destroy-on-close="true"
         :title="title"
         width="80%"
         @closed="closeDialog()"
       >
         <formConpoent
+          v-if="state.dialogVisible"
           v-model:formConfig="state.formConfig"
           @handle="postFormData"
           :showBtn="true"
@@ -100,6 +104,10 @@ import {
   actionrUpdateOne,
   actionDelete,
 } from "@/config/api";
+import {
+  phoneRules,
+  emtyRules
+} from "@/config/constants";
 import { ElMessage, ElMessageBox } from "element-plus";
 import { deleteItem, post } from "@/utils/request";
 export default {
@@ -195,31 +203,31 @@ const formConfig = [
   {
     prop: "activityName",
     label: "活动名称",
-    required: true,
+    rules: { required: true, validator: emtyRules, trigger: 'blur'},
     showInput: true,
   },
   {
     prop: "activityAddress",
     label: "活动地点",
-    required: true,
+    rules: { required: true, validator: emtyRules, trigger: 'blur'},
     showInput: true 
   },
   {
     prop: "activityNum",
     label: "参加人数",
-    required: true,
+    rules: { required: true, validator: emtyRules, trigger: 'blur'},
     showInput: true 
   },
   {
     prop: "contactPerson",
     label: "联络人",
-    required: true,
+    rules: { required: true, validator: emtyRules, trigger: 'blur'},
     showInput: true,   
   },
   {
     prop: "contactPhone",
     label: "联络人电话",
-    required: true,
+    rules: { required: true, validator: phoneRules, trigger: 'blur'},
     showInput: true,    
   },
   {
@@ -232,13 +240,33 @@ const formConfig = [
     prop: "activityDateFrom",
     label: "活动开始时间",
     placeholder: "活动开始时间",
-    required: true,
+    getMinTime: () => new Date(),
+    rules: { required: true, validator: (r, e, c) => {
+      if(!e) {
+        c('不能为空');
+      }
+      else if(formConfig[7].activityDateTo && new Date(formConfig[7].activityDateTo).getTime() < new Date(e).getTime()) {
+        c('开始时间不能大于结束时间!');
+      } else {
+        c();
+      }
+    }, trigger: 'change'},
     showDatePicker: true
   },
   {
     prop: "activityDateTo",
     label: "活动结束时间",
-    required: true,
+    getMinTime: () => new Date(),
+    rules: { required: true, validator: (r, e, c) => {
+      if(!e) {
+        c('不能为空');
+      }
+      else if(formConfig[6].activityDateFrom && new Date(formConfig[6].activityDateFrom).getTime() > new Date(e).getTime()) {
+        c('结束时间不能小于开始时间!');
+      } else {
+        c();
+      }
+    }, trigger: 'change'},
     showDatePicker: true,
     
   },
@@ -246,33 +274,53 @@ const formConfig = [
     prop: "applyTimeFrom",
     label: "活动报名开始日期",
     placeholder: "活动报名开始日期",
-    required: true,
+    getMinTime: () => new Date(),
+    rules: { required: true, validator: (r, e, c) => {
+      if(!e) {
+        c('不能为空');
+      }
+      else if(formConfig[9].applyTimeTo && new Date(formConfig[9].applyTimeTo).getTime() < new Date(e).getTime()) {
+        c('开始时间不能大于结束时间!');
+      } else {
+        c();
+      }
+    }, trigger: 'change'},
     showDatePicker: true
   },
   {
     prop: "applyTimeTo",
     label: "活动报名结束日期",
     placeholder: "活动报名结束日期",
-    required: true,
+    getMinTime: () => new Date(),
+    rules: { required: true, validator: (r, e, c) => {
+      if(!e) {
+        c('不能为空');
+      }
+      else if(formConfig[8].applyTimeFrom && new Date(formConfig[8].applyTimeFrom).getTime() > new Date(e).getTime()) {
+        c('结束时间不能小于开始时间!');
+      } else {
+        c();
+      }
+    }, trigger: 'change'},
     showDatePicker: true, 
   },
   {
     prop: "activityImg",
     label: "活动课程图片",
-    required: true,
+    rules: { required: true, validator: emtyRules, trigger: 'change'},
     upload: true 
   },
   {
     prop: "activityThumbnail",
     label: "缩略图",
-    required: true,
+    rules: { required: true, validator: emtyRules, trigger: 'change'},
     // display: ''
     upload: true 
   },
   {
     prop: "activityContent",
     label: "活动详情介绍",
-    required: true,
+    rules: { required: true, validator: emtyRules, trigger: 'blur'},
     showWangEditor: true, 
   },
   // {
@@ -301,17 +349,118 @@ const state = reactive({
   pageSize: 10,
   formConfig: formConfig,
   tableData: [],
+  selectionList: [],
   total: 0,
   activityName: '',
   sensitiveword: "",
   dialogVisible: false
 });
-const title = ref("新增");
+const title = ref("添加");
 let currentRoleId = ref("");
 // 添加
 const add = () => {
-  title.value = "新增";
+  title.value = "添加";
   state.dialogVisible = true;
+};
+
+const handleSelectionChange = (row) => {
+  console.log('row', row);
+  state.selectionList = row; 
+};
+const formatJson  = (filterVal, jsonData) => {
+  return jsonData.map(v => filterVal.map(j => v[j]));
+}
+// 导出表格
+const exportClick2 = () => {
+  if(state.selectionList.length === 0) {
+    ElMessage({
+        message: '请选择要导出的数据',
+        type: 'warning'
+      })
+  } else {
+    const tableHeaderConfig = [
+      {
+        prop: "activityName",
+        label: "活动名称"
+      },
+      {
+        prop: "activityAddress",
+        label: "活动地点"
+      },
+      // {
+      //   prop: "activityAbstract",
+      //   label: "活动简介"
+      // },
+      // {
+      //   prop: "activityContent",
+      //   label: "活动详情介绍"
+      // },
+      {
+        prop: "activityNum",
+        label: "参加人数"
+      },
+      {
+        prop: "applyNum",
+        label: "报名人数"
+      },
+      // {
+      //   prop: "activityImg",
+      //   label: "活动课程图片",
+      //   showImg: true
+      // },
+      {
+        prop: "contactPerson",
+        label: "联络人" 
+      },
+      {
+        prop: "contactPhone",
+        label: "联络人电话" 
+      },
+      {
+        prop: "activityDateFrom",
+        label: "活动开始时间",
+        placeholder: "活动开始时间"
+      },
+      {
+        prop: "activityDateTo",
+        label: "活动结束时间"    
+      },
+      {
+        prop: "applyTimeFrom",
+        label: "活动报名开始日期",
+        placeholder: "活动报名开始日期"
+      },
+      {
+        prop: "applyTimeTo",
+        label: "活动报名结束日期",
+        placeholder: "活动报名结束日期"
+      },
+ /*      {
+        prop: "activityStatus",
+        label: "活动状态",
+        options: [
+          {
+            label: '报名中',
+            value: '1'
+          },
+          {
+            label: '报名结束，进行中',
+            value: '2'
+          },
+          {
+            label: '已结束',
+            value: '3'
+          }
+        ]      
+      } */
+      ];
+  const tHeader = tableHeaderConfig.map(e => e.label);
+  const filterVal = tableHeaderConfig.map(e => e.prop);
+  const list = state.selectionList;
+  const data = formatJson(filterVal, list);
+  export_json_to_excel(tHeader, data, '活动发布');
+  }
+
 };
 // 导出表格
 const exportClick = () => {
@@ -325,7 +474,7 @@ const exportClick = () => {
 	try {
 		FileSaver.saveAs(new Blob([wbout], {
 			type: 'application/octet-stream'
-		}), '活动发布.xlsx')//自定义文件名
+		}), '活动发布')//自定义文件名
 	} catch (e) {
 		if (typeof console !== 'undefined') console.log(e, wbout);
 	}
@@ -342,7 +491,7 @@ const onClear = () => {
  * 提交表单数据
  */
 const postFormData = (formData) => {
-  if (title.value === "新增") {
+  if (title.value === "添加") {
     post(`${actionAddOne}`, {
       ...formData,
     })
@@ -367,18 +516,28 @@ const postFormData = (formData) => {
       });
   }
   state.dialogVisible = false;
+  state.formConfig = state.formConfig.map((e, b) => {
+            let result = { ...e };  
+            delete result[e.prop];
+            return result;
+          });
   console.log("submit!", formData);
 };
 
 // todo 改写法
 const closeDialog = async (done: () => void) => {
   state.dialogVisible = false;
-  state.formConfig = formConfig;
+  // state.formConfig = formConfig;
+  state.formConfig = state.formConfig.map((e, b) => {
+    let result = { ...e };  
+    delete result[e.prop];
+    return result;
+  });
 };
 
-// 修改
+// 编辑
 const edit = (row): void => {
-  title.value = "修改";
+  title.value = "编辑";
   currentRoleId.value = row.id;
   state.dialogVisible = true;
   state.formConfig = state.formConfig
@@ -437,7 +596,8 @@ const deleteAction = (row) => {
       });
       ElMessage.success("删除成功");
     })
-    .catch(() => {});
+    .catch(() => {
+    });
 };
 </script>
 

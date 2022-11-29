@@ -1,52 +1,59 @@
 <template>
   <u-container-layout>
     <div class="inline-edit-table">
-      <el-form :inline="true" :model="state" class="demo-form-inline">
+      <el-form :inline="true" :model="state" class="demo-form-inline" style="float: left">
         <el-form-item label="企业名称">
           <el-input v-model="state.entName" placeholder="请输入企业名称" />
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="gettrainingServicesAll"
-            >查询</el-button
-          >
-          <el-button type="primary" @click="reset">重置</el-button>
-          <el-button type="primary" @click="exportClick">导出EXECL</el-button>
+          <el-button type="primary" icon="Search" @click.stop="gettrainingServicesAll">查询</el-button>
+          <el-button type="primary" icon="Refresh" @click.stop="reset">重置</el-button>
         </el-form-item>
       </el-form>
+      <div style="float: right">
+        <!-- <el-button type="primary" icon="plus"  @click.stop="add">添加</el-button> -->
+          <el-button type="primary" icon="IceCreamSquare" @click.stop="exportClick2">导出EXECL</el-button>
+      </div>
       <el-table
         id="my-table"
         :data="state.tableData"
         style="width: 100%"
         :border="true"
+        :cell-style="fn"
+        header-row-class-name="custom-header"
+        row-class-name="hover-row"
         @row-click="routerTo"
         v-loading="loading"
+        @selection-change="handleSelectionChange"
       >
+      <el-table-column align="center" type="selection" width="60"></el-table-column>
         <el-table-column
           v-for="(item, index) in tableHeaderConfig"
           :key="index"
           :prop="item.prop"
           :label="item.label"
+          :width="item.width"
         >
           <template #default="scope" v-if="item.prop === 'applyStatus'">
             {{ applyStatusObj[scope.row.applyStatus] }}
           </template>
         </el-table-column>
-        <el-table-column prop="operator" label="操作" width="200" fixed="right">
+        <el-table-column prop="operator" label="操作" width="300" fixed="right">
           <template #default="scope">
             <el-button
               type="primary"
               size="small"
+              icon="Document"
               @click.stop="detail(scope.row)"
             >
               查看详情
             </el-button>
-            <el-button type="primary" size="small" @click.stop="add(scope.row)">
-              添加
-            </el-button>
+            <el-button type="primary" icon="plus" size="small" @click.stop="add(scope.row)">转移名单</el-button>
             <el-button
               type="primary"
               size="small"
-              @click="examine(scope.row)"
+              icon="check"
+              @click.stop="examine(scope.row)"
               :disabled="scope.row.applyStatus !== 0"
             >
               审核
@@ -144,6 +151,7 @@
   </u-container-layout>
 </template>
 <script lang="ts">
+import { export_json_to_excel } from "@/execl/Export2Excel";
 import entTable from "@/components/form/essay.vue";
 import formConpoent1 from "@/components/form/form.vue";
 import FileSaver from "file-saver";
@@ -162,7 +170,8 @@ import formConpoent from "@/components/form/form.vue";
 import busneissDetail from "@/components/form/busneissDetail.vue";
 import examineFormConpoent from "@/components/form/examineForm.vue";
 import {
-  entMerchantsPersonInsert,
+  entMerchantsSuccessListInsert,
+  entMerchantsInsert,
   entMerchantsList,
   entApplyAll,
   entApplAddOne,
@@ -194,16 +203,32 @@ export default {
         {
           prop: "entName",
           label: "企业名称",
-          required: true,
+          width: 250,
         },
         {
           prop: "legalPerson",
           label: "法人",
         },
         {
+          prop: "registerDistrict",
+          label: "公司地址",
+        },
+        {
+          prop: "entIndustry",
+          label: "所在行业",
+        },
+/*         {
+          prop: "entCode",
+          label: "企业社会统一代码",
+        }, */
+        {
+          prop: "businessIncome",
+          label: "营业收入(万元)",
+        },
+/*         {
           prop: "legalId",
           label: "法人身份证",
-        },
+        }, */
         {
           prop: "contactsName",
           label: "联系人",
@@ -215,34 +240,19 @@ export default {
           required: true,
         },
         {
-          prop: "registerDistrict",
-          label: "公司地址",
-        },
-        {
-          prop: "entIndustry",
-          label: "所在行业",
-        },
-        {
-          prop: "entCode",
-          label: "企业社会统一代码",
-        },
-        {
-          prop: "businessIncome",
-          label: "营业收入",
-        },
-        {
           prop: "applyTime",
           label: "申请时间",
+          width: 250,
         },
         {
           prop: "applyStatus",
           label: "审核状态",
         },
-        {
+/*         {
           prop: "applyInfo",
           label: "备注",
           showTextarea: true,
-        },
+        }, */
       ],
     };
   },
@@ -268,13 +278,18 @@ const formConfig: formConfigItem[] = [
     showInput: true,
   },
   {
+    prop: "entCode",
+    label: "企业社会统一代码",
+    showInput: true,
+  },
+  {
     prop: "legalPerson",
     label: "法人",
     showInput: true,
   },
   {
     prop: "legalId",
-    label: "法人身份证",
+    label: "法人联系方式",
     showInput: true,
   },
   {
@@ -300,11 +315,6 @@ const formConfig: formConfigItem[] = [
     showInput: true,
   },
   {
-    prop: "entCode",
-    label: "企业社会统一代码",
-    showInput: true,
-  },
-  {
     prop: "businessIncome",
     label: "营业收入",
     showInput: true,
@@ -319,14 +329,37 @@ const state = reactive({
   currentPage: 0,
   pageSize: 10,
   formConfig: formConfig,
+  tableItem: {},
+  selectionList: [],
   formConfig2: [
     {
       prop: "listName",
       label: "名称",
       required: true,
-      options: [],
+      options: [
+      {
+        label: '意向企业',
+        value: '意向企业',
+      },
+      {
+        label: '入驻企业',
+        value: '入驻企业'
+      }
+      ],
       showSelect: true,
-    }
+    },
+    {
+    prop: "entSource",
+    label: "招商来源",
+    showInput: true,
+    entSource: '北京文投大数据有限公司',
+    disabled: true
+  },
+  {
+    prop: "hctd",
+    label: "招商专员",
+    showInput: true
+  }
   ],
   tableData: [],
   total: 0,
@@ -350,7 +383,7 @@ const state = reactive({
 });
 
 let currentRoleId = ref<string>("");
-const title = ref<string>("新增");
+const title = ref<string>("添加");
 const map1 = {
   工商信息: [
     "BASICINFO",
@@ -423,9 +456,15 @@ const routerTo = async (row) => {
   state.applyDialogVisible = true;
   // await getentGetByName(row.entName);
 };
-
+const fn = ({row, column}) => {
+    if(column.label === '企业名称') {
+      return {
+      color: `#409eff`
+    }
+    };
+  };
 // 左侧tab
-const getentMerchantsPersonList = () => {
+/* const getentMerchantsPersonList = () => {
   post(`${entMerchantsPersonList}`, {
     pageNum: state.currentPage,
     pageSize: state.pageSize,
@@ -437,8 +476,8 @@ const getentMerchantsPersonList = () => {
       }
     });
   });
-};
-getentMerchantsPersonList();
+}; */
+// getentMerchantsPersonList();
 //  文章内容列表
 const getentGetByName = (busneissName) => {
   get(`${entGetByName}/${busneissName}`, {}).then(async function (data) {
@@ -645,6 +684,84 @@ const getNewsByName = (busneissName) => {
     return true;
   });
 };
+const handleSelectionChange = (row) => {
+  console.log('row', row);
+  state.selectionList = row; 
+};
+const formatJson  = (filterVal, jsonData) => {
+  return jsonData.map(v => filterVal.map(j => v[j]));
+}
+// 导出表格
+const exportClick2 = () => {
+  if(state.selectionList.length === 0) {
+    ElMessage({
+        message: '请选择要导出的数据',
+        type: 'warning'
+      })
+  } else {
+    const tableHeaderConfig = [
+        {
+          prop: "entName",
+          label: "企业名称",
+          width: 250,
+        },
+        {
+          prop: "legalPerson",
+          label: "法人",
+        },
+        {
+          prop: "registerDistrict",
+          label: "公司地址",
+        },
+        {
+          prop: "entIndustry",
+          label: "所在行业",
+        },
+/*         {
+          prop: "entCode",
+          label: "企业社会统一代码",
+        }, */
+        {
+          prop: "businessIncome",
+          label: "营业收入(万元)",
+        },
+/*         {
+          prop: "legalId",
+          label: "法人身份证",
+        }, */
+        {
+          prop: "contactsName",
+          label: "联系人",
+          required: true,
+        },
+        {
+          prop: "contactsPhone",
+          label: "联系方式",
+          required: true,
+        },
+        {
+          prop: "applyTime",
+          label: "申请时间",
+          width: 250,
+        },
+        {
+          prop: "applyStatus",
+          label: "审核状态",
+        },
+/*         {
+          prop: "applyInfo",
+          label: "备注",
+          showTextarea: true,
+        }, */
+      ];
+  const tHeader = tableHeaderConfig.map(e => e.label);
+  const filterVal = tableHeaderConfig.map(e => e.prop);
+  const list = state.selectionList;
+  const data = formatJson(filterVal, list);
+  export_json_to_excel(tHeader, data, '入驻申请');
+  }
+
+};
 // 导出表格
 const exportClick = () => {
   var wb = XLSX.utils.table_to_book(document.querySelector("#my-table")); //关联don节点
@@ -659,7 +776,7 @@ const exportClick = () => {
       new Blob([wbout], {
         type: "application/octet-stream",
       }),
-      "入驻申请.xlsx"
+      "入驻申请"
     ); //自定义文件名
   } catch (e) {
     if (typeof console !== "undefined") console.log(e, wbout);
@@ -696,13 +813,17 @@ const detail = (row) => {
  */
  const postFormData2 = (formData) => {
   let data = state.formConfig2[0].options.filter(e => e.value === formData.listName);
-  post(`${entMerchantsPersonInsert}`, {
-    listName: data[0].label,
-    listId: data[0].value,
+  post(`${data[0].label === '意向企业' ?  entMerchantsInsert : entMerchantsSuccessListInsert}`, {
+    companyName: state.tableItem.entName,
+    contactPerson: state.tableItem.legalPerson,
+    contactPhone: state.tableItem.legalId,
+    ...formData,
+    entStatus: data[0].label === '意向企业' ? '待接洽' :  '已入住',
+    entLocal: state.tableItem.registerDistrict
   })
     .then(function (data) {
-      ElMessage.success("添加成功");
-      getentMerchantsPersonList();
+      data && ElMessage.success("添加成功");
+      // getentMerchantsPersonList();
     })
     .catch((e) => {
       console.log("e", e);
@@ -715,14 +836,16 @@ const detail = (row) => {
  * 审核
  */
 const add = (row) => {
+  title.value = "转移名单";
+  state.tableItem = row;
   state.dialogVisible3 = true;
   state.dialogVisible2 = true;
-  state.formConfig2 = state.formConfig2
+/*   state.formConfig2 = state.formConfig2
   .map((e, b) => {
     let result = { ...e };
     result[e.prop] = row[e.prop];
     return result;
-  });
+  }); */
 };
 
 /**
@@ -739,9 +862,10 @@ const examine = (row) => {
  * 提交表单数据
  */
 const postFormData = (formData) => {
+  debugger;
   post(`${entApplyUpdateOne}`, {
     id: currentRoleId.value,
-    applyStatus: formData.status,
+    applyStatus: formData.status ? 1: 2,
   })
     .then(function (data) {
       getentApplyAll();
@@ -759,6 +883,7 @@ const closeDialog = async (done: () => void) => {
   state.showExamineForm = false;
   state.dialogVisible1 = false;
   state.dialogVisible2 = false;
+  state.dialogVisible3 = false;
   state.applyDialogVisible = false;
   state.showForm = false;
 };
@@ -814,7 +939,7 @@ const deleteAction = (row) => {
 };
 </script>
 
-<style scoped>
+<style lang="scss">
 .edit-input {
   padding-right: 100px;
 }
@@ -825,6 +950,21 @@ const deleteAction = (row) => {
 }
 .inline-edit-table {
   width: 100%;
+  .custom-header {
+    background: gray;
+    th.el-table__cell {
+      // background: var(--el-fill-color-light);
+    }
+  }
+  .hover-row>td.el-table__cell {
+    background-color: white !important;
+  } 
+  .hover-row:hover {
+      cursor: pointer;
+      th.el-table__cell {
+        background-color: none !important;
+      }
+    }
 }
 </style>
 <style>

@@ -125,7 +125,10 @@ export const cardCodeRules = (rule, value, callback) => {
 };
 // 手机号
 export const phoneRules = (rule, value, callback) => {
-  if(!/^1([358][0-9]|4[579]|66|7[0135678]|9[89])[0-9]{8}$/.test(value)) {
+  if(!value) {
+    callback('不能为空');
+  }
+  else if(!/^1([358][0-9]|4[579]|66|7[0135678]|9[89])[0-9]{8}$/.test(value)) {
     callback('手机号格式有误');
   }else {
     callback()

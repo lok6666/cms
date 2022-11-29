@@ -8,7 +8,7 @@
         style="width: 80%;display:inline"
         v-for="(item, i) in state.formConfig"
         :key="i"
-        :disabled="state.disabled"
+        :disabled="state.disabled || item.disabled"
         :model="item"
         class="demo-dynamic"
         label-width="140px"
@@ -30,6 +30,15 @@
             type="datetime"
             v-if="item.showDatePicker"
             :placeholder="item[placeholder]"
+            :disabled-date="(e) => {
+              if(!item.getMinTime && !item.getMaxTime) {
+                return false;
+              } else if(item.getMinTime) {
+                return minTime(e, item.getMinTime, item)
+              } else if (item.getMaxTime) {
+                return maxTime(e, item.getMaxTime, item)
+              }
+            }"
             format="YYYY/MM/DD HH:mm:ss"
             value-format="YYYY-MM-DD HH:mm:ss"
           />
@@ -77,7 +86,7 @@
               </div>  
             </div> -->
           <!--上传图片-->
-          <div @click="getIndex(i)" v-else-if="item.upload">
+          <div @click.stop="getIndex(i)" v-else-if="item.upload">
             <el-upload
               class="avatar-uploader"
               :show-file-list="false"
@@ -95,6 +104,7 @@
                 v-else-if="item.video"
                 :src="item.video"
                 controls
+                :poster="item.video"
                 style="width: 178px; height: 178px"
                 class="avatar"
               ></video>
@@ -102,7 +112,7 @@
             </el-upload>
           </div>
           <!--富文本编辑-->
-          <div @click="getIndex(i)" ref="uploadSingle" :indexValue="i" v-if="item.showWangEditor">
+          <div @click.stop="getIndex(i)" ref="uploadSingle" :indexValue="i" v-if="item.showWangEditor">
             <editor 
             :content="item[item.prop]"
             @handle="changeContent"
@@ -112,8 +122,8 @@
       </el-form>
     </div>
     <div v-if="state.showBtn" style="float: right">
-      <el-button type="primary" @click="submitForm(formRef)">保存</el-button>
-      <el-button @click="resetForm(formRef)">取消</el-button>
+      <el-button type="primary" @click.stop="submitForm(formRef)">保存</el-button>
+      <el-button @click.stop="resetForm(formRef)">取消</el-button>
     </div>
   </u-container-layout>
 </template>
@@ -147,6 +157,23 @@ interface prop{
     default: false
   }
 }
+const defaultTime2: [Date, Date] = [
+  new Date(2022, 11, 1, 12, 0, 0)
+]
+let minTimeValue = ref<String>('');
+let maxTimeValue = ref<String>('');
+const minTime = (time, getMinTime, item): boolean => {
+  if(!minTimeValue.value) {
+    minTimeValue.value = getMinTime();
+  };
+  return new Date(minTimeValue.value).getTime() > new Date(time).getTime();
+};
+const maxTime = (time, getMaxTime, item): boolean => {
+  if(!maxTimeValue.value) {
+    maxTimeValue.value = getMaxTime();
+  };
+  return new Date(maxTimeValue.value).getTime() < new Date(time).getTime();
+}
 const emit = defineEmits(["handle", "dialogClose"]);
 const uploadSingle = ref(null);
 let props = defineProps<prop>();
@@ -171,14 +198,16 @@ const formRef = ref<FormInstance>();
  */
 const validateForm = (formEl: FormInstance | undefined) => {
   return new Promise((resolve, reject) => {
+    let add:number = 0;
     formEl.forEach(async (el, i) => {
-      el.validate((v) => {
+      el.validate((v, a ,c) => {
+        ++add;
         // 当存在校验失败的情况直接返回
         if (!v) {
           resolve(false);
         }
         // 遍历结束返回
-        else if (i === formEl.length - 1) {
+        else if (add === formEl.length) {
           resolve(true);
         }
       });
@@ -195,7 +224,7 @@ const submitForm = async (formEl: FormInstance | undefined) => {
       formData[v.prop] = v[v.prop];
     });
     emit("handle", formData);
-    ElMessage.success("保存成功");
+    // ElMessage.success("保存成功");
   }
 };
 
@@ -217,7 +246,6 @@ const changeContent = (HTML: String) => {
 
 // 获取索引
 const getIndex = (i: Number, item) => {
-  console.log('getIndex', i);
   itemIndex.value = i;
 };
 
@@ -249,6 +277,7 @@ const beforeAvatarUpload: UploadProps["beforeUpload"] = (rawFile) => {
   axios(config)
     .then(function (res) {
       state.formConfig[itemIndex.value][state.formConfig[itemIndex.value].prop] = res;
+      formRef.value[itemIndex.value] && formRef.value[itemIndex.value].validate(() => true)
     })
     .catch(function (error) {
       console.log(error);

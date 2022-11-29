@@ -1,7 +1,7 @@
 <template>
   <div class="m-edit-table">
     <div style="margin-top: 15px;margin-bottom: 15px" v-if="mode!=='hide'&&mode!=='bottom'">
-      <el-button style="width: 100%" @click="add">
+      <el-button style="width: 100%" @click.stop="add">
         <el-icon style="margin-right: 4px"><plus /></el-icon> 添加一行数据</el-button>
     </div>
     <el-table :data="transData" style="width: 100%" row-key="id" border>
@@ -59,7 +59,7 @@
               type="success"
               size="small"
               icon="CircleCheckFilled"
-              @click="confirmEdit(scope.row)"
+              @click.stop="confirmEdit(scope.row)"
           >
             保存
           </el-button>
@@ -68,7 +68,7 @@
               type="primary"
               size="small"
               icon="Edit"
-              @click="scope.row.edit=!scope.row.edit"
+              @click.stop="scope.row.edit=!scope.row.edit"
           >
             编辑
           </el-button>
@@ -78,17 +78,17 @@
             <p style="display: flex;align-items: center;margin-bottom: 10px">
               <el-icon color="#faad14" style="margin-right: 10px"><warning-filled /></el-icon> 删除此行？</p>
             <div style="text-align: right; margin: 0">
-              <el-button size="small"  @click="scope.row.visible = false"
+              <el-button size="small"  @click.stop="scope.row.visible = false"
               >取消</el-button
               >
-              <el-button size="small" type="primary" @click="deleteAction(scope.row)"
+              <el-button size="small" type="primary" @click.stop="deleteAction(scope.row)"
               >确定</el-button
               >
             </div>
             <template #reference>
               <el-button
                   icon="Delete"
-                  @click="scope.row.visible = true" type="danger" size="small">删除</el-button>
+                  @click.stop="scope.row.visible = true" type="danger" size="small">删除</el-button>
             </template>
           </el-popover>
           <el-button
@@ -96,7 +96,7 @@
               type="primary"
               size="small"
               icon="Edit"
-              @click="cancelEdit(scope.row)"
+              @click.stop="cancelEdit(scope.row)"
           >
             取消
           </el-button>
@@ -104,7 +104,7 @@
       </el-table-column>
     </el-table>
     <div style="margin-top: 15px" v-if="mode!=='hide'&&mode!=='top'">
-      <el-button style="width: 100%" @click="add">
+      <el-button style="width: 100%" @click.stop="add">
         <el-icon style="margin-right: 4px"><plus /></el-icon> 添加一行数据</el-button>
     </div>
   </div>

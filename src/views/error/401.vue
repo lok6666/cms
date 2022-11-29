@@ -8,7 +8,7 @@
             <div>
                 <div class="oops">抱歉!</div>
                 <div class="text" style="margin-bottom: 20px">你没有权限去该页面...</div>
-                <el-button type="primary" @click="goBackHome">返回首页</el-button></div>
+                <el-button type="primary" @click.stop="goBackHome">返回首页</el-button></div>
 
         </div>
     </u-container-layout>

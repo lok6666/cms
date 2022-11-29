@@ -88,11 +88,11 @@
               </div>
             </template>
             <div style="display: flex">
-              <el-card style="flex: 1;margin-right: 20px;cursor: pointer" class="card-item" @click="goTo('https://ext.dcloud.net.cn/plugin?id=7511')">
+              <el-card style="flex: 1;margin-right: 20px;cursor: pointer" class="card-item" @click.stop="goTo('https://ext.dcloud.net.cn/plugin?id=7511')">
                 <div style="color: white;margin-bottom: 10px"><h3>zb-table</h3></div>
                 <div style="font-size: 12px;color: white">uniapp 表格组件 支持固定表头和首列、上拉加载更多、及固定多列，表格自适应内容，排序，多选checkbox、可点击删除，编辑、合计功能，兼容多端</div>
               </el-card>
-              <el-card style="flex: 1;cursor: pointer" class="card-item" @click="goTo('https://github.com/zouzhibin/vue-admin-perfect')">
+              <el-card style="flex: 1;cursor: pointer" class="card-item" @click.stop="goTo('https://github.com/zouzhibin/vue-admin-perfect')">
                 <div style="color: white;margin-bottom: 10px"><h3>vue-admin-perfect</h3></div>
                 <div style="font-size: 12px;color: white">系统基于vue3+vuex+ element-plus+ts后台管理系统</div>
               </el-card>

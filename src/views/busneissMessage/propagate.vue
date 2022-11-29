@@ -6,9 +6,9 @@
             <el-input v-model="state.entName" placeholder="请输入企业名称"/>
           </el-form-item>
           <el-form-item>
-          <el-button type="primary" @click="gettrainingServicesAll">查询</el-button>
-          <el-button type="primary" @click="reset">重置</el-button>
-          <el-button type="primary" @click="exportClick">导出EXECL</el-button>
+          <el-button type="primary" icon="Search" @click.stop="gettrainingServicesAll">查询</el-button>
+          <el-button type="primary" icon="Refresh" @click.stop="reset">重置</el-button>
+          <el-button type="primary" icon="IceCreamSquare" @click.stop="exportClick2">导出EXECL</el-button>
           </el-form-item>
         </el-form>
         <el-table
@@ -17,7 +17,9 @@
           style="width: 100%"
           :border="true"
           v-loading="loading"
+          @selection-change="handleSelectionChange"
         >
+        <el-table-column align="center" type="selection" width="60"></el-table-column>
           <el-table-column
             v-for="(item, index) in tableHeaderConfig"
             :key="index"
@@ -37,10 +39,10 @@
           </el-table-column>
           <el-table-column prop="operator" label="操作" width="200" fixed="right">
             <template #default="scope">
-              <el-button type="primary" size="small" @click="detail(scope.row)">
+              <el-button type="primary" size="small" @click.stop="detail(scope.row)">
                 查看详情
               </el-button>
-              <el-button type="primary" size="small" @click="examine(scope.row)" :disabled="scope.row.approvalStatus">
+              <el-button type="primary" size="small" @click.stop="examine(scope.row)" :disabled="scope.row.approvalStatus">
                 {{approvalStatusObj[scope.row.approvalStatus]}}
               </el-button>
             </template>
@@ -88,8 +90,9 @@
     </u-container-layout>
   </template>
   <script lang="ts">
-  import FileSaver from 'file-saver'
-  import * as XLSX from 'xlsx';
+  import FileSaver from "file-saver";
+  import * as XLSX from "xlsx";
+  import { export_json_to_excel } from "@/execl/Export2Excel";
   import { ref, reactive, provide } from "vue";
   import formConpoent from "@/components/form/form.vue";
   import examineFormConpoent from "@/components/form/examineForm.vue";
@@ -182,6 +185,7 @@
     currentPage: 0,
     pageSize: 10,
     formConfig: formConfig,
+    selectionList: [],
     tableData: [],
     total: 0,
     entName: '',
@@ -194,9 +198,56 @@
   });
   
   let currentRoleId = ref<string>("");
-  const title = ref<string>("新增");
+  const title = ref<string>("添加");
   
 
+    const handleSelectionChange = (row) => {
+  console.log('row', row);
+  state.selectionList = row; 
+};
+const formatJson  = (filterVal, jsonData) => {
+  return jsonData.map(v => filterVal.map(j => v[j]));
+}
+// 导出表格
+const exportClick2 = () => {
+  if(state.selectionList.length === 0) {
+    ElMessage({
+        message: '请选择要导出的数据',
+        type: 'warning'
+      })
+  } else {
+    const tableHeaderConfig = [
+        {
+            prop: "entName",
+            label: "企业名称"
+        },
+/*         {
+            prop: "busneissDesc",
+            label: "企业简介"
+        }, */
+        {
+            prop: "bgImg",
+            label: "背景图",
+            showImg: true
+        },
+        {
+            prop: "logoImg",
+            label: "企业logo",
+            showImg: true
+        },
+        {
+            prop: "approvalStatus",
+            label: "审查状态"
+        }
+      ];
+  const tHeader = tableHeaderConfig.map(e => e.label);
+  const filterVal = tableHeaderConfig.map(e => e.prop);
+  const list = state.selectionList;
+  const data = formatJson(filterVal, list);
+  export_json_to_excel(tHeader, data, '宣传资料');
+  }
+
+};
     // 导出表格
 const exportClick = () => {
 	var wb = XLSX.utils.table_to_book(document.querySelector('#my-table'));//关联don节点
@@ -209,7 +260,7 @@ const exportClick = () => {
 	try {
 		FileSaver.saveAs(new Blob([wbout], {
 			type: 'application/octet-stream'
-		}), '宣传资料.xlsx')//自定义文件名
+		}), '宣传资料')//自定义文件名
 	} catch (e) {
 		if (typeof console !== 'undefined') console.log(e, wbout);
 	}

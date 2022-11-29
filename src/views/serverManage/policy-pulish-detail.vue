@@ -19,7 +19,7 @@
               v-for="i in count"
               :key="i"
               class="polic-relation-item"
-              @click="
+              @click.stop="
                 routeTo(policyKind === '通知公告' ? i.policyId : i.noticeId)
               "
             >
@@ -40,7 +40,7 @@
             :closable="isClosable(tag)"
             :disable-transitions="false"
             @close="handleClose(tag)"
-            @click="handleClick(tag)"
+            @click.stop="handleClick(tag)"
           >
             {{ tag }}
           </el-tag>
@@ -57,7 +57,7 @@
             v-else
             class="button-new-tag ml-1"
             size="small"
-            @click="showInput"
+            @click.stop="showInput"
             >新增标签
           </el-button>
           <el-input

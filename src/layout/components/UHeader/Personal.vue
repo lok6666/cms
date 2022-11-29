@@ -12,20 +12,20 @@
         class="demo-ruleForm"
         :size="formSize"
     >
-      <el-form-item label="姓名" >
-        <el-input v-model="ruleForm.name" disabled></el-input>
+      <el-form-item label="原密码" prop="passwordo">
+        <el-input v-model="ruleForm.passwordo" type="password" ></el-input>
       </el-form-item>
-      <el-form-item label="手机号码" >
-        <el-input v-model="ruleForm.mobile" disabled></el-input>
+      <el-form-item label="新密码" prop="password">
+        <el-input v-model="ruleForm.password" type="password"></el-input>
       </el-form-item>
-      <el-form-item label="修改密码" prop="password">
-        <el-input v-model="ruleForm.password"></el-input>
+      <el-form-item label="确认密码" prop="passwordn">
+        <el-input v-model="ruleForm.passwordn" type="password"></el-input>
       </el-form-item>
     </el-form>
     <template #footer>
       <span class="dialog-footer">
-        <el-button @click="dialogVisible = false">取消</el-button>
-        <el-button type="primary" @click="submitForm(ruleFormRef)"
+        <el-button @click.stop="dialogVisible = false">取消</el-button>
+        <el-button type="primary" @click.stop="submitForm(ruleFormRef)"
         >确定</el-button
         >
       </span>
@@ -34,9 +34,16 @@
 </template>
 
 <script lang="ts" setup>
+  import {
+    reset
+  } from "@/config/api";
+  // import { formConfigItem } from "@/utils/interface";
+  import { deleteItem, post, get } from "@/utils/request";
   import { ref,defineExpose,reactive, } from 'vue'
-  import { ElMessageBox } from 'element-plus'
+  import { ElMessageBox, ElMessage } from 'element-plus'
   import type { ElForm } from 'element-plus'
+  import {useStore} from "vuex";
+  import {useRouter} from 'vue-router'
   const dialogVisible = ref(false)
   const show = ()=>{
     dialogVisible.value = true
@@ -49,15 +56,41 @@
   const formSize = ref('')
   const ruleFormRef = ref<FormInstance>()
   const ruleForm = reactive({
-    name: '',
-    mobile: '',
+    username: localStorage.defaultName,
+    passwordo: '',
     password: '',
+    passwordn: ''
   })
+  const store = useStore()
+  const router = useRouter()
   const rules = reactive({
+    passwordo: [
+      {
+        required: true,
+        message: '请输入原密码',
+        trigger: 'blur',
+      },
+    ],
     password: [
       {
         required: true,
-        message: '请输入密码',
+        message: '请输入新密码',
+        trigger: 'blur',
+      },
+    ],
+    passwordn: [
+      {
+        required: true,
+        validator: (r, v, c) => {
+          if(!v) {
+            c('请输入确认密码')
+          }
+          if(v !== ruleForm.password) {
+            c('确认密码与新密码不一致')
+          } else {
+            c()
+          }
+        },
         trigger: 'blur',
       },
     ],
@@ -66,7 +99,26 @@
     if (!formEl) return
     formEl.validate((valid) => {
       if (valid) {
-        console.log('submit!')
+        console.log('submit!', ruleForm)
+        post(`${reset}`, {
+          ...ruleForm
+        }).then(async e => {
+          if(!e) {
+            ElMessage({
+                message: '用户名或密码错误',
+                type: 'error'
+            })
+          } else {
+            ElMessage({
+                message: '修改成功',
+                type: 'success'
+            })
+            await store.dispatch('user/logout')
+            router.push({path:'/login'})
+            store.dispatch('permission/clearRoutes')
+            store.dispatch('tagsView/clearVisitedView')
+          }         
+        })
       } else {
         console.log('error submit!')
         return false

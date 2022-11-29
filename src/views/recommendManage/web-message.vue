@@ -7,9 +7,9 @@
             <el-input v-model="state.messageContent" placeholder="请输入消息内容" style="width: 300px; margin-bottom: 10px;"/>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="onSubmit">搜索</el-button>
-          <el-button type="primary" @click="onClear">清空</el-button>
-          <el-button type="primary" @click="examine">编辑站内信</el-button>
+          <el-button type="primary" @click.stop="onSubmit">搜索</el-button>
+          <el-button type="primary" @click.stop="onClear">清空</el-button>
+          <el-button type="primary" @click.stop="examine">编辑站内信</el-button>
         </el-form-item>
       </el-form>
         <el-table
@@ -28,9 +28,9 @@
               {{applyStatusObj[scope.row.applyStatus]}}
             </template>
           </el-table-column>
-          <el-table-column prop="operator" label="操作" width="200" fixed="right">
+          <el-table-column prop="operator" label="操作" width="100" fixed="right">
             <template #default="scope">
-              <el-button type="primary" size="small" @click="detail(scope.row)">
+              <el-button type="primary" size="small" @click.stop="detail(scope.row)">
                 查看详情
               </el-button>
             </template>
@@ -137,7 +137,7 @@
   }
   const formConfig: formConfigItem[] = [
     {
-      prop: "companyid",
+      prop: "companyName",
       label: "企业名称",
       required: true,
       showSelect: true,
@@ -167,7 +167,7 @@
   });
   
   let currentRoleId = ref<string>("");
-  const title = ref<string>("新增");
+  const title = ref<string>("添加");
   // 提交
   const onSubmit = (val) => {
     getmessageList();

@@ -12,7 +12,7 @@
             <el-input v-model="policyPushData.policyTitle" style="width: 500px;" maxlength="20" placeholder="请输入政策标题简称,不能超过20个字"/>
           </el-form-item>
           <el-form-item>
-            <el-button type="primary" style="float: right;" @click="sendMessage">推送新闻</el-button>
+            <el-button type="primary" style="float: right;" @click.stop="sendMessage">推送新闻</el-button>
           </el-form-item>
         </el-form>
         <el-table
@@ -145,9 +145,9 @@
             value-format="YYYY-MM-DD"
           />
         </div>
-        <el-button type="primary" @click="onSubmit">搜索</el-button>
-        <el-button type="danger" class="button-new-tag ml-1" @click="reset">重置</el-button>
-        <el-button type="primary" @click="add">新增</el-button>
+        <el-button type="primary" @click.stop="onSubmit">搜索</el-button>
+        <el-button type="danger" class="button-new-tag ml-1" @click.stop="reset">重置</el-button>
+        <el-button type="primary" @click.stop="add">添加</el-button>
       </div>
     </div>
     <el-dialog
@@ -275,8 +275,8 @@
       </el-form>
       <template #footer>
         <span class="dialog-footer">
-          <el-button @click="dialogVisible = false">取消</el-button>
-          <el-button type="primary" @click="handleClose(ruleFormRef)"
+          <el-button @click.stop="dialogVisible = false">取消</el-button>
+          <el-button type="primary" @click.stop="handleClose(ruleFormRef)"
             >确定</el-button
           >
         </span>
@@ -379,7 +379,7 @@
       </el-form>
       <template #footer>
         <span class="dialog-footer">
-          <el-button type="primary" @click="relationShap(ruleFormRef)"
+          <el-button type="primary" @click.stop="relationShap(ruleFormRef)"
             >确定关联</el-button
           >
         </span>
@@ -400,21 +400,21 @@
           size="small"
           type="primary"
           v-if="policyKind !== '政策解读'"
-          @click="relatePolicy(detailRow)"
+          @click.stop="relatePolicy(detailRow)"
           >政策关联</el-button
         > -->
         <!-- <el-button
           size="small"
           type="warning"
           style="margin-top: 10px"
-          @click="edit(detailRow)"
+          @click.stop="edit(detailRow)"
           >编辑</el-button
         >
         <el-button
           size="small"
           type="info"
           style="margin-top: 10px"
-          @click="chnageEffect(detailRow.id, detailRow.policyType)"
+          @click.stop="chnageEffect(detailRow.id, detailRow.policyType)"
           >{{ detailRow.policyType ? "失效" : "有效" }}</el-button
         >
         <el-button
@@ -422,14 +422,14 @@
           size="small"
           type="success"
           style="margin-top: 10px"
-          @click="deleteTable(detailRow.id)"
+          @click.stop="deleteTable(detailRow.id)"
           >删除</el-button
         >
         <el-button
           v-else
           size="small"
           type="danger"
-          @click="resume(detailRow.id)"
+          @click.stop="resume(detailRow.id)"
           >恢复</el-button
         > -->
       </div>
@@ -451,12 +451,14 @@
       setScrollLeft
       @selection-change="handleSelectionChange"
     >
-      <el-table-column property="id" fixed label="id" sortable width="80" />
-      <el-table-column property="policyTitle" label="标题"/>
+      <el-table-column property="id" fixed label="id" :show-overflow-tooltip="true"
+          sortable width="80" />
+      <el-table-column property="policyTitle" label="标题" width="400px"/>
       <el-table-column
         property="policySource"
         label="来源"
-        sortable
+        :show-overflow-tooltip="true"
+          sortable
       />
       <el-table-column label="发布时间" width="200">
         <template #default="scope">{{ scope.row.policyTime || '//' }}</template>
@@ -465,25 +467,29 @@
         prop="lastUpdateTime"
         label="删除时间"
         v-if="policyStatus"
-        sortable
+        :show-overflow-tooltip="true"
+          sortable
       >
         <template #default="scope">{{ scope.row.lastUpdateTime }}</template>
       </el-table-column>
       <el-table-column
         property="policyLocation"
         label="区域"
-        sortable
+        :show-overflow-tooltip="true"
+          sortable
       > 
         <template #default="scope">{{
           locationMap[scope.row.policyLocation]
         }}</template>
       </el-table-column>
-      <el-table-column property="policyLevel" label="关联" sortable>
+      <el-table-column property="policyLevel" label="关联" :show-overflow-tooltip="true"
+          sortable>
         <template #default="scope">{{
           scope.row.isRelation === 0 ? "无关联" : "关联"
         }}</template>
       </el-table-column>
-      <!-- <el-table-column property="policyLevel" label="级别" sortable width="100">
+      <!-- <el-table-column property="policyLevel" label="级别" :show-overflow-tooltip="true"
+          sortable width="100">
         <template #default="scope">{{
           scope.row.policyLevel === 1
             ? "区级"
@@ -492,7 +498,8 @@
             : "国家级"
         }}</template>
       </el-table-column> -->
-      <el-table-column property="policyType" label="状态" sortable>
+      <el-table-column property="policyType" label="状态" :show-overflow-tooltip="true"
+          sortable>
         <template #default="scope">{{
           scope.row.policyType === 1 ? "有效" : "失效"
         }}</template>
@@ -503,33 +510,33 @@
             size="small"
             type="primary"
             v-if="policyKind !== '政策解读'"
-            @click="relatePolicy(scope.row)"
+            @click.stop="relatePolicy(scope.row)"
             >政策关联</el-button
           > -->
           <el-button
             size="small"
             type="primary"
-            @click="routerTo(scope.$index, scope.row.id, scope.row)"
+            @click.stop="routerTo(scope.$index, scope.row.id, scope.row)"
             >详情</el-button
           >
           <el-button
             size="small"
             type="primary"
-            @click="message(scope.row)"
+            @click.stop="message(scope.row)"
             >短信</el-button
           >
           <!-- <el-button
             size="small"
             type="warning"
             style="margin-top: 10px"
-            @click="edit(scope.row)"
+            @click.stop="edit(scope.row)"
             >编辑</el-button
           > -->
           <!-- <el-button
             size="small"
             type="info"
             style="margin-top: 10px"
-            @click="chnageEffect(scope.row.id, scope.row.policyType)"
+            @click.stop="chnageEffect(scope.row.id, scope.row.policyType)"
             >{{ scope.row.policyType ? "失效" : "有效" }}</el-button
           > -->
           <!-- <el-button
@@ -537,14 +544,14 @@
             size="small"
             type="success"
             style="margin-top: 10px"
-            @click="deleteTable(scope.row.id)"
+            @click.stop="deleteTable(scope.row.id)"
             >删除</el-button
           >
           <el-button
             v-else
             size="small"
             type="danger"
-            @click="resume(scope.row.id)"
+            @click.stop="resume(scope.row.id)"
             >恢复</el-button
           > -->
         </template>
@@ -637,7 +644,7 @@ const policyRuleForm = ref({
   notice: [], // 通知公告
   file: [],
 });
-const title = ref("新增");
+const title = ref("添加");
 let ruleForm = reactive({
   policyTitle: "",
   policyLocation: "",
@@ -780,6 +787,10 @@ const editorConfig = {
           })
           .catch(function (error) {
             console.log(error);
+            ElMessage({
+                message: '上传文件过大,最大为100MB',
+                type: 'error'
+            })
           });
       },
     },
@@ -808,6 +819,10 @@ const editorConfig = {
           })
           .catch(function (error) {
             console.log(error);
+            ElMessage({
+                message: '上传文件过大,最大为100MB',
+                type: 'error'
+            })
           });
       },
     },
@@ -833,6 +848,10 @@ const editorConfig = {
           })
           .catch(function (error) {
             console.log(error);
+            ElMessage({
+                message: '上传文件过大,最大为100MB',
+                type: 'error'
+            })
           });
       },
     },
@@ -1013,7 +1032,7 @@ const routerCloseDialog = () => {
 };
 // 添加
 const add = () => {
-  title.value = "新增";
+  title.value = "添加";
   dialogVisible.value = true;
 };
 // 编辑
@@ -1078,7 +1097,7 @@ const handleClose = async (ruleFormRef) => {
         policyType: typeMap[ruleForm.policyType]
       };
       axios
-        .post(title.value === "新增" ? `${policyInsert}` : `${policyUpdate}`, {
+        .post(title.value === "添加" ? `${policyInsert}` : `${policyUpdate}`, {
           ...obj,
         })
         .then(function (data) {

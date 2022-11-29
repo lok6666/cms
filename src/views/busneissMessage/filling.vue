@@ -6,9 +6,9 @@
             <el-input v-model="state.entName" placeholder="请输入企业名称"/>
           </el-form-item>
           <el-form-item>
-          <el-button type="primary" @click="gettrainingServicesAll">查询</el-button>
-          <el-button type="primary" @click="reset">重置</el-button>
-          <el-button type="primary" @click="exportClick">导出EXECL</el-button>
+          <el-button type="primary" icon="Search" @click.stop="gettrainingServicesAll">查询</el-button>
+          <el-button type="primary" icon="Refresh" @click.stop="reset">重置</el-button>
+          <el-button type="primary" icon="IceCreamSquare" @click.stop="exportClick2">导出EXECL</el-button>
           </el-form-item>
         </el-form>
         <el-table
@@ -17,10 +17,13 @@
           style="width: 100%"
           :border="true"
           v-loading="loading"
+          @selection-change="handleSelectionChange"
         >
+          <el-table-column align="center" type="selection" width="60"></el-table-column>
           <el-table-column
             v-for="(item, index) in tableHeaderConfig"
             :key="index"
+            :width="item.width"
             :prop="item.prop"
             :label="item.label"
           >
@@ -30,10 +33,10 @@
           </el-table-column>
           <el-table-column prop="operator" label="操作" width="200" fixed="right">
             <template #default="scope">
-              <el-button type="primary" size="small" @click="detail(scope.row)">
+              <el-button type="primary" size="small" @click.stop="detail(scope.row)">
                 查看详情
               </el-button>
-              <el-button type="primary" size="small" @click="examine(scope.row)" :disabled="[scope.row.applyStatus !== 0]">
+              <el-button type="primary" size="small" @click.stop="examine(scope.row)" :disabled="[scope.row.applyStatus !== 0]">
                 审核
               </el-button>
             </template>
@@ -81,8 +84,9 @@
     </u-container-layout>
   </template>
   <script lang="ts">
-  import FileSaver from 'file-saver'
-  import * as XLSX from 'xlsx';
+  import FileSaver from "file-saver";
+  import * as XLSX from "xlsx";
+  import { export_json_to_excel } from "@/execl/Export2Excel";
   import { ref, reactive, provide } from "vue";
   import formConpoent from "@/components/form/form.vue";
   import examineFormConpoent from "@/components/form/examineForm.vue";
@@ -113,7 +117,8 @@
             },
             {
                 prop: "frdb",
-                label: "法定代表人"
+                label: "法定代表人",
+                width: '140'
             },
             {
                 prop: "email",
@@ -146,16 +151,10 @@
   }
   const formConfig: formConfigItem[] = [
   {
-      prop: "representativePeople",
+      prop: "frdb",
       label: "法定代表人",
       required: true,
       showInput: true
-  },
-   {
-       prop: "authenticationData",
-       label: "认证资料",
-       required: true,
-       zlupload: true
   },
   {
       prop: "busneissEmail",
@@ -191,8 +190,53 @@
   });
   
   let currentRoleId = ref<string>("");
-  const title = ref<string>("新增");
+  const title = ref<string>("添加");
   
+    const handleSelectionChange = (row) => {
+  console.log('row', row);
+  state.selectionList = row; 
+};
+  const formatJson  = (filterVal, jsonData) => {
+  return jsonData.map(v => filterVal.map(j => v[j]));
+}
+// 导出表格
+const exportClick2 = () => {
+  if(state.selectionList.length === 0) {
+    ElMessage({
+        message: '请选择要导出的数据',
+        type: 'warning'
+      })
+  } else {
+    const tableHeaderConfig = [
+            {
+                prop: "entname",
+                label: "企业名称"
+            },
+            {
+                prop: "frdb",
+                label: "法定代表人"
+            },
+            {
+                prop: "email",
+                label: "企业邮箱"
+            },
+            {
+                prop: "entPhone",
+                label: "公司电话"
+            },
+            {
+                prop: "authorDate",
+                label: "认证日期"
+            }
+        ];
+  const tHeader = tableHeaderConfig.map(e => e.label);
+  const filterVal = tableHeaderConfig.map(e => e.prop);
+  const list = state.selectionList;
+  const data = formatJson(filterVal, list);
+  export_json_to_excel(tHeader, data, '认证信息');
+  }
+
+};
   // 导出表格
   const exportClick = () => {
 	var wb = XLSX.utils.table_to_book(document.querySelector('#my-table'));//关联don节点
@@ -205,7 +249,7 @@
 	try {
 		FileSaver.saveAs(new Blob([wbout], {
 			type: 'application/octet-stream'
-		}), '备案.xlsx')//自定义文件名
+		}), '认证信息')//自定义文件名
 	} catch (e) {
 		if (typeof console !== 'undefined') console.log(e, wbout);
 	}

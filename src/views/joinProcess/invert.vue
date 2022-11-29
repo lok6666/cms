@@ -14,9 +14,9 @@
             <el-input v-model="state.entName" placeholder="请输入企业名称"/>
           </el-form-item>
           <el-form-item>
-          <el-button type="primary" @click="gettrainingServicesAll">查询</el-button>
-          <el-button type="primary" @click="reset">重置</el-button>
-          <el-button type="primary" @click="exportClick">导出EXECL</el-button>
+          <el-button type="primary" icon="Search" @click.stop="gettrainingServicesAll">查询</el-button>
+          <el-button type="primary" icon="Refresh" @click.stop="reset">重置</el-button>
+          <el-button type="primary" icon="IceCreamSquare" @click.stop="exportClick2">导出EXECL</el-button>
           </el-form-item>
         </el-form>
       <el-table
@@ -26,13 +26,16 @@
         :border="true"
         @row-click="routerTo"
         v-loading="loading"
+        @selection-change="handleSelectionChange"
       >
+      <el-table-column align="center" type="selection" width="60"></el-table-column>
       <el-table-column type="index" label="序号" width="80" />
         <el-table-column
           v-for="(item, index) in tableHeaderConfig"
           :key="index"
           :prop="item.prop"
           :label="item.label"
+          :width="item.width"
         >
          <img
             v-if="item.showImg"
@@ -40,18 +43,18 @@
             style="width: 50px; height: 50px"
           />
           <template #default="scope" v-if="item.prop === 'dockStatus'">
-            {{status[scope.row.dockStatus]}}
+            {{status[scope.row.dockStatus] || scope.row.dockStatus}}
           </template>
         </el-table-column>
-        <el-table-column prop="operator" label="操作" width="200" fixed="right">
+        <el-table-column prop="operator" label="操作" width="170" fixed="right">
           <template #default="scope">
-            <el-button type="primary" size="small" @click="detail(scope.row)">
+            <el-button type="primary" size="small" @click.stop="detail(scope.row)">
               查看详情
             </el-button>
-            <el-button type="primary" size="small" @click="editSort(scope.row)">
+<!--             <el-button type="primary" size="small" @click.stop="editSort(scope.row)">
               排序
-            </el-button>
-            <el-button type="primary" size="small" @click="examine(scope.row)">
+            </el-button> -->
+            <el-button type="primary" size="small" @click.stop="examine(scope.row)">
               审核
             </el-button>
           </template>
@@ -108,8 +111,9 @@
 </template>
 <script lang="ts">
 import entTable from "@/components/form/essay.vue";
-import FileSaver from 'file-saver'
-import * as XLSX from 'xlsx';
+import FileSaver from "file-saver";
+import * as XLSX from "xlsx";
+import { export_json_to_excel } from "@/execl/Export2Excel";
 import { map, entPatentGetMap, getSoftByNameMap, getTrademarkByNameMap, getWorksByNameMap,
   entgetRecruitByNameMap,entgetNewsByNameMap } from "./constant";
 import examineFormConpoent from "@/components/form/examineForm.vue";
@@ -142,27 +146,36 @@ export default {
         {
           prop: "serviceName",
           label: "服务名称",
+          width: '150'
+        },
+        {
+          prop: "supplierName",
+          label: "服务商",
+          width: '120'
         },
         {
           prop: "companyContact",
           label: "企业联系方式",
+          width: '150'
         },
         {
           prop: "companyPerson",
-          label: "企业联系人"
+          label: "企业联系人",
+          width: '120'
         },
         {
           prop: "dockStatus",
           label: "对接状态",
+          width: '120'
         },
         {
           prop: "dockTime",
           label: "申请时间",
         },
-        {
+/*         {
           prop: "sortNum",
           label: "排序",
-        },
+        }, */
       ],
     };
   },
@@ -181,6 +194,11 @@ const formConfig = [
     showInput: true,
     disabled: true
   }, {
+    prop: "supplierName",
+    label: "服务商",
+    showInput: true,
+    disabled: true
+  },{
     prop: "serviceName",
     label: "服务名称",
     showInput: true,
@@ -260,15 +278,21 @@ const state = reactive({
   entName: '',
   tabList: [],
   baseInfo: {},
+  selectionList: [],
   formConfig: formConfig,
   form2Config: form2Config,
   form3Config: form3Config,
   tableData: [
   ],
+  status: {
+        0: '未审核',
+        1: '申请成功',
+        2: '申请失败'
+      },
   optionsList: [],
   levelOptions: [],
 });
-const title = ref("新增");
+const title = ref("添加");
 const map1 = {
     '工商信息': [
       'BASICINFO',
@@ -576,6 +600,59 @@ const closeDialog = async (done: () => void) => {
   state.applyDialogVisible = false;
 };
 
+ 
+const handleSelectionChange = (row) => {
+  console.log('row', row);
+  state.selectionList = row; 
+};
+const formatJson  = (filterVal, jsonData) => {
+  return jsonData.map(v => filterVal.map(j => v[j]));
+}
+// 导出表格
+const exportClick2 = () => {
+  if(state.selectionList.length === 0) {
+    ElMessage({
+        message: '请选择要导出的数据',
+        type: 'warning'
+      })
+  } else {
+    const tableHeaderConfig = [
+        {
+          prop: "companyName",
+          label: "企业名称",
+        },
+        {
+          prop: "serviceName",
+          label: "服务名称",
+        },
+        {
+          prop: "companyContact",
+          label: "企业联系方式",
+        },
+        {
+          prop: "companyPerson",
+          label: "企业联系人"
+        },
+        {
+          prop: "dockStatus",
+          label: "对接状态",
+        },
+        {
+          prop: "dockTime",
+          label: "申请时间",
+        },
+/*         {
+          prop: "sortNum",
+          label: "排序",
+        }, */
+      ];
+  const tHeader = tableHeaderConfig.map(e => e.label);
+  const filterVal = tableHeaderConfig.map(e => e.prop);
+  const list = state.selectionList;
+  const data = formatJson(filterVal, list);
+  export_json_to_excel(tHeader, data, '金融服务对接管理');
+  }
+};
 // 导出表格
 const exportClick = () => {
 	var wb = XLSX.utils.table_to_book(document.querySelector('#my-table'));//关联don节点
@@ -588,7 +665,7 @@ const exportClick = () => {
 	try {
 		FileSaver.saveAs(new Blob([wbout], {
 			type: 'application/octet-stream'
-		}), '金融服务对接管理.xlsx')//自定义文件名
+		}), '金融服务对接管理')//自定义文件名
 	} catch (e) {
 		if (typeof console !== 'undefined') console.log(e, wbout);
 	}
@@ -686,6 +763,9 @@ const detail = (row) => {
     .map((e, b) => {
       // value 替换成 e.prop
       let result = { ...e };
+      if(e.prop === 'dockStatus') {
+        row[e.prop] = state.status[row[e.prop]];
+      };
       result[e.prop] = row[e.prop];
       return result;
     })
@@ -707,7 +787,7 @@ const getfundAll = () => {
   post(`${fundAll}`, {
     pageNum: state.currentPage,
     pageSize: state.pageSize,
-    entName: state.entName
+    companyName: state.entName
   }).then(function (data) {
     state.tableData = data.list;
     state.total = data.total;

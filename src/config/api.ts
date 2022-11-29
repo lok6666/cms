@@ -1,7 +1,8 @@
-export const host =  process.env.NODE_ENV === 'development'? "http://172.16.4.62:28182": "http://enterprise.bjwcxf.com:28191";
-//\export const host = "http://enterprise.bjwcxf.com:28191";
+//export const host =  process.env.NODE_ENV === 'development'? "http://172.16.4.62:28182": "http://enterprise.bjwcxf.com:28191";
+export const host = "http://enterprise.bjwcxf.com:28191";
 // 登录接口
 export const login = `${host}/auth/login`
+export const reset = `${host}/auth/reset`
 
 /*信息发布-文章发布*/
 export  const articleSelectArticle = `${host}/article/selectTAL` //  文章类型
@@ -17,33 +18,33 @@ export  const articleArticleAddOne = `${host}/article/insert` // 新增
 export const policyPulishDetaill = `${host}`;
 
 /*信息发布-敏感词*/
-export  const sensitiveSelectAll = `http://172.16.110.101:81/assoication_sjs/trzSensitive/selectAll` //  文章列表
-export const sensitiveAddOne = `http://172.16.110.101:81/assoication_sjs/trzSensitive/addOne`//  敏感词添加
-export const sensitiveUpdateOne = `http://172.16.110.101:81/assoication_sjs/trzSensitive/updateOne`//  敏感词更新
-export const sensitiveDelete = `${host}/article/deleteAll` // 敏感词更刪除
+export  const sensitiveSelectAll = `${host}/sensitive/list` //  文章列表
+export const sensitiveAddOne = `${host}/sensitive/insert`//  敏感词添加
+export const sensitiveUpdateOne = `${host}/sensitive/update`//  敏感词更新
+export const sensitiveDelete = `${host}/sensitive/delete` // 敏感词更刪除
 
 /*信息发布-下拉框配置*/
-export  const SelectGetTree = `http://172.16.110.101:81/assoication_sjs/trzDictionaries/getTree` //  标题tabs
-export const SelectGetDataByTypeId = `http://172.16.110.101:81/assoication_sjs/trzDictionaries/getDataByTypeId`//  下拉框列表
-export const selectByIdType = `http://172.16.110.101:81/assoication_sjs/trzDictionaries/selectByIdType` // 单条下拉框查询
-export const selectAddOne = `http://172.16.110.101:81/assoication_sjs/trzDictionaries/addOneType` // 单条下拉框新增
-export const selectUpdateOne = `http://172.16.110.101:81/assoication_sjs/trzDictionaries/updateOneType` // 单条下拉框更新
-export const selectDeleteOne = `http://172.16.110.101:81/assoication_sjs/trzDictionaries/deleteOneType` // 单条下拉框删除
-export const selectOptionList = `http://172.16.110.101:81/assoication_sjs/trzDictionaries/deleteOneType` // 下拉框option列表
+export  const SelectGetTree = `${host}/assoication_sjs/trzDictionaries/getTree` //  标题tabs
+export const SelectGetDataByTypeId = `${host}/assoication_sjs/trzDictionaries/getDataByTypeId`//  下拉框列表
+export const selectByIdType = `${host}/assoication_sjs/trzDictionaries/selectByIdType` // 单条下拉框查询
+export const selectAddOne = `${host}/assoication_sjs/trzDictionaries/addOneType` // 单条下拉框新增
+export const selectUpdateOne = `${host}/assoication_sjs/trzDictionaries/updateOneType` // 单条下拉框更新
+export const selectDeleteOne = `${host}/assoication_sjs/trzDictionaries/deleteOneType` // 单条下拉框删除
+export const selectOptionList = `${host}/assoication_sjs/trzDictionaries/deleteOneType` // 下拉框option列表
 
 /*信息发布-行业数据*/
-export const industryDataList = `IndustryData/list` //  数据表格
-/* export const SelectGetDataByTypeId = `http://172.16.110.101:81/assoication_sjs/trzDictionaries/getDataByTypeId`//  下拉框列表
-export const selectByIdType = `http://172.16.110.101:81/assoication_sjs/trzDictionaries/selectByIdType` // 单条下拉框查询*/
-export const industryDataAddOne = `http://172.16.110.101:81/assoication_sjs/trzDictionaries/addOneType` // 行业数据新增
-export const industryDataUpdateOne = `http://172.16.110.101:81/assoication_sjs/trzDictionaries/updateOneType` // 行业数据更新
-export const industryDataDeleteOne = `http://172.16.110.101:81/assoication_sjs/trzDictionaries/deleteOneType` // 行业数据删除
-export const industryDataOptionList = `http://172.16.110.101:81/assoication_sjs/trzDictionaries/deleteOneType` // 下拉框option列表
+export const industryDataList = `${host}/banner/list` //  数据表格
+/* export const SelectGetDataByTypeId = `${host}/assoication_sjs/trzDictionaries/getDataByTypeId`//  下拉框列表
+export const selectByIdType = `${host}/assoication_sjs/trzDictionaries/selectByIdType` // 单条下拉框查询*/
+export const industryDataAddOne = `${host}/banner/insert` // 行业数据新增
+export const industryDataUpdateOne = `${host}/banner/update` // 行业数据更新
+export const industryDataDeleteOne = `${host}/article/deleteAll` // 行业数据删除
+export const industryDataOptionList = `${host}/assoication_sjs/trzDictionaries/deleteOneType` // 下拉框option列表
 
 /*信息发布-*/
-export  const swiperAll = `http://172.16.110.101:81/assoication_sjs/trzSensitive/selectAll` // 列表
-export const swiperAddOne = `http://172.16.110.101:81/assoication_sjs/trzSensitive/addOne`//  添加
-export const swiperUpdateOne = `http://172.16.110.101:81/assoication_sjs/trzSensitive/updateOne`//  更新
+export  const swiperAll = `${host}/banner/list` // 列表
+export const swiperAddOne = `${host}/banner/insert`//  添加
+export const swiperUpdateOne = `${host}/trzSensitive/updateOne`//  更新
 export const swiperDelete = `${host}/article/deleteAll` // 删除
 export const swiperArticleOption = `${host}/article/deleteAll` // 文章选项
 export const swiperVideoOption = `${host}/article/deleteAll` // 视频选项
@@ -53,9 +54,9 @@ export  const messageList = `${host}/message/list` // 角色管理列表
 export  const messageInsertBatch = `${host}/message/insertBatch` // 角色管理列表
 
 /*视频专栏*/
-export const videoAll = `http://172.16.110.101:81/assoication_sjs/trzSensitive/selectAll` // 列表
-export const videoAddOne = `http://172.16.110.101:81/assoication_sjs/trzSensitive/addOne`//  添加
-export const videoUpdateOne = `http://172.16.110.101:81/assoication_sjs/trzSensitive/updateOne`//  更新
+export const videoAll = `${host}/assoication_sjs/trzSensitive/selectAll` // 列表
+export const videoAddOne = `${host}/assoication_sjs/trzSensitive/addOne`//  添加
+export const videoUpdateOne = `${host}/assoication_sjs/trzSensitive/updateOne`//  更新
 export const videoDelete = `${host}/article/deleteAll` // 删除
 
 /*服务库管理-行业课程管理*/
@@ -77,7 +78,7 @@ export const recruitServiceDockingDeleteOne = `${host}/recruitServiceDocking/del
 export const recruitServiceDockingInsert = `${host}/recruitServiceDocking/insert` // 行业新增
 
 /*服务库管理-企业服务管理*/
-export const entServicesAll = `${host}/entServices/list` //  金融数据
+export const entServicesAll = `${host}/entServices/listBack` //  金融数据
 export const entServicesUpdateOne = `${host}/entServices/update` // 金融更新
 export const entServicesDeleteOne = `${host}/entServices/delete` // 金融删除
 export const entServicesInsert = `${host}/entServices/insert` // 行业新增
@@ -138,9 +139,9 @@ export const fundAll = `${host}/financialServiceDocking/list` //  资金产品�
 export const fundUpdateOne = `${host}/financialServiceDocking/update` // 资金产品更新
 
 /*服务库管理-其他服务库*/
-export const otherAll = `IndustryData/list` //  资金产品库数据
-export const otherUpdateOne = `http://172.16.110.101:81/assoication_sjs/trzDictionaries/updateOneType` // 其他服务
-export const otherDeleteOne = `http://172.16.110.101:81/assoication_sjs/trzDictionaries/deleteOneType` // 行业数据删除
+export const otherAll = `${host}IndustryData/list` //  资金产品库数据
+export const otherUpdateOne = `${host}/assoication_sjs/trzDictionaries/updateOneType` // 其他服务
+export const otherDeleteOne = `${host}/assoication_sjs/trzDictionaries/deleteOneType` // 行业数据删除
 
 /*活动管理-活动发布*/
 export const actionAll = `${host}/activity/list` // 列表
@@ -150,6 +151,7 @@ export const actionDelete = `${host}/activity/delete` // 删除
 
 /*企业信息*/
 export const entInfoAll = `${host}/entUser/list` // 基本信息列表
+export const entInfoUpdate = `${host}/entUser/update` // 基本信息更新
 export const entInfoGet = `${host}/entUser/get` // 基本信息详情
 export const entPropagateAll = `${host}/entPropagate/list` // 宣传资料列表
 export const entPropagateGet = `${host}/entPropagate/get` // 宣传资料详情

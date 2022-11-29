@@ -15,7 +15,7 @@
         </template>
       </el-input>
     </div>
-    <el-button type="primary" class="search" icon="el-icon-share" @click="exportExcel">导出</el-button>
+    <el-button type="primary" class="search" icon="el-icon-share" @click.stop="exportExcel">导出</el-button>
   </div>
 </template>
 

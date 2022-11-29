@@ -7,8 +7,8 @@
           :columns="column" :data="list" @reset="reset" @onSubmit="onSubmit">
         <template v-slot:btn>
           <div style="display: flex;justify-content: flex-end">
-            <el-button type="primary" @click="add"><el-icon><plus /></el-icon> 添加</el-button>
-            <el-button type="danger" @click="batchDelete"><el-icon><delete /></el-icon>删除</el-button>
+            <el-button type="primary" @click.stop="add"><el-icon><plus /></el-icon> 添加</el-button>
+            <el-button type="danger" @click.stop="batchDelete"><el-icon><delete /></el-icon>删除</el-button>
           </div>
         </template>
         <template v-slot:sex="scope">{{scope.row.sex?'男':'女'}}</template>
@@ -17,12 +17,12 @@
               type="primary"
               size="small"
               icon="Edit"
-              @click="edit(scope.row)"
+              @click.stop="edit(scope.row)"
           >
             编辑
           </el-button>
           <el-button
-              @click="del(scope.row)"
+              @click.stop="del(scope.row)"
               type="danger"
               size="small"
               icon="Delete"
@@ -60,8 +60,8 @@
         </el-form>
         <template #footer>
       <span class="dialog-footer">
-        <el-button @click="dialogVisible = false">取消</el-button>
-        <el-button type="primary" @click="handleClose(ruleFormRef)"
+        <el-button @click.stop="dialogVisible = false">取消</el-button>
+        <el-button type="primary" @click.stop="handleClose(ruleFormRef)"
         >确定</el-button
         >
       </span>

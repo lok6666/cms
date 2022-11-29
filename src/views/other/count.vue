@@ -26,8 +26,8 @@
         <el-input v-model="options.suffix" @change="(val)=>handleChange(val,'suffix')"    style="width: 100px;margin-left: 10px"></el-input>
       </label>
 
-      <el-button type="primary" @click="start">开始</el-button>
-      <el-button type="danger" @click="pauseResume">暂停/恢复</el-button>
+      <el-button type="primary" @click.stop="start">开始</el-button>
+      <el-button type="danger" @click.stop="pauseResume">暂停/恢复</el-button>
     </div>
   </u-container-layout>
 </template>

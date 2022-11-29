@@ -12,7 +12,7 @@
                :key="tag.path"
                class="item-tag-wrap"
                :class="isActive(tag)?'active':''"
-               @click="routerGo(tag)">
+               @click.stop="routerGo(tag)">
             <div class="tags-view-item" >{{ tag.title }}</div>
             <el-icon @click.prevent.stop="(e)=>closeSelectedTag(e,tag)"  class="tag-icon">
               <circle-close-filled /></el-icon>
@@ -26,7 +26,7 @@
         content="点击刷新"
         placement="bottom-end"
     >
-      <div class="refresh" @click="refresh">
+      <div class="refresh" @click.stop="refresh">
         <div class="refresh-inner">
          <el-icon><Refresh />
         </el-icon>

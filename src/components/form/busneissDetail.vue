@@ -87,7 +87,7 @@ const state = reactive({
 });
 
 let currentRoleId = ref<string>("");
-const title = ref<string>("新增");
+const title = ref<string>("添加");
 const map1 = {
   工商信息: [
     "BASICINFO",

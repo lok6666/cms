@@ -6,9 +6,9 @@
             <el-input v-model="state.entName" placeholder="请输入企业名称"/>
           </el-form-item>
           <el-form-item>
-          <el-button type="primary" @click="gettrainingServicesAll">查询</el-button>
-          <el-button type="primary" @click="reset">重置</el-button>
-          <el-button type="primary" @click="exportClick">导出EXECL</el-button>
+          <el-button type="primary" icon="Search" @click.stop="gettrainingServicesAll">查询</el-button>
+          <el-button type="primary" icon="Refresh" @click.stop="reset">重置</el-button>
+          <el-button type="primary" icon="IceCreamSquare" @click.stop="exportClick2">导出EXECL</el-button>
           </el-form-item>
         </el-form>
       <el-table
@@ -17,8 +17,10 @@
         style="width: 100%"
         :border="true"
         v-loading="loading"
+        @selection-change="handleSelectionChange"
       >
-      <el-table-column type="index" label="序号" width="80" />
+        <el-table-column align="center" type="selection" width="60"></el-table-column>
+        <el-table-column type="index" label="序号" width="80" />
         <el-table-column
           v-for="(item, index) in tableHeaderConfig"
           :key="index"
@@ -36,10 +38,10 @@
         </el-table-column>
         <el-table-column prop="operator" label="操作" width="200" fixed="right">
           <template #default="scope">
-            <el-button type="primary" size="small" @click="detail(scope.row)">
+            <el-button type="primary" size="small" @click.stop="detail(scope.row)">
               查看详情
             </el-button>
-            <el-button type="primary" size="small" @click="qr(scope.row)">
+            <el-button type="primary" size="small" @click.stop="qr(scope.row)">
               分配
             </el-button>
           </template>
@@ -52,6 +54,7 @@
         @closed="closeDialog()"
       >
         <formConpoent
+          v-if="state.dialogVisible"
           v-model:formConfig="state.formConfig"
           :showBtn="false"
           :disabled="true"
@@ -65,6 +68,7 @@
         @closed="closeDialog()"
       >
         <formConpoent
+          v-if="state.dialogVisible2"
           v-model:formConfig="state.formConfig2"
           :showBtn="true"
           @handle="postFormData"
@@ -93,8 +97,9 @@
   </u-container-layout>
 </template>
 <script lang="ts">
-import FileSaver from 'file-saver'
-import * as XLSX from 'xlsx';
+import FileSaver from "file-saver";
+import * as XLSX from "xlsx";
+import { export_json_to_excel } from "@/execl/Export2Excel";
 import { computed, ref, reactive, onMounted, toRefs, } from "vue";
 import { entServiceDockingAll, entServiceDockingUpdate, suppliersAll } from "@/config/api";
 import formConpoent from "@/components/form/form.vue";
@@ -197,6 +202,7 @@ const state = reactive({
   formConfig: formConfig,
   tableData: [
   ],
+  selectionList: [],
   formConfig2: [{
     prop: "supplierName",
     label: "服务商",
@@ -205,12 +211,63 @@ const state = reactive({
   optionsList: [],
   levelOptions: [],
 });
-const title = ref("新增");
+const title = ref("添加");
 
 // todo 改写法
 const closeDialog = async (done: () => void) => {
   state.dialogVisible = false;
   state.dialogVisible2 = false;
+};
+  
+const handleSelectionChange = (row) => {
+  console.log('row', row);
+  state.selectionList = row; 
+};
+const formatJson  = (filterVal, jsonData) => {
+  return jsonData.map(v => filterVal.map(j => v[j]));
+}
+// 导出表格
+const exportClick2 = () => {
+  if(state.selectionList.length === 0) {
+    ElMessage({
+        message: '请选择要导出的数据',
+        type: 'warning'
+      })
+  } else {
+    const tableHeaderConfig = [{
+        prop: "serviceName",
+        label: "服务名称",
+      },  {
+    prop: "supplierName",
+    label: "服务商名称",
+    showInput: true,
+    disabled: true
+  },  {
+        prop: "companyContact",
+        label: "企业联系方式",
+      }, 
+      {
+        prop: "companyName",
+        label: "企业名称",
+      }, 
+      {
+        prop: "companyPerson",
+        label: "企业联系人",
+      }, {
+        prop: "dockStatus",
+        label: "对接状态",
+      },
+      {
+        prop: "dockTime",
+        label: "对接时间",
+      }
+      ];
+  const tHeader = tableHeaderConfig.map(e => e.label);
+  const filterVal = tableHeaderConfig.map(e => e.prop);
+  const list = state.selectionList;
+  const data = formatJson(filterVal, list);
+  export_json_to_excel(tHeader, data, '企业服务对接管理');
+  }
 };
 
 
@@ -226,7 +283,7 @@ const exportClick = () => {
 	try {
 		FileSaver.saveAs(new Blob([wbout], {
 			type: 'application/octet-stream'
-		}), '企业服务对接管理.xlsx')//自定义文件名
+		}), '企业服务对接管理')//自定义文件名
 	} catch (e) {
 		if (typeof console !== 'undefined') console.log(e, wbout);
 	}

@@ -41,7 +41,7 @@
       <div class="" style="margin-right:10px">
         Ctrl+V粘贴,  Ctrl+Enter换行
       </div>
-      <el-button @click="sendInfoAction">发送</el-button>
+      <el-button @click.stop="sendInfoAction">发送</el-button>
     </div>
 
   </div>

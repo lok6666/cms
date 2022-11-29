@@ -1,46 +1,8 @@
 <template>
   <u-container-layout>
-    <div style="display: inline-block">
-      <el-select
-        v-model="state.culName"
-        filterable
-        placeholder="请选择文化领域"
-        @change="chooseCulture"
-      >
-        <el-option
-          v-for="item in state.levelOptions"
-          :key="item.value"
-          :label="item.title"
-          :value="item.value"
-        />
-      </el-select>
-    </div>
-    <div style="display: inline-block">
-      <!--年选择器-->
-      <el-date-picker
-        v-model="state.year"
-        type="year"
-        placeholder="请选择年份"
-        format="YYYY"
-        value-format="YYYY"
-      />
-    </div>
-    <div style="display: inline-block">
-      <!--月选择器-->
-      <el-date-picker
-        v-model="state.month"
-        type="month"
-        placeholder="请选择月份"
-        format="MM"
-        value-format="MM"
-      />
-    </div>
-    <el-button type="primary" @click="getIndustryDataAll">
-      <el-icon><plus /></el-icon>查询
-    </el-button>
     <div class="inline-edit-table">
       <div style="display: flex; justify-content: flex-end">
-        <el-button type="primary" @click="add"
+        <el-button type="primary" @click.stop="add"
           ><el-icon><plus /></el-icon> 添加</el-button
         >
       </div>
@@ -63,7 +25,7 @@
               type="primary"
               size="small"
               
-              @click="edit(scope.row)"
+              @click.stop="edit(scope.row)"
             >
               编辑
             </el-button>
@@ -71,7 +33,7 @@
               type="danger"
               size="small"
               icon="Delete"
-              @click="deleteAction(scope.row)"
+              @click.stop="deleteAction(scope.row)"
             >
               {{ "删除" }}
             </el-button>
@@ -88,6 +50,7 @@
           v-model:formConfig="state.formConfig"
           @handle="changeFormData"
           @dialogClose="closeDialog"
+          :showBtn="true"
         ></formConpoent>
       </el-dialog>
       <div
@@ -132,49 +95,10 @@ export default {
     return {
       tableHeaderConfig: [
         {
-          prop: "id",
-          label: "序号",
-        },
-        {
-          prop: "culName",
-          label: "文化领域",
-        },
-        {
-          prop: "year",
-          label: "年份",
-        },
-        {
-          prop: "month",
-          label: "月份",
-        },
-        {
-          prop: "revenue",
-          label: "收入(亿元)",
-        },
-        {
-          prop: "revenueRate",
-          label: "收入同比增长(%)",
-        },
-        {
-          prop: "expend",
-          label: "支出(亿元)",
-        },
-        {
-          prop: "profit",
-          label: "利润(亿元)",
-        },
-        {
-          prop: "profitRate",
-          label: "利润同比增长(%)",
-        },
-        {
-          prop: "avgPeople",
-          label: "从业平均人数(万人)",
-        },
-        {
-          prop: "avgPeopleRate",
-          label: "从业平均人数同比增长(%)",
-        },
+          prop: "bannerPicture",
+          label: "轮播图",
+          showImg: true
+        }
       ],
     };
   },
@@ -183,71 +107,11 @@ export default {
 <script lang="ts" setup >
 const formConfig = [
   {
-    prop: "typeName",
-    label: "文化领域",
-    showSelect: true,
+    prop: "bannerPicture",
+    label: "轮播图",
     required: true,
-    value: "111",
-    options: [],
-    typeName: "",
-  },
-  {
-    prop: "year",
-    label: "年份",
-    showYearPicker: true,
-    required: true,
-    value: "",
-  },
-  {
-    prop: "month",
-    label: "月份",
-    showMonthPicker: true,
-    required: true,
-    value: "",
-  },
-  {
-    prop: "revenue",
-    label: "收入",
-    showInput: true,
-    required: true,
-    value: "",
-    revenue: "",
-  },
-  {
-    prop: "revenueRate",
-    label: "收入同比增长(%)",
-    showInput: true,
-    required: true,
-    value: "",
-  },
-  {
-    prop: "profit",
-    label: "利润",
-    showInput: true,
-    required: true,
-    value: "",
-  },
-  {
-    prop: "profitRate",
-    label: "利润同比增长(%)",
-    showInput: true,
-    required: true,
-    value: "",
-  },
-  {
-    prop: "avgPeople",
-    label: "从业平均人数(万人)",
-    showInput: true,
-    required: true,
-    value: "",
-  },
-  {
-    prop: "avgPeopleRate",
-    label: "从业平均人数同比增长(%)",
-    showInput: true,
-    required: true,
-    value: "",
-  },
+    upload: true,
+  }
 ];
 const state = reactive({
   currentPage: 0,
@@ -258,7 +122,7 @@ const state = reactive({
   dialogVisible: false,
   year: 0,
   month: "",
-  
+  currentRoleId: '',
   culName: "",
   formConfig: formConfig,
   tableData: [
@@ -290,7 +154,7 @@ const state = reactive({
   optionsList: [],
   levelOptions: [],
 });
-const title = ref("新增");
+const title = ref("添加");
 
 /**
  * 获取下拉选项列表
@@ -333,7 +197,7 @@ state.levelOptions = getindustryDataOptionList();
  * 添加
  */
 const add = () => {
-  title.value = "新增";
+  title.value = "添加";
   state.dialogVisible = true;
   state.formConfig[0].options = getindustryDataOptionList();
 };
@@ -378,6 +242,8 @@ const closeDialog = async (done: () => void) => {
  * 编辑表单
  */
 const edit = (row) => {
+  debugger;
+  state.currentRoleId = row.id;
   title.value = "编辑";
   /*   post(`${selectByIdType}`, {
     id: row.id,
@@ -475,6 +341,16 @@ const deleteAction = (row) => {
 const changeFormData = (formData) => {
   state.dialogVisible = false;
   console.log("changeFormData", formData);
+  post(`${industryDataUpdateOne}`, {
+    id: state.currentRoleId,
+    ...formData,
+  })
+  .then(function (data) {
+    getIndustryDataAll();
+  })
+  .catch((e) => {
+    console.log("e", e);
+  });
 };
 </script>
 

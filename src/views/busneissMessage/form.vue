@@ -36,7 +36,7 @@
         </el-descriptions-item>
       </el-descriptions>
       <div v-if="showBtn" style="float: right">
-        <el-button type="primary" @click="submitForm('formRef')">保存</el-button>
+        <el-button type="primary" @click.stop="submitForm('formRef')">保存</el-button>
       </div>
     </div>
   </u-container-layout>

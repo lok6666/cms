@@ -1,7 +1,7 @@
 import { Module } from "vuex";
 import Layout from "@/layout/index.vue";
 import { post } from "@/utils/request";
-import { asyncRoutes, constantRoutes } from '@/router/index';
+import { asyncRoutes, constantRoutes, baseRoutes } from '@/router/index';
 import { constantRouterComponents } from '@/config/constants';
 import { getMenuByUserId } from '@/config/api';
 import { el } from "element-plus/es/locale";
@@ -77,7 +77,18 @@ export function filterAsyncRoutes(routes, roles) {
     return res
 }
 
-
+/**
+ * 通过递归过滤异步路由表
+ * @param routes asyncRoutes
+ * @param roles
+ */
+ export function filterRoutes2Redirect(routes) {
+    let res = routes.path;
+    if (routes.children) {
+        res = res + '/' + filterRoutes2Redirect(routes.children[0])
+    };
+    return res
+}
 const state = {
     routes: [],
     addRoutes: []
@@ -85,7 +96,7 @@ const state = {
 
 const mutations = {
     SET_ROUTES: (state, routes) => {
-        state.addRoutes = routes
+        state.addRoutes = routes;
         state.routes = constantRoutes.concat(routes)
     },
     CLEAR_ROUTERS: (state, routes) => {
@@ -101,8 +112,10 @@ const actions = {
                 id: getUserId(),
             })
             .then(function (data) {
-                const routers = generator(data);
-                console.log('routers-----------', routers);
+                let routers = generator(data);
+                baseRoutes[0].redirect = '' + filterRoutes2Redirect(routers[0]);
+                routers = routers.concat(baseRoutes);
+                console.log('routers', routers);
                 commit('SET_ROUTES', routers);
                 resolve(routers);
             });

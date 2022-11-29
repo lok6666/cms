@@ -5,7 +5,7 @@
         <el-input v-model="state.name" placeholder="请输入会员单位" />
       </el-form-item>
       <el-form-item>
-       <el-button type="primary" @click="getfundAll">查询</el-button>
+       <el-button type="primary" @click.stop="getfundAll">查询</el-button>
       </el-form-item>
     </el-form>
     
@@ -34,7 +34,7 @@
               type="primary"
               size="small"
               
-              @click="edit(scope.row)"
+              @click.stop="edit(scope.row)"
             >
               编辑
             </el-button>
@@ -48,6 +48,7 @@
         @closed="closeDialog()"
       >
         <formConpoent
+          v-if="state.dialogVisible"
           v-model:formConfig="state.formConfig"
           @handle="changeFormData"
           @dialogClose="closeDialog"
@@ -186,14 +187,14 @@ ysIssue: 0
   optionsList: [],
   levelOptions: [],
 });
-const title = ref("新增");
+const title = ref("添加");
 
 
 /**
  * 添加
  */
 const add = () => {
-  title.value = "新增";
+  title.value = "添加";
   state.dialogVisible = true;
 };
 
@@ -211,6 +212,11 @@ const postFormData = (formData) => {
       console.log("e", e);
     });
   state.dialogVisible = false;
+  state.formConfig = state.formConfig.map((e, b) => {
+    let result = { ...e };  
+    delete result[e.prop];
+    return result;
+  });
   console.log("submit!", formData);
 };
 
@@ -219,7 +225,11 @@ const postFormData = (formData) => {
  */
 const closeDialog = async (done: () => void) => {
   state.dialogVisible = false;
-  state.formConfig = formConfig;
+  state.formConfig = state.formConfig.map((e, b) => {
+    let result = { ...e };  
+    delete result[e.prop];
+    return result;
+  });
 };
 
 /**

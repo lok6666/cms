@@ -194,7 +194,23 @@
     }
   }
 }
+/* .app-main {
+  .el-overlay {
+    z-index: 100 !important;
+  }
+}
+.tox-dialog__disable-scroll {
+  .tox {
+    position: none !important;
+  }
+  .tox-dialog-wrap {
+    z-index: 4000 !important;
+      .tox-dialog {
+        z-index: 5000 !important;
+      }
 
+  }
+} */
 // when menu collapsed
 .el-menu--vertical {
   &>.el-menu {

@@ -2,7 +2,7 @@
   <u-container-layout>
     <div class="inline-edit-table">
       <div style="display: flex; justify-content: flex-end">
-        <el-button type="primary" @click="add">
+        <el-button type="primary" @click.stop="add">
           <el-icon><plus /></el-icon>添加
         </el-button>
       </div>
@@ -25,14 +25,14 @@
               type="primary"
               size="small"
               icon="Edit"
-              @click="edit(scope.row)"
+              @click.stop="edit(scope.row)"
               >修改</el-button
             >
             <el-button
               type="danger"
               size="small"
               icon="Delete"
-              @click="deleteAction(scope.row, state.isResume)"
+              @click.stop="deleteAction(scope.row, state.isResume)"
               >删除</el-button
             >
           </template>
@@ -202,11 +202,11 @@ const state = reactive({
 });
 
 let currentRoleId = ref<string>("");
-const title = ref<string>("新增");
+const title = ref<string>("添加");
 
 // 添加
 const add = () => {
-  title.value = "新增";
+  title.value = "添加";
   state.dialogVisible = true;
 };
 

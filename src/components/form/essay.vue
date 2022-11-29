@@ -1,6 +1,6 @@
 <template>
   <u-container-layout>
-    <el-button type="primary" size="small" icon="close" @click="close" style="float: right;" v-if="state.isSHowCloseBtn">
+    <el-button type="primary" size="small" icon="close" @click.stop="close" style="float: right;" v-if="state.isSHowCloseBtn">
       关闭
     </el-button>
     <!-- <div style="margin-bottom: 20px;">基本信息</div> -->

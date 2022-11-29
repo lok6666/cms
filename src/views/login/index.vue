@@ -36,14 +36,14 @@
                   <el-icon class="el-input__icon"><GoodsFilled/></el-icon>
                 </template>
                 <template #suffix>
-                  <div class="show-pwd" @click="showPwd"><svg-icon :icon-class="passwordType==='password'?'eye':'eye-open'" /></div>
+                  <div class="show-pwd" @click.stop="showPwd"><svg-icon :icon-class="passwordType==='password'?'eye':'eye-open'" /></div>
 
                 </template>
               </el-input>
             </el-form-item>
             <el-form-item style="width: 100%">
               <el-button type="primary"
-                         @click="submitForm(ruleFormRef)"
+                         @click.stop="submitForm(ruleFormRef)"
                          style="width: 100%;height: 47px"
               >登录</el-button
               >
@@ -100,11 +100,15 @@
       console.log('valid==',valid)
       if (valid) {
         // 登录
-        await store.dispatch('user/login',ruleForm)
-        ElMessage.success('登录成功')
-        router.push({
-          path:'/'
-        })
+        try {
+          await store.dispatch('user/login',ruleForm);
+          router.push({
+            path:'/'
+          })      
+          ElMessage.success('登录成功')
+        } catch (error) {
+          ElMessage.error('用户名或密码错误')
+        }
       } else {
         console.log('error submit!')
         return false

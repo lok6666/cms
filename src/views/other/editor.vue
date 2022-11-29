@@ -25,9 +25,9 @@
         </div>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" @click="submitForm(formRef)">保存</el-button>
-        <!--      <el-button @click="preview">预览</el-button>-->
-        <el-button @click="resetForm(formRef)">取消</el-button>
+        <el-button type="primary" @click.stop="submitForm(formRef)">保存</el-button>
+        <!--      <el-button @click.stop="preview">预览</el-button>-->
+        <el-button @click.stop="resetForm(formRef)">取消</el-button>
       </el-form-item>
     </el-form>
   </u-container-layout>
@@ -81,9 +81,7 @@ const editorConfig = {
         data.append("type", "file");
         // 插入节点
         const editor = editorRef.value;
-        const node = { type: 'link', url: 'https://www.baidu.com/img/PCtm_d9c8750bed0b3c7d089fa7d55720d6cf.png', children: [{ text: 'simple text' }] }
-        editor.insertNode(node);
-/*         var config = {
+        var config = {
           method: "post",
           url: `${upLoad}`, //上传图片地址
           headers: {
@@ -92,22 +90,18 @@ const editorConfig = {
           },
           data,
         };
-        // post(`http://172.16.4.62:28182/upload`, {
-        //   headers: {
-        //     "Access-Control-Allow-Origin": "*",
-        //     Authorization: "Bearer " + localStorage.getItem("token"),
-        //   },
-        //   data: data
-        // })
         axios(config)
           .then(function (res) {
-            ;
-            let url = res.data; //拼接成可浏览的图片地址
-            insertFn(url, "使用说明", url); //插入图片
+            const node = { type: 'link', url: 'https://www.baidu.com/img/PCtm_d9c8750bed0b3c7d089fa7d55720d6cf.png', children: [{ text: 'simple text' }] }
+            editor.insertNode(node);
           })
           .catch(function (error) {
             console.log(error);
-          }); */
+            ElMessage({
+                message: '上传文件过大,最大为100MB',
+                type: 'error'
+            })
+          });
       },
     },
     uploadImage: {
@@ -162,11 +156,54 @@ const editorConfig = {
         axios.defaults.headers.common["Access-Control-Allow-Origin"] = "*";
         axios(config)
           .then(function (res) {
+            const video1 = document.createElement('video');
+            video1.src = res;
+            video1.id = 'getPoster';
+            video1.autoplay=true;
+            video1.crossOrigin = 'Anonymous';
+            document.getElementById('app').appendChild(video1);
+            setTimeout(() => {
+              const video = document.getElementById('getPoster');
+              const canvas = document.createElement('canvas');
+              canvas.width = video.videoWidth;
+              canvas.height = video.videoHeight;
+              const fill = canvas.getContext('2d');
+              fill.drawImage(video, 0, 0, canvas.width, canvas.height);
+              const img = canvas.toDataURL("image/png");
+              let blob = dataURLtoFile(img);
+              let file = uploadImg(blob);
+              var axios = require("axios");
+              var FormData = require("form-data");
+              var data = new FormData();
+              data.append("file", file); // file 即选中的文件
+              data.append("userId", window.localStorage);
+              data.append("type", "file");
+              var config = {
+                method: "post",
+                url: `${upLoad}`, //上传图片地址
+                type: 'file',
+                data: data
+              };
+              axios.defaults.crossDomain = true;
+              axios.defaults.headers.common["Access-Control-Allow-Origin"] = "*";
+              axios(config)
+                .then(function (res) {
+                  video.poster= res;
+                  document.getElementById('app').removeChild(document.getElementById('getPoster'));
+                  insertFn(url, res, url); //插入图片 */
+                })
+                .catch(function (error) {
+                  console.log(error);
+                });
+          }, 1000);
             let url = res; //拼接成可浏览的图片地址
-            insertFn(url, "使用说明", url); //插入图片
           })
           .catch(function (error) {
             console.log(error);
+            ElMessage({
+                message: '上传文件过大,最大为100MB',
+                type: 'error'
+            })
           });
       },
     },
@@ -182,7 +219,6 @@ onBeforeUnmount(() => {
 
 // 编辑器回调函数
 const handleCreated = (editor) => {
-  console.log("created", editor);
   editorRef.value = editor; // 记录 editor 实例，重要！
 };
 const handleChange = (editor) => {

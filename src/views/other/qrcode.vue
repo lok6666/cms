@@ -2,10 +2,10 @@
 <template>
     <u-container-layout>
         <el-input v-model="inputData" placeholder="请输入" style="width:400px;max-width:100%;" />
-        <el-button type="primary" @click="handleQrcode(1)">
+        <el-button type="primary" @click.stop="handleQrcode(1)">
             <el-icon style="margin-right: 6px"><collection /></el-icon> 生成二维码
         </el-button>
-        <el-button type="primary" @click="handleQrcode(2)">生成带logo</el-button>
+        <el-button type="primary" @click.stop="handleQrcode(2)">生成带logo</el-button>
         <div>
             <vue-qr  :logoSrc="src" :text="inputData" :size="200"></vue-qr>
         </div>

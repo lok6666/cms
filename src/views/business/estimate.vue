@@ -1,7 +1,16 @@
 <template>
   <u-container-layout>
     <div class="inline-edit-table">
-      <formConpoent
+      <busneissDetail
+        v-if="state.dialogVisible"
+        :busneissName="state.busneissName"
+        :tabList="state.tabList"
+        v-model:baseInfo="state.baseInfo"
+        v-model:formConfig="state.formConfig"
+        @handle="postFormData"
+        @dialogClose="closeDialog"
+      ></busneissDetail>
+<!--       <formConpoent
         :isSHowCloseBtn="true"
         v-if="state.dialogVisible"
         :tabList="state.tabList"
@@ -10,16 +19,16 @@
         @handle="postFormData"
         @dialogClose="closeDialog"
         v-loading="loading"
-      ></formConpoent>
+      ></formConpoent> -->
       <div v-else>
         <el-form :inline="true" :model="state" class="demo-form-inline">
           <el-form-item label="企业名称">
             <el-input v-model="state.entName" placeholder="请输入企业名称"/>
           </el-form-item>
           <el-form-item>
-          <el-button type="primary" @click="gettrainingServicesAll">查询</el-button>
-          <el-button type="primary" @click="reset">重置</el-button>
-          <el-button type="primary" @click="exportClick">导出EXECL</el-button>
+          <el-button type="primary" icon="Search" @click.stop="gettrainingServicesAll">查询</el-button>
+          <el-button type="primary" icon="Refresh" @click.stop="reset">重置</el-button>
+          <el-button type="primary" icon="IceCreamSquare" @click.stop="exportClick2">导出EXECL</el-button>
           </el-form-item>
         </el-form>
         <el-tabs
@@ -35,7 +44,9 @@
           :data="state.tableData"
           style="width: 100%"
           :border="true"
+          @selection-change="handleSelectionChange"
         >
+        <el-table-column align="center" type="selection" width="60"></el-table-column>
         <el-table-column
           v-for="(item, index) in tableHeaderConfig"
           :key="index"
@@ -43,9 +54,9 @@
           :label="item.label"
         >
         </el-table-column>
-        <el-table-column prop="operator" label="操作" width="100" fixed="right">
+        <el-table-column prop="operator" label="操作" width="120" fixed="right">
           <template #default="scope">
-            <el-button type="primary" size="small" @click="detail(scope.row)">
+            <el-button type="primary" icon="Document" size="small" @click.stop="detail(scope.row)">
               查看详情
             </el-button>
           </template>
@@ -88,13 +99,19 @@
   </u-container-layout>
 </template>
 <script lang="ts">
-import FileSaver from 'file-saver'
-import * as XLSX from 'xlsx';
+import {
+  phoneRules,
+  emtyRules
+} from "@/config/constants";
+import FileSaver from "file-saver";
+import * as XLSX from "xlsx";
+import { export_json_to_excel } from "@/execl/Export2Excel";
 import { ref, reactive, provide } from "vue";
 // import { busneissData } from "./data";
 import { map,entPatentGetMap, getSoftByNameMap, getTrademarkByNameMap, getWorksByNameMap,
   entgetRecruitByNameMap,entgetNewsByNameMap } from "./constant";
 import formConpoent from "@/components/form/essay.vue";
+import busneissDetail from "@/components/form/busneissDetail.vue";
 import {
   businessEstimateAll,
   entGetByName,
@@ -144,19 +161,19 @@ const formConfig: formConfigItem[] = [
   {
     prop: "companyName",
     label: "企业名称",
-    required: true,
+    rules: { required: true, validator: emtyRules, trigger: 'blur'},
     showInput: true,
   },
   {
     prop: "entLocal",
     label: "企业地点",
-    required: true,
+    rules: { required: true, validator: emtyRules, trigger: 'blur'},
     showInput: true,
   },
   {
     prop: "entCode",
     label: "企业码",
-    required: true,
+    rules: { required: true, validator: emtyRules, trigger: 'blur'},
     showInput: true,
   }
 ];
@@ -256,6 +273,8 @@ const state = reactive({
   tabList: [
         '1', '2', '3'
     ],
+  selectionList: [],
+  busneissName: '',
   searchKey: '',
   sensitiveword: "",
   dialogVisible: false,
@@ -264,8 +283,44 @@ const state = reactive({
 });
 
 let currentRoleId = ref<string>("");
-const title = ref<string>("新增");
+const title = ref<string>("添加");
+  const handleSelectionChange = (row) => {
+  console.log('row', row);
+  state.selectionList = row; 
+};
+const formatJson  = (filterVal, jsonData) => {
+  return jsonData.map(v => filterVal.map(j => v[j]));
+}
+// 导出表格
+const exportClick2 = () => {
+  if(state.selectionList.length === 0) {
+    ElMessage({
+        message: '请选择要导出的数据',
+        type: 'warning'
+      })
+  } else {
+    const tableHeaderConfig = [
+        {
+          prop: "companyName",
+          label: "企业名称"
+        },
+        {
+          prop: "entLocal",
+          label: "企业地点"
+        },
+        {
+          prop: "entCode",
+          label: "企业码"
+        }
+      ];
+  const tHeader = tableHeaderConfig.map(e => e.label);
+  const filterVal = tableHeaderConfig.map(e => e.prop);
+  const list = state.selectionList;
+  const data = formatJson(filterVal, list);
+  export_json_to_excel(tHeader, data, '企业评估');
+  }
 
+};
  // 导出表格
 const exportClick = () => {
 var wb = XLSX.utils.table_to_book(document.querySelector('#my-table'));//关联don节点
@@ -278,7 +333,7 @@ var wbout = XLSX.write(wb, {
 try {
   FileSaver.saveAs(new Blob([wbout], {
     type: 'application/octet-stream'
-  }), '企业评估.xlsx')//自定义文件名
+  }), '企业评估')//自定义文件名
 } catch (e) {
   if (typeof console !== 'undefined') console.log(e, wbout);
 }
@@ -296,7 +351,9 @@ const reset = () => {
  */
 // todo 单独封装
 const detail = async (row) => {
-  await getentGetByName(row.companyName);
+  state.busneissName = row.companyName;
+  state.dialogVisible = true;
+  // await getentGetByName(row.companyName);
   // await getentPatentGet(row.companyName);
   // await getentgetSoftByName(row.companyName);
   // await getTrademarkByName(row.companyName);

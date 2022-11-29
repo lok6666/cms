@@ -6,7 +6,7 @@
           <el-input v-model="formInline1.username" placeholder="请输入姓名" />
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="onSubmit">搜索</el-button>
+          <el-button type="primary" @click.stop="onSubmit">搜索</el-button>
         </el-form-item>
       </el-form>
       <el-table
@@ -25,7 +25,7 @@
                   size="small"
                   icon="Refresh"
                   type="warning"
-                  @click="cancelEdit(scope.row)"
+                  @click.stop="cancelEdit(scope.row)"
                 >
                   取消
                 </el-button>
@@ -58,7 +58,7 @@
               type="success"
               size="small"
               icon="CircleCheckFilled"
-              @click="confirmEdit(scope.row)"
+              @click.stop="confirmEdit(scope.row)"
             >
               保存
             </el-button>
@@ -67,7 +67,7 @@
               type="primary"
               size="small"
               icon="Edit"
-              @click="scope.row.edit = !scope.row.edit"
+              @click.stop="scope.row.edit = !scope.row.edit"
             >
               编辑
             </el-button>
@@ -76,7 +76,7 @@
               type="danger"
               size="small"
               icon="Delete"
-              @click="deleteAction(scope.row)"
+              @click.stop="deleteAction(scope.row)"
             >
               删除
             </el-button>
@@ -90,21 +90,26 @@
         border
         default-expand-all
       >
-        <el-table-column prop="title" label="资源名称" sortable width="180" />
+        <el-table-column prop="title" label="资源名称" :show-overflow-tooltip="true"
+          sortable width="180" />
         <el-table-column
           prop="resourceId"
           label="资源编码"
+          :show-overflow-tooltip="true"
           sortable
           width="180"
         />
         <el-table-column
           prop="parentId"
           label="父资源编码"
+          :show-overflow-tooltip="true"
           sortable
           width="180"
         />
-        <el-table-column prop="href" label="资源链接" sortable width="180" />
-        <el-table-column prop="icon" label="图标" sortable width="180" />
+        <el-table-column prop="href" label="资源链接" :show-overflow-tooltip="true"
+          sortable width="180" />
+        <el-table-column prop="icon" label="图标" :show-overflow-tooltip="true"
+          sortable width="180" />
       </el-table>
       <div
         style="

@@ -2,7 +2,7 @@
   <u-container-layout>
     <div class="inline-edit-table">
       <div style="display: flex; justify-content: flex-end">
-        <el-button type="primary" @click="add">
+        <el-button type="primary" @click.stop="add">
           <el-icon><plus /></el-icon>添加
         </el-button>
       </div>
@@ -25,14 +25,14 @@
               type="primary"
               size="small"
               icon="Edit"
-              @click="edit(scope.row)"
-              >修改</el-button
+              @click.stop="edit(scope.row)"
+              >编辑</el-button
             >
             <el-button
               type="danger"
               size="small"
               icon="Delete"
-              @click="deleteAction(scope.row, state.isResume)"
+              @click.stop="deleteAction(scope.row, state.isResume)"
               >删除</el-button
             >
           </template>
@@ -45,9 +45,11 @@
         @closed="closeDialog()"
       >
        <formConpoent
+          v-if="state.dialogVisible"
           v-model:formConfig="state.formConfig"
           @handle="postFormData"
           @dialogClose="closeDialog"
+          :showBtn="true"
         ></formConpoent>
       </el-dialog>
       <div
@@ -81,7 +83,7 @@ import {
   sensitiveDelete
 } from "@/config/api";
 import { ElMessage, ElMessageBox, FormRules } from "element-plus";
-import { get, post } from "@/utils/request";
+import { deleteItem, get, post } from "@/utils/request";
 export default {
   name: "sensitive-manage",
   data() {
@@ -92,9 +94,8 @@ export default {
           label: "序号",
         },
         {
-          prop: "sensitiveword",
-          label: "敏感词",
-          showInput: true
+          prop: "sensitiveWord",
+          label: "敏感词"
         },
       ],
     };
@@ -102,17 +103,9 @@ export default {
 };
 </script>
 <script lang="ts" setup>
-const rules = reactive<FormRules>({
-  title: {
-    required: true,
-  },
-  sensitiveword: {
-    required: true,
-  },
-});
 const formConfig = [
   {
-    prop: "sensitiveword",
+    prop: "sensitiveWord",
     label: "敏感词",
     showInput: true
   },
@@ -121,46 +114,20 @@ const state = reactive({
   currentPage: 0,
   pageSize: 10,
   formConfig: formConfig,
-  tableData: [
-    {
-      createdate: null,
-      deletestate: "",
-      files: [],
-      id: 1,
-      images: [],
-      lastupdatatime: null,
-      operator: "",
-      pageNum: 0,
-      pageSize: 0,
-      sensitiveword: "造反有理,打到共产党",
-      storagetime: "2021-07-16 16:56:30",
-    },
-    {
-      createdate: null,
-      deletestate: "",
-      files: [],
-      id: 2,
-      images: [],
-      lastupdatatime: null,
-      operator: "",
-      pageNum: 0,
-      pageSize: 0,
-      sensitiveword: "法轮功",
-      storagetime: "2021-07-16 17:01:08",
-    },
-  ],
+  tableData: [],
   total: 0,
+  id: '',
   sensitiveword: "",
   dialogVisible: false,
   isResume: false,
 });
 const ruleFormRef = ref();
 const eleTable = ref();
-const title = ref("新增");
+const title = ref("添加");
 
 // 添加
 const add = () => {
-  title.value = "新增";
+  title.value = "添加";
   state.dialogVisible = true;
 };
 
@@ -174,7 +141,12 @@ const postFormData = (formData) => {
       ...formData
     })
       .then(function (data) {
-        console.log("data-----", data);
+        getSensitiveSelectAll();
+        state.formConfig = state.formConfig.map((e, b) => {
+          let result = { ...e };  
+          delete result[e.prop];
+          return result;
+        });
       })
       .catch((e) => {
         console.log("e", e);
@@ -183,13 +155,15 @@ const postFormData = (formData) => {
   } else {
     post(`${sensitiveUpdateOne}`, {
       ...formData,
-      headers: {
-        "Access-Control-Allow-Origin": "*",
-        "Content-Type": "application/json",
-      },
+      id: state.id
     })
       .then(function (data) {
-        console.log("data----", data);
+        getSensitiveSelectAll();
+        state.formConfig = state.formConfig.map((e, b) => {
+          let result = { ...e };  
+          delete result[e.prop];
+          return result;
+        });
       })
       .catch((e) => {
         console.log("e", e);
@@ -203,13 +177,18 @@ const postFormData = (formData) => {
 // todo 改写法
 const closeDialog = async (done: () => void) => {
   state.dialogVisible = false;
-  state.formConfig = formConfig;
+  state.formConfig = state.formConfig.map((e, b) => {
+    let result = { ...e };  
+    delete result[e.prop];
+    return result;
+  });
 };
 
 
-// 修改
+// 编辑
 const edit = (row) => {
-  title.value = "修改";
+  title.value = "编辑";
+  state.id = row.id;
   state.dialogVisible = true;
   state.formConfig = state.formConfig
     .map((e, b) => {
@@ -260,7 +239,9 @@ const deleteAction = (row, isResume) => {
     draggable: true,
   })
     .then(() => {
-      post(`${sensitiveDelete}`, [row.id]).then(function (data) {
+      deleteItem(`${sensitiveDelete}`,{
+          data: [row.id],
+        }).then(function (data) {
         getSensitiveSelectAll();
       });
       ElMessage.success("删除成功");

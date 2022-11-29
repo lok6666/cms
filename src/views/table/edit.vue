@@ -21,8 +21,8 @@
       />
       <div style="margin-top: 20px">
         <el-button
-            @click="reset">重置</el-button>
-        <el-button type="primary" @click="config">提交</el-button>
+            @click.stop="reset">重置</el-button>
+        <el-button type="primary" @click.stop="config">提交</el-button>
       </div>
     </div>
   </u-container-layout>

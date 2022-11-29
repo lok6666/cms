@@ -2,7 +2,7 @@
   <u-container-layout>
     <div style="margin-bottom: 15px;display: flex;align-items: center">
       <el-input v-model="input" placeholder="请输入文件名"  style="width: 200px;margin-right: 10px"/>
-      <el-button @click="exportExcelAction" type="primary">
+      <el-button @click.stop="exportExcelAction" type="primary">
         <el-icon style="margin-right: 10px"><document-remove /></el-icon>导出 zip
       </el-button>
     </div>

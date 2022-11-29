@@ -2,16 +2,16 @@
   <u-container-layout>
     <div class="inline-edit-table">
       <el-form :inline="true" :model="state" class="demo-form-inline">
-        <el-form-item label="课程名称">
+        <el-form-item label="活动名称">
           <el-input v-model="state.actName" placeholder="请输入活动名称"/>
         </el-form-item>
         <el-form-item label="企业名称">
           <el-input v-model="state.entName" placeholder="请输入企业名称"/>
         </el-form-item>
         <el-form-item>
-        <el-button type="primary" @click="gettrainingServicesAll">查询</el-button>
-        <el-button type="primary" @click="reset">重置</el-button>
-        <el-button type="primary" @click="exportClick">导出EXECL</el-button>
+        <el-button type="primary" icon="Search" @click.stop="gettrainingServicesAll">查询</el-button>
+        <el-button type="primary" icon="Refresh" @click.stop="reset">重置</el-button>
+        <el-button type="primary" icon="IceCreamSquare" @click.stop="exportClick2">导出EXECL</el-button>
         </el-form-item>
       </el-form>
       <el-table
@@ -20,7 +20,9 @@
         style="width: 100%"
         :border="true"
         v-loading="loading"
+        @selection-change="handleSelectionChange"
       >
+      <el-table-column align="center" type="selection" width="60"></el-table-column>
       <el-table-column type="index" label="序号" width="50" />
         <el-table-column
           v-for="(item, index) in tableHeaderConfig"
@@ -32,26 +34,32 @@
             {{applyStatusObj[scope.row.applyStatus]}}
           </template>
         </el-table-column>
-        <el-table-column prop="operator" label="操作" width="200" fixed="right">
+        <el-table-column prop="operator" label="操作" width="300" fixed="right">
           <template #default="scope">
             <!-- <el-button
               type="primary"
               size="small"
               icon="Edit"
-              @click="edit(scope.row)"
+              @click.stop="edit(scope.row)"
               >修改</el-button
             > -->
-            <el-button type="primary" size="small" @click="detail(scope.row)">
+            <el-button type="primary" size="small" @click.stop="detail(scope.row)">
               查看详情
             </el-button>
-            <el-button type="primary" :disabled="scope.row.applyStatus !== 0" size="small" @click="examine(scope.row)">
-              {{applyStatusObj[scope.row.applyStatus]}}
+            <el-button type="primary" size="small" @click.stop="examine(scope.row)">
+              审核
+            </el-button>
+            <el-button  type="primary" size="small" @click.stop="edit(scope.row)">
+              编辑
+            </el-button>
+            <el-button  type="primary" size="small" @click.stop="deleteAction(scope.row)">
+              删除
             </el-button>
             <!-- <el-button
               type="danger"
               size="small"
               icon="Delete"
-              @click="deleteAction(scope.row, state.isResume)"
+              @click.stop="deleteAction(scope.row, state.isResume)"
               >删除</el-button
             > -->
           </template>
@@ -66,6 +74,7 @@
         <formConpoent
           v-if="state.showForm"
           :disabled="state.disabled"
+          :showBtn="state.showBtn"
           v-model:formConfig="state.formConfig"
           @handle="postFormData"
           @dialogClose="closeDialog"
@@ -73,6 +82,7 @@
         <examineFormConpoent
           v-if="state.showExamineForm"
           @handle="postFormData"
+          :status="state.applyStatus"
           @dialogClose="closeDialog"
         ></examineFormConpoent>
       </el-dialog>
@@ -98,8 +108,13 @@
   </u-container-layout>
 </template>
 <script lang="ts">
+import {
+  phoneRules,
+  emtyRules
+} from "@/config/constants";
 import FileSaver from 'file-saver'
 import * as XLSX from 'xlsx';
+import { export_json_to_excel } from "@/execl/Export2Excel";
 import { ref, reactive, provide } from "vue";
 import examineFormConpoent from "@/components/form/examineForm.vue";
 import formConpoent from "@/components/form/form.vue";
@@ -143,6 +158,10 @@ export default {
           label: "职务",
         },
         {
+          prop: "storageTime",
+          label: "报名时间",
+        },
+        {
           prop: "activityDateFrom",
           label: "报名开始时间",
         },
@@ -181,44 +200,78 @@ const formConfig: formConfigItem[] = [
   {
     prop: "actName",
     label: "活动名称",
-    required: true,
+    disabled: true,
+    rules: { required: true, validator: emtyRules, trigger: 'blur'},
     showInput: true
   },
   {
-    prop: "duties",
-    label: "职务",
-    required: true,
+    prop: "applyTimeTo",
+    label: "报名截止时间",
+    rules: { required: true, validator: emtyRules, trigger: 'blur'},
+    disabled: true,
+    showDatePicker: true,
+  },
+  {
+    prop: "activityDateFrom",
+    label: "活动开始时间",
+    rules: { required: true, validator: emtyRules, trigger: 'blur'},
+    disabled: true,
+    showDatePicker: true,
+  },
+  {
+    prop: "entName",
+    label: '企业名称',
+    disabled: true,
+    rules: { required: true, validator: emtyRules, trigger: 'blur'},
     showInput: true
   },
   {
-    prop: "operator",
-    label: "操作人",
-    required: true,
+    prop: "applyCount",
+    label: "报名人数",
+    rules: { required: true, validator: emtyRules, trigger: 'blur'},
     showInput: true
   },
   {
     prop: "personName",
     label: "联系人",
-    required: true,
+    rules: { required: true, validator: emtyRules, trigger: 'blur'},
     showInput: true
   },
   {
     prop: "telPhone",
     label: "人员电话",
-    required: true,
+    rules: { required: true, validator: phoneRules, trigger: 'blur'},
     showInput: true
   },
+  {
+    prop: "duties",
+    label: "职务",
+    rules: { required: true, validator: emtyRules, trigger: 'blur'},
+    showInput: true
+  },
+  {
+    prop: "storageTime",
+    label: "报名时间",
+    rules: { required: true, validator: emtyRules, trigger: 'blur'},
+    disabled: true,
+    showDatePicker: true,
+  }
 ];
 const state = reactive({
   currentPage: 0,
   pageSize: 10,
   formConfig: Object.assign([], formConfig),
   tableData: [],
+  selectionList: [],
   total: 0,
   actName: '',
   entName: '',
+  actId: '',
+  applyCount: '',
+  applyStatus: 0,
   sensitiveword: "",
   dialogVisible: false,
+  showBtn: false,
   isResume: false,
   showForm: false,
   showExamineForm: false,
@@ -226,8 +279,76 @@ const state = reactive({
 });
 
 let currentRoleId = ref<string>("");
-const title = ref<string>("新增");
+const title = ref<string>("添加");
+  const handleSelectionChange = (row) => {
+  console.log('row', row);
+  state.selectionList = row; 
+};
+const formatJson  = (filterVal, jsonData) => {
+  return jsonData.map(v => filterVal.map(j => v[j]));
+}
+// 导出表格
+const exportClick2 = () => {
+  if(state.selectionList.length === 0) {
+    ElMessage({
+        message: '请选择要导出的数据',
+        type: 'warning'
+      })
+  } else {
+    const tableHeaderConfig = [
+/*         {
+          prop: "id",
+          label: '序号'
+        }, */
+        {
+          prop: "actName",
+          label: "活动名称",
+        },
+        {
+          prop: "entName",
+          label: '企业名称'
+        },
+        {
+          prop: "applyCount",
+          label: "报名人数",
+        },
+        {
+          prop: "duties",
+          label: "职务",
+        },
+        {
+          prop: "storageTime",
+          label: "报名时间",
+        },
+        {
+          prop: "activityDateFrom",
+          label: "报名开始时间",
+        },
+        {
+          prop: "applyTimeTo",
+          label: "报名结束时间",
+        },
+        {
+          prop: "personName",
+          label: "联系人",
+        },
+        {
+          prop: "telPhone",
+          label: "人员电话",
+        },
+        {
+          prop: "applyStatus",
+          label: "审核状态",
+        }
+      ];
+  const tHeader = tableHeaderConfig.map(e => e.label);
+  const filterVal = tableHeaderConfig.map(e => e.prop);
+  const list = state.selectionList;
+  const data = formatJson(filterVal, list);
+  export_json_to_excel(tHeader, data, '活动报名');
+  }
 
+};
 // 导出表格
 const exportClick = () => {
 	var wb = XLSX.utils.table_to_book(document.querySelector('#my-table'));//关联don节点
@@ -240,7 +361,7 @@ const exportClick = () => {
 	try {
 		FileSaver.saveAs(new Blob([wbout], {
 			type: 'application/octet-stream'
-		}), '活动报名.xlsx')//自定义文件名
+		}), '活动报名')//自定义文件名
 	} catch (e) {
 		if (typeof console !== 'undefined') console.log(e, wbout);
 	}
@@ -260,10 +381,19 @@ const reset = () => {
 const postFormData = (formData) => {
   if (title.value === "新增") {
     post(`${activityApplyAddOne}`, {
-      ...formData
+      ...formData,
+      id:　currentRoleId.value,
+      actId: state.actId,
+      applyCount: state.applyCount,
+      applyStatus: formData.status ? 1: 2,
     })
       .then(function (data) {
         getactivityApplyAll();
+        state.formConfig = state.formConfig.map((e, b) => {
+          let result = { ...e };  
+          delete result[e.prop];
+          return result;
+        });
       })
       .catch((e) => {
         console.log("e", e);
@@ -271,11 +401,15 @@ const postFormData = (formData) => {
     ElMessage.success("添加成功");
   } else {
     post(`${activityApplyrUpdateOne}`, {
-      id: currentRoleId.value,
-      applyStatus: formData.status ? 1 : 2
+      id:　currentRoleId.value,
+      actId: state.actId,
+      ...formData,
+      applyStatus: formData.status ? 1: 2,
     })
-      .then(function (data) {
+      .then(function (res) {
         getactivityApplyAll();
+        !res && ElMessage.warning('该报名人数已满');
+        state.applyStatus = false;
       })
       .catch((e) => {
         console.log("e", e);
@@ -288,14 +422,24 @@ const postFormData = (formData) => {
 // todo 改写法
 const closeDialog = async (done: () => void) => {
   state.dialogVisible = false;
-  state.formConfig = formConfig;
+  state.showExamineForm = false;
+  state.formConfig = state.formConfig.map((e, b) => {
+    let result = { ...e };  
+    delete result[e.prop];
+    return result;
+  });
 };
 
 // 修改
 const edit = (row) => {
   title.value = "修改";
   state.dialogVisible = true;
+  state.showForm = true;
+  state.disabled = false;
+  state.showBtn = true;
+  console.log('edit----', row);
   currentRoleId.value = row.id;
+  state.actId = row.actId;
   state.formConfig = state.formConfig
   .map((e, b) => {
     let result = { ...e };
@@ -326,6 +470,8 @@ getactivityApplyAll();
   state.formConfig.status = row.applyStatus;
   state.dialogVisible = true;
   state.showForm = true;
+  state.disabled = true;
+  state.showBtn = false;
   state.formConfig = state.formConfig
     .map((e, b) => {
       // value 替换成 e.prop
@@ -341,8 +487,10 @@ getactivityApplyAll();
  */
  const examine = (row) => {
   title.value = "审核";
-  debugger;
-  currentRoleId.value = row.actId;
+  currentRoleId.value = row.id;
+  state.actId = row.actId;
+  state.applyCount = row.applyCount;
+  state.applyStatus = row.applyStatus;
   state.dialogVisible = true;
   state.showExamineForm = true;
   state.showForm = false;
@@ -369,6 +517,7 @@ const formInline = reactive({
 });
 // 删除
 const deleteAction = (row) => {
+  state.actId = row.actId;
   ElMessageBox.confirm("你确定要删除当前项吗?", "温馨提示", {
     confirmButtonText: "确定",
     cancelButtonText: "取消",
@@ -376,9 +525,7 @@ const deleteAction = (row) => {
     draggable: true,
   })
     .then(() => {
-      deleteItem(`${activityApplyDelete}`, {
-        data: [row.id],
-      }).then(function (data) {
+      deleteItem(`${activityApplyDelete}/${row.id}/${state.actId}`).then(function (data) {
         getactivityApplyAll();
       });
       ElMessage.success("删除成功");

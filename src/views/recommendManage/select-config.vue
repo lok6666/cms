@@ -32,7 +32,7 @@
         </el-tab-pane>
       </el-tabs>
       <div style="display: flex; justify-content: flex-end">
-        <el-button type="primary" @click="add"
+        <el-button type="primary" @click.stop="add"
           ><el-icon><plus /></el-icon> 添加</el-button
         >
       </div>
@@ -55,7 +55,7 @@
               type="primary"
               size="small"
               
-              @click="edit(scope.row)"
+              @click.stop="edit(scope.row)"
             >
               编辑
             </el-button>
@@ -63,7 +63,7 @@
               type="danger"
               size="small"
               icon="Delete"
-              @click="deleteAction(scope.row)"
+              @click.stop="deleteAction(scope.row)"
             >
               {{ "删除" }}
             </el-button>
@@ -192,7 +192,7 @@ const state = reactive({
   ],
   optionsList: [],
 });
-const title = ref("新增");
+const title = ref("添加");
 
 /**
  * 获取下拉选项列表
@@ -251,7 +251,7 @@ const articleHandleClick = (tab, event) => {
  * 添加
  */
 const add = () => {
-  title.value = "新增";
+  title.value = "添加";
   state.dialogVisible = true;
   state.formConfig[0].options = getSelectOptionList();
 };

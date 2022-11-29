@@ -14,7 +14,7 @@ router.beforeEach(async(to, from, next) => {
   NProgress.start()
   // 设置标题
   if(typeof(to.meta.title) === 'string'){
-      document.title = to.meta.title ||'vue-admin-perfect'
+      document.title = to.meta.title ||'后台管理系统'
   }
 
   // 确定用户是否已登录

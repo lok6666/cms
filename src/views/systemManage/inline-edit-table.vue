@@ -18,7 +18,7 @@
                   size="small"
                   icon="Refresh"
                   type="warning"
-                  @click="cancelEdit(scope.row)"
+                  @click.stop="cancelEdit(scope.row)"
                 >
                   取消
                 </el-button>
@@ -39,7 +39,7 @@
               type="success"
               size="small"
               icon="CircleCheckFilled"
-              @click="confirmEdit(scope.row)"
+              @click.stop="confirmEdit(scope.row)"
             >
               保存
             </el-button>
@@ -48,7 +48,7 @@
               type="primary"
               size="small"
               icon="Edit"
-              @click="scope.row.edit = !scope.row.edit"
+              @click.stop="scope.row.edit = !scope.row.edit"
             >
               编辑
             </el-button>
@@ -57,7 +57,7 @@
               type="danger"
               size="small"
               icon="Delete"
-              @click="deleteAction(scope.row)"
+              @click.stop="deleteAction(scope.row)"
             >
               删除
             </el-button>

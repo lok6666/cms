@@ -9,7 +9,7 @@
          <el-option label="csv" value="csv"/>
        </el-select>
      </div>
-      <el-button @click="exportExcelAction" type="primary">
+      <el-button @click.stop="exportExcelAction" type="primary">
         <el-icon style="margin-right: 10px"><document-remove /></el-icon>导出 Excel
       </el-button>
     </div>

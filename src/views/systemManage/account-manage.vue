@@ -3,7 +3,7 @@
     <div class="inline-edit-table">
       账户管理
       <div style="display: flex; justify-content: flex-end">
-        <el-button type="primary" @click="add"
+        <el-button type="primary" @click.stop="add"
           ><el-icon><plus /></el-icon> 添加</el-button
         >
       </div>
@@ -15,17 +15,7 @@
         :border="true"
         v-loading="loading"
       >
-        <el-table-column prop="id" label="id" />
-        <el-table-column prop="picture" label="头像">
-          <template #default="scope">
-            <img
-              v-if="scope.row.picture"
-              :src="scope.row.picture"
-              alt=""
-              style="width: 50px; height: 50px"
-            />
-          </template>
-        </el-table-column>
+        <el-table-column width="100" label="序号" type="index"/>
         <el-table-column prop="username" label="用户名" />
         <el-table-column prop="name" label="姓名" />
         <el-table-column prop="type" label="职务" />
@@ -45,7 +35,7 @@
               type="success"
               size="small"
               icon="CircleCheckFilled"
-              @click="confirmEdit(scope.row)"
+              @click.stop="confirmEdit(scope.row)"
             >
               保存
             </el-button>
@@ -54,7 +44,7 @@
               type="primary"
               size="small"
               icon="Edit"
-              @click="edit(scope.row)"
+              @click.stop="edit(scope.row)"
             >
               编辑
             </el-button>
@@ -63,7 +53,7 @@
               type="danger"
               size="small"
               icon="Delete"
-              @click="del(scope.row)"
+              @click.stop="del(scope.row)"
             >
               删除
             </el-button>
@@ -95,11 +85,24 @@
           class="demo-ruleForm"
           :size="formSize"
         >
-          <el-form-item label="用户名" prop="username">
-            <el-input v-model="ruleForm.username" />
+          <el-form-item label="用户名" prop="username" :rules="[
+                {
+                  validator: (rule, value, callback) => {
+                    if (/^(?![a-zA-Z0-9_])/.test(value)) {
+                      callback('不能以特殊符号开头');
+                    } else {
+                      callback();
+                    }
+                  },
+                  trigger: ['blur', 'change'],
+                },
+              ]">
+            <el-input
+              v-model="ruleForm.username"
+            />
           </el-form-item>
           <el-form-item label="密码" prop="password">
-            <el-input type="password" v-model="ruleForm.password" />
+            <el-input type="password" v-model="ruleForm.password" :disabled="passwordDisabled.value"/>
           </el-form-item>
           <el-form-item label="姓名" prop="name">
             <el-input v-model="ruleForm.name" />
@@ -107,31 +110,20 @@
           <el-form-item label="职务" prop="type">
             <el-input v-model="ruleForm.type" />
           </el-form-item>
-          <el-form-item label="角色" prop="role">
-            <el-input v-model="ruleForm.role" />
+          <el-form-item label="角色" prop="roleName">
+            <el-select v-model="ruleForm.roleName" class="col" size="small" placeholder="选择角色">
+              <el-option v-for="i in roleOptions" :key="i.value" :label="i.label" :value="i.value"/>
+            </el-select>
+            <!-- <el-input v-model="ruleForm.roleName" /> -->
           </el-form-item>
           <el-form-item label="手机" prop="phone">
             <el-input v-model="ruleForm.phone" />
           </el-form-item>
-          <el-form-item label="头像" prop="picture">
-            <el-upload
-              class="avatar-uploader"
-              :show-file-list="false"
-              :before-upload="beforeAvatarUpload"
-            >
-              <img
-                v-if="ruleForm.picture"
-                :src="ruleForm.picture"
-                class="avatar"
-              />
-              <el-icon v-else class="avatar-uploader-icon"><Plus /></el-icon>
-            </el-upload>
-          </el-form-item>
         </el-form>
         <template #footer>
           <span class="dialog-footer">
-            <el-button @click="dialogVisible = false">取消</el-button>
-            <el-button type="primary" @click="handleClose(ruleFormRef)"
+            <el-button @click.stop="dialogVisible = false">取消</el-button>
+            <el-button type="primary" @click.stop="handleClose(ruleFormRef)"
               >确定</el-button
             >
           </span>
@@ -143,7 +135,7 @@
 <script lang="ts">
 export default { name: "inline-table" };
 </script>
-<script lang="ts" setup >
+<script lang="ts" setup>
 import { computed, ref, reactive, onMounted } from "vue";
 import TwoPng from "@/assets/image/im1.jpeg";
 import UUpload from "../components-demo/form/u-upload.vue";
@@ -152,7 +144,7 @@ import {
   sysUserAddOne,
   sysUserDeleteOne,
   sysUserUpdateOne,
-  upLoad
+  upLoad,
 } from "@/config/api";
 import { ElMessage, ElMessageBox, UploadProps } from "element-plus";
 import { Delete, Download, Plus, ZoomIn } from "@element-plus/icons-vue";
@@ -163,14 +155,16 @@ let businessUseList = ref([]);
 let currentPage = ref(1);
 let pageSize = ref(10);
 const ruleFormRef = ref();
+const passwordDisabled = ref<Boolean>(false);
+const roleOptions = ref<[]>([]);
 const rowObj = ref({});
 const dialogVisible = ref(false);
-const title = ref("新增");
+const title = ref("添加");
 const baseData = {
   name: "",
   username: "",
   password: "",
-  role: "",
+  roleName: "",
   phone: "",
   picture: "" || "https://www.baidu.com/img/flexible/logo/pc/result.png",
   type: "",
@@ -181,14 +175,13 @@ let ruleForm = ref(baseData);
 const getSysUserSelectAll = () => {
   post(`${sysUserSelectAll}`, {
     pageSize: pageSize.value,
-    pageNum: currentPage.value
+    pageNum: currentPage.value,
   }).then(function ({ list }) {
     businessUseList.value = list;
   });
 };
 getSysUserSelectAll();
 const beforeAvatarUpload: UploadProps["beforeUpload"] = (rawFile) => {
-  debugger;
   var axios = require("axios");
   var FormData = require("form-data");
   var data = new FormData();
@@ -215,36 +208,50 @@ const beforeAvatarUpload: UploadProps["beforeUpload"] = (rawFile) => {
 };
 
 // todo 改写法
-const closeDialog = ():void => {
+const closeDialog = (): void => {
   ruleForm.value.name = "";
   ruleForm.value.username = "";
   ruleForm.value.password = "";
-  ruleForm.value.role = "";
+  ruleForm.value.roleName = "";
   ruleForm.value.phone = "";
   ruleForm.value.picture = "";
   ruleForm.value.type = "";
   ruleForm.value.id = "";
 };
 // 添加
-const add = ():void => {
-  title.value = "新增";
+const add = (): void => {
+  title.value = "添加";
+  roleOptions.value = businessUseList.value.map(e => {
+    return {
+      label: e.roleName,
+      value: e.roleName
+    }
+  });
+  passwordDisabled.value = false;
   dialogVisible.value = true;
   ruleForm.value = baseData;
 };
 
 // 编辑
-const edit = (row):void => {
+const edit = (row): void => {
   title.value = "编辑";
   rowObj.value = row;
-  dialogVisible.value = true;
   ruleForm.value.name = row.name;
   ruleForm.value.username = row.username;
   ruleForm.value.password = row.password;
-  ruleForm.value.role = row.role;
+  roleOptions.value = businessUseList.value.map(e => {
+    return {
+      label: e.roleName,
+      value: e.roleName
+    }
+  });
+  ruleForm.value.roleName = row.roleName;
   ruleForm.value.phone = row.phone;
   ruleForm.value.picture = row.picture;
   ruleForm.value.type = row.type;
   ruleForm.value.id = row.id;
+  passwordDisabled.value = true;
+  dialogVisible.value = true;
 };
 
 // 关闭弹窗
@@ -256,7 +263,7 @@ const handleClose = async (done: () => void) => {
       };
       if (title.value === "新增") {
         post(`${sysUserAddOne}`, {
-          ...obj
+          ...obj,
         })
           .then(function (data) {
             businessUseList.value = [data, ...businessUseList.value];
@@ -267,7 +274,7 @@ const handleClose = async (done: () => void) => {
         ElMessage.success("添加成功");
       } else {
         post(`${sysUserUpdateOne}`, {
-          ...obj
+          ...obj,
         })
           .then(function (data) {
             businessUseList.value.forEach((item) => {
@@ -276,7 +283,7 @@ const handleClose = async (done: () => void) => {
                 item.username = obj.username;
                 item.type = obj.type;
                 item.name = obj.name;
-                item.role = obj.role;
+                item.roleName = obj.roleName;
                 item.phone = obj.phone;
               }
             });
@@ -306,7 +313,7 @@ const del = (row) => {
         (item) => item.id !== row.id
       );
       get(`${sysUserDeleteOne}`, {
-        id: row.id
+        id: row.id,
       })
         .then(function (data) {
           console.log("data", data);

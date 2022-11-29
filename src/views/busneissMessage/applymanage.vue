@@ -6,9 +6,9 @@
             <el-input v-model="state.entName" placeholder="请输入企业名称"/>
           </el-form-item>
           <el-form-item>
-          <el-button type="primary" @click="gettrainingServicesAll">查询</el-button>
-          <el-button type="primary" @click="reset">重置</el-button>
-          <el-button type="primary" @click="exportClick">导出EXECL</el-button>
+          <el-button type="primary" icon="Search" @click.stop="gettrainingServicesAll">查询</el-button>
+          <el-button type="primary" icon="Refresh" @click.stop="reset">重置</el-button>
+          <el-button type="primary" icon="IceCreamSquare" @click.stop="exportClick2">导出EXECL</el-button>
           </el-form-item>
         </el-form>
         <el-table
@@ -21,7 +21,9 @@
           header-row-class-name="custom-header"
           row-class-name="hover-row"
           @row-click="routerTo"
+          @selection-change="handleSelectionChange"
         >
+          <el-table-column align="center" type="selection" width="60"></el-table-column>
           <el-table-column
             v-for="(item, index) in tableHeaderConfig"
             :key="index"
@@ -38,23 +40,23 @@
                 type="primary"
                 size="small"
                 icon="Edit"
-                @click="edit(scope.row)"
+                @click.stop="edit(scope.row)"
                 >修改</el-button
               > -->
-              <el-button type="primary" size="small" @click.stop="detail(scope.row)">
+              <el-button type="primary" icon="Document" size="small" @click.stop="detail(scope.row)">
                 查看详情
               </el-button>
-              <el-button type="primary" :disabled="scope.row.applyStatus !== 0" size="small" @click.stop="examine(scope.row)">
+              <el-button type="primary" icon="check" :disabled="scope.row.applyStatus !== 0" size="small" @click.stop="examine(scope.row)">
                 审核
               </el-button>
-              <el-button type="primary" size="small" @click.stop="add(scope.row)">
+              <el-button type="primary" icon="plus" size="small" @click.stop="add(scope.row)">
                 添加
               </el-button>
               <!-- <el-button
                 type="danger"
                 size="small"
                 icon="Delete"
-                @click="deleteAction(scope.row, state.isResume)"
+                @click.stop="deleteAction(scope.row, state.isResume)"
                 >删除</el-button
               > -->
             </template>
@@ -142,8 +144,9 @@
     </u-container-layout>
   </template>
   <script lang="ts">
-  import FileSaver from 'file-saver'
-  import * as XLSX from 'xlsx';
+import FileSaver from "file-saver";
+import * as XLSX from "xlsx";
+import { export_json_to_excel } from "@/execl/Export2Excel";
   import { ref, reactive, provide } from "vue";
   import { map,entPatentGetMap, getSoftByNameMap, getTrademarkByNameMap, getWorksByNameMap,
   entgetRecruitByNameMap,entgetNewsByNameMap } from "./constant";
@@ -275,7 +278,6 @@
       color: `#409eff`
     }
     };
-
   };
   const state = reactive({
     currentPage: 0,
@@ -290,6 +292,7 @@
       showSelect: true,
     }
   ],
+  selectionList: [],
     tableData: [],
     total: 0,
     tabList: [],
@@ -308,7 +311,7 @@
   });
   
   let currentRoleId = ref<string>("");
-  const title = ref<string>("新增");
+  const title = ref<string>("添加");
 
     const map1 = {
     '工商信息': [
@@ -437,6 +440,68 @@ getentMerchantsPersonList();
   state.dialogVisible2 = false;
   console.log("submit!", formData);
 };
+
+const handleSelectionChange = (row) => {
+  console.log('row', row);
+  state.selectionList = row; 
+};
+const formatJson  = (filterVal, jsonData) => {
+  return jsonData.map(v => filterVal.map(j => v[j]));
+}
+// 导出表格
+const exportClick2 = () => {
+  if(state.selectionList.length === 0) {
+    ElMessage({
+        message: '请选择要导出的数据',
+        type: 'warning'
+      })
+  } else {
+    const tableHeaderConfig = [
+        {
+          prop: "companyName",
+          label: "企业名称",
+          required: true,
+          showInput: true
+        },
+        {
+          prop: "policyName",
+          label: "政策名称",
+          required: true,
+          showInput: true
+        },
+        {
+          prop: "policyName",
+          label: "政策名称",
+          required: true,
+          showInput: true
+        },
+        {
+          prop: "contactPerson",
+          label: "联系人",
+          required: true,
+          showInput: true
+        },
+        {
+          prop: "contactPhone",
+          label: "联系电话",
+          required: true,
+          showInput: true
+        },
+        {
+          prop: "entCode",
+          label: "社会统一代码",
+          required: true,
+          showInput: true
+        },
+        ];
+  const tHeader = tableHeaderConfig.map(e => e.label);
+  const filterVal = tableHeaderConfig.map(e => e.prop);
+  const list = state.selectionList;
+  const data = formatJson(filterVal, list);
+  export_json_to_excel(tHeader, data, '政策申报');
+  }
+
+};
 // 导出表格
 const exportClick = () => {
 	var wb = XLSX.utils.table_to_book(document.querySelector('#my-table'));//关联don节点
@@ -449,7 +514,7 @@ const exportClick = () => {
 	try {
 		FileSaver.saveAs(new Blob([wbout], {
 			type: 'application/octet-stream'
-		}), '政策申报.xlsx')//自定义文件名
+		}), '政策申报')//自定义文件名
 	} catch (e) {
 		if (typeof console !== 'undefined') console.log(e, wbout);
 	}

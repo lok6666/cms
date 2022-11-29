@@ -1,6 +1,6 @@
 <template>
   <div class="g-container-layout" :class="classObj" >
-    <div v-if="device==='mobile'&&!isCollapse" class="drawer-bg" @click="handleClickOutside" />
+    <div v-if="device==='mobile'&&!isCollapse" class="drawer-bg" @click.stop="handleClickOutside" />
     <sidebar class="sidebar-container" v-if="mode==='vertical'"/>
     <div class="main-container" :class="{
       hideSliderLayout:mode==='horizontal'

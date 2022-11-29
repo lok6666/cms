@@ -1,10 +1,10 @@
 <template>
   <div class="m-water-marker">
-    <el-button @click="addWaterMarker(1)" type="primary">生成默认颜色水印</el-button>
-    <el-button @click="addWaterMarker(2)" type="primary" >生成随机颜色水印</el-button>
+    <el-button @click.stop="addWaterMarker(1)" type="primary">生成默认颜色水印</el-button>
+    <el-button @click.stop="addWaterMarker(2)" type="primary" >生成随机颜色水印</el-button>
     <el-input v-model="opacity" style="width: 100px;margin-left: 20px"></el-input>
-    <el-button @click="addWaterMarker(3)" type="primary" >设置透明度</el-button>
-    <el-button @click="addWaterMarker(4)" type="primary" >取消水印</el-button>
+    <el-button @click.stop="addWaterMarker(3)" type="primary" >设置透明度</el-button>
+    <el-button @click.stop="addWaterMarker(4)" type="primary" >取消水印</el-button>
   </div>
 </template>
 

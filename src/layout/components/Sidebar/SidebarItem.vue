@@ -1,7 +1,7 @@
 <template>
   <template v-if="!item.hidden">
     <template v-if="!item.alwaysShow&&hasOneShowingChild(item.children,item)">
-      <app-link v-if="onlyOneChild.meta" :to="resolvePath(onlyOneChild.path)">22
+      <app-link v-if="onlyOneChild.meta" :to="resolvePath(onlyOneChild.path)">
         <el-menu-item :index="resolvePath(onlyOneChild.path)">
           <el-icon :size="20">
             <component :is="onlyOneChild?.meta.icon"></component>
@@ -10,7 +10,7 @@
         </el-menu-item>
       </app-link>
     </template>
-    <el-sub-menu :index="resolvePath(item.path)" v-else popper-append-to-body>
+    <el-sub-menu :index="resolvePath(item.path, item.meta.title)" v-else popper-append-to-body>
       <template #title>
         <el-icon :size="20"> <component :is="item.meta?.icon"></component></el-icon>
         <span>{{ item.meta&&item.meta.title }}</span>
@@ -68,7 +68,7 @@ const hasOneShowingChild = (children = [], parent)=>{
 }
 
 
-const resolvePath = (routePath)=>{
+const resolvePath = (routePath, title)=>{
   if (isExternal(routePath)) {
     return routePath
   }

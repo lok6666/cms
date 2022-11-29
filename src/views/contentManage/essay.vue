@@ -45,12 +45,12 @@
           <el-input v-model="formInline.title" placeholder="请输入标题"/>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="onSubmit">搜索</el-button>
-          <el-button type="primary" @click="onClear">清空</el-button>
+          <el-button type="primary" @click.stop="onSubmit">搜索</el-button>
+          <el-button type="primary" @click.stop="onClear">清空</el-button>
         </el-form-item>
       </el-form>
       <div style="display: flex; justify-content: flex-end">
-        <el-button type="primary" @click="add"
+        <el-button type="primary" @click.stop="add"
           ><el-icon><plus /></el-icon> 添加</el-button
         >
       </div>
@@ -103,7 +103,7 @@
               type="success"
               size="small"
               icon="Refresh"
-              @click="resume(scope.row)"
+              @click.stop="resume(scope.row)"
             >
               恢复
             </el-button>
@@ -113,7 +113,7 @@
               type="primary"
               size="small"
               icon="Edit"
-              @click="edit(scope.row)"
+              @click.stop="edit(scope.row)"
             >
               编辑
             </el-button>
@@ -122,12 +122,12 @@
               size="small"
               icon="Delete"
               style="margin-bottom: 3px;"
-              @click="deleteAction(scope.row, state.isResume)"
+              @click.stop="deleteAction(scope.row, state.isResume)"
             >
               {{ state.isResume ? "彻底删除" : "删除" }}
             </el-button>
-<!--             <el-button type="warning" v-if="!state.isResume" size="small" icon="Top" @click="upItem(scope.row)">上架</el-button>
-            <el-button type="danger" v-if="!state.isResume" size="small" icon="Bottom"  @click="downItem(scope.row)">下架</el-button> -->
+<!--             <el-button type="warning" v-if="!state.isResume" size="small" icon="Top" @click.stop="upItem(scope.row)">上架</el-button>
+            <el-button type="danger" v-if="!state.isResume" size="small" icon="Bottom"  @click.stop="downItem(scope.row)">下架</el-button> -->
           </template>
         </el-table-column>
       </el-table>
@@ -191,8 +191,8 @@
         </el-form>
         <template #footer>
           <span class="dialog-footer">
-            <el-button @click="state.dialogVisible = false">取消</el-button>
-            <el-button type="primary" @click="handleClose(ruleFormRef)"
+            <el-button @click.stop="state.dialogVisible = false">取消</el-button>
+            <el-button type="primary" @click.stop="handleClose(ruleFormRef)"
               >确定</el-button
             >
           </span>
@@ -284,7 +284,7 @@ const state = reactive({
   title: ''
 });
 const ruleFormRef = ref();
-const title = ref("新增");
+const title = ref("添加");
 let ruleForm: baseData = reactive({
   title: "",
   
@@ -382,7 +382,7 @@ const articleHandleClick = (tab, event) => {
 };
 // 添加
 const add = () => {
-  title.value = "新增";
+  title.value = "添加";
   state.dialogVisible = true;
 };
 

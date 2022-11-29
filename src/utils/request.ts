@@ -1,9 +1,9 @@
 import axios, { AxiosRequestConfig } from "axios";
 import { getToken, setToken } from '@/utils/auth';
+import { ElMessage, ElMessageBox } from "element-plus";
 import router from '@/router'
 const service = axios.create({ // 生产环境下
-	baseURL: "/api",
-	timeout: 50000
+	baseURL: "/api"
 });
 
 // http request 拦截器
@@ -63,9 +63,11 @@ export async function get(url: string, params?: any) {
  */
 export async function post(url: string, params?: any) {
 	return new Promise((resolve, reject) => {
-		axios.post(url, params).then(res => {
-			console.log('url-----', url);
-			// console.log('res', res);
+		axios.post(url, params).then((res: any) => {
+			if(res.code === "5003") {
+				ElMessage.error(res.msg);
+				reject(res.msg)
+			};
 			resolve(res.data);
 		}).
 			catch(err => {
@@ -83,8 +85,6 @@ export async function post(url: string, params?: any) {
 export async function deleteItem(url: string, params?: any) {
 	return new Promise((resolve, reject) => {
 		axios.delete(url, params).then(res => {
-			console.log('url-----', url);
-			console.log('res', res);
 			resolve(res.data);
 		}).
 			catch(err => {
