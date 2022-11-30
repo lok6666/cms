@@ -54,10 +54,10 @@
             {{serviceTypetatus[scope.row.serviceType] || '不限'}}
           </template>
         </el-table-column>
-        <el-table-column prop="operator" label="操作" width="340" fixed="right">
+        <el-table-column prop="operator" label="操作" width="280" fixed="right">
           <template #default="scope">
             <el-button type="primary" size="small"  icon="Edit" @click.stop="edit(scope.row)">编辑</el-button>
-            <el-button type="success" size="small"  @click.stop="edit(scope.row)">审批</el-button>
+            <!-- <el-button type="success" size="small"  @click.stop="edit(scope.row)">审批</el-button> -->
             <el-button type="info" size="small"  @click.stop="deleteAction(scope.row)">删除</el-button>
             <el-button type="warning" size="small"  @click.stop="upItem(scope.row)">上架</el-button>
             <el-button type="danger" size="small"  @click.stop="downItem(scope.row)">下架</el-button>

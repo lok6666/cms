@@ -84,7 +84,7 @@
         <examineFormConpoent
             v-if="state.showExamineForm"
             @handle="postFormData"
-            :status="state.formConfig.status"
+            :status="state.docStatus"
             @dialogClose="closeDialog"
           ></examineFormConpoent>
       </el-dialog>
@@ -275,6 +275,7 @@ const state = reactive({
   showForm: false,
   showExamineForm: false,
   showSort: false,
+  docStatus: '',
   entName: '',
   tabList: [],
   baseInfo: {},
@@ -702,7 +703,7 @@ const editSort = (row) => {
  * 审核
  */
 const examine = (row) => {
-  state.formConfig.status = row.dockStatus;
+  state.docStatus = row.dockStatus === '1' ? true: false;
   currentRoleId.value = row.id;
   state.dialogVisible = true;
   state.showForm = false;

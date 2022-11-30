@@ -54,7 +54,21 @@ onMounted(() => {
     valueHtml.value = "<p>模拟 Ajax 异步设置内容</p>";
   }, 1500);
 });
-
+//base64转成blob 
+const dataURLtoFile = (dataURI) => {
+  let binary = atob(dataURI.split(",")[1]);
+  let array = [];
+  for (let i = 0; i < binary.length; i++) {
+    array.push(binary.charCodeAt(i));
+  }
+  return new Blob([new Uint8Array(array)], { type: 'image/png'});
+};
+//将blob转为file
+const uploadImg = (fileData) => {
+  let formData = new FormData();
+  let fileOfBlob = new File([fileData], new Date() + ".png"); // 命名图片名
+  return fileOfBlob
+}
 const toolbarConfig = {
   // 插入哪些菜单
   insertKeys: {

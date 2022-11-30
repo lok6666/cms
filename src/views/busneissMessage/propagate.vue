@@ -294,6 +294,7 @@ const reset = () => {
    * 审核
    */
   const examine = (row) => {
+    title.value = '审核';
     state.formConfig.status = row.approvalStatus;
     currentRoleId.value = row.id;
     state.dialogVisible = true;

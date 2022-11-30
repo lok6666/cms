@@ -101,6 +101,7 @@ import {
   entApplAddOne,
   policyMatchTagsUpdate,
   entApplyDelete,
+  upLoad
 } from "@/config/api";
 import { ElMessage, ElMessageBox } from "element-plus";
 // import { formConfigItem } from "@/utils/interface";
@@ -931,7 +932,7 @@ const reset = () => {
  * 表单详情
  */
 const detail = (row) => {
-  title.value = "查看详情";
+  title.value = "编辑";
   state.dialogVisible = true;
   state.showForm = true;
   state.companyid = row.companyid;

@@ -742,7 +742,7 @@ const handleClick = (index) => {
 // 修改
 const edit = (row) => {
   state.isAdd = false;
-  title.value = "修改";
+  title.value = "编辑";
   state.dialogVisible = true;
   state.dialogVisible1 = true;
   currentRoleId.value = row.id;
@@ -1127,6 +1127,7 @@ const reset = () => {
   getentMerchantsSuccessList();
 };
 const add = () => {
+  title.value = '添加';
   state.dialogVisible = true;
   state.dialogVisible1 = true;
   state.isAdd = true;

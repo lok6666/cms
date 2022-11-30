@@ -155,7 +155,7 @@
       style="color: red"
       v-model="dialogVisible"
       :title="title"
-      width="50%"
+      width="80%"
       top="1vh"
       @closed="closeDialog()"
     >
@@ -591,7 +591,8 @@ import {
   policyFileInsert,
   host,
   entInfoAll,
-  policyPush
+  policyPush,
+  upLoad
 } from "@/config/api";
 import {
   levelMap,
@@ -745,7 +746,21 @@ const sendMessage = () => {
     applydialogVisible.value = false;
   });
 };
-
+//base64转成blob 
+const dataURLtoFile = (dataURI) => {
+  let binary = atob(dataURI.split(",")[1]);
+  let array = [];
+  for (let i = 0; i < binary.length; i++) {
+    array.push(binary.charCodeAt(i));
+  }
+  return new Blob([new Uint8Array(array)], { type: 'image/png'});
+};
+//将blob转为file
+const uploadImg = (fileData) => {
+  let formData = new FormData();
+  let fileOfBlob = new File([fileData], new Date() + ".png"); // 命名图片名
+  return fileOfBlob
+}
 const toolbarConfig = {
   // 插入哪些菜单
   insertKeys: {
@@ -843,8 +858,48 @@ const editorConfig = {
         axios.defaults.headers.common["Access-Control-Allow-Origin"] = "*";
         axios(config)
           .then(function (res) {
-            let url = res.data; //拼接成可浏览的图片地址
-            insertFn(url, "使用说明", url); //插入图片
+            let url = res; //拼接成可浏览的图片地址
+            const video1 = document.createElement('video');
+            video1.src = res;
+            video1.id = 'getPoster';
+            video1.autoplay=true;
+            video1.crossOrigin = 'Anonymous';
+            document.getElementById('app').appendChild(video1);
+            setTimeout(() => {
+              const video = document.getElementById('getPoster');
+              const canvas = document.createElement('canvas');
+              canvas.width = video.videoWidth;
+              canvas.height = video.videoHeight;
+              const fill = canvas.getContext('2d');
+              fill.drawImage(video, 0, 0, canvas.width, canvas.height);
+              const img = canvas.toDataURL("image/png");
+              let blob = dataURLtoFile(img);
+              let file = uploadImg(blob);
+              var axios = require("axios");
+              var FormData = require("form-data");
+              var data = new FormData();
+              data.append("file", file); // file 即选中的文件
+              data.append("userId", window.localStorage);
+              data.append("type", "file");
+              var config = {
+                method: "post",
+                url: `${upLoad}`, //上传图片地址
+                type: 'file',
+                data: data
+              };
+              axios.defaults.crossDomain = true;
+              axios.defaults.headers.common["Access-Control-Allow-Origin"] = "*";
+              axios(config)
+                .then(function (res) {
+                  video.poster= res;
+                  document.getElementById('app').removeChild(document.getElementById('getPoster'));
+                  insertFn(url, res, url); //插入图片 */
+                })
+                .catch(function (error) {
+                  console.log(error);
+                });
+          }, 1000);
+            // insertFn(url, "使用说明", url); //插入图片
           })
           .catch(function (error) {
             console.log(error);

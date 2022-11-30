@@ -271,6 +271,7 @@ const editorConfig = {
         axios.defaults.headers.common["Access-Control-Allow-Origin"] = "*";
         axios(config)
           .then(function (res) {
+            let url = res; //拼接成可浏览的图片地址
             const video1 = document.createElement('video');
             video1.src = res;
             video1.id = 'getPoster';
@@ -311,7 +312,6 @@ const editorConfig = {
                   console.log(error);
                 });
           }, 1000);
-            let url = res; //拼接成可浏览的图片地址
           })
           .catch(function (error) {
             // console.log(error);

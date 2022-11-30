@@ -718,11 +718,11 @@ const handleClick2 = (index) => {
 };
 // 编辑
 const edit = (row) => {
+  title.value = "编辑";
   state.listName = row.listName;
   state.listId = row.listId;
   state.primaryId = row.primaryId;
   state.isAdd = false;
-  title.value = "编辑";
   state.dialogVisible = true;
   state.dialogVisible1 = true;
   currentRoleId.value = row.id;
@@ -1164,6 +1164,7 @@ const reset = () => {
   getentMerchantsList();
 };
 const add = () => {
+  title.value = "添加";
   state.dialogVisible = true;
   state.dialogVisible1 = true;
   state.isAdd = true;
