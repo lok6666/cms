@@ -46,7 +46,7 @@
               <el-button type="primary" icon="Document" size="small" @click.stop="detail(scope.row)">
                 查看详情
               </el-button>
-              <el-button type="primary" icon="check" :disabled="scope.row.applyStatus !== 0" size="small" @click.stop="examine(scope.row)">
+              <el-button type="primary" icon="check" size="small" @click.stop="examine(scope.row)">
                 审核
               </el-button>
               <el-button type="primary" icon="plus" size="small" @click.stop="add(scope.row)">
@@ -753,7 +753,7 @@ const getNewsByName = (busneissName) => {
    * 提交表单数据
    */
   const postFormData = (formData) => {
-    if (title.value === "新增") {
+    if (title.value === "添加") {
       post(`${activityApplyAddOne}`, {
         ...formData
       })

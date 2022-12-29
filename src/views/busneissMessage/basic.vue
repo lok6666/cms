@@ -1,16 +1,32 @@
 <template>
     <u-container-layout>
       <div class="inline-edit-table">
-        <el-form :inline="true" :model="state" class="demo-form-inline">
+        <el-form :inline="true" :model="state" class="demo-form-inline" style="float: left">
           <el-form-item label="企业名称">
             <el-input v-model="state.entName" placeholder="请输入企业名称"/>
           </el-form-item>
           <el-form-item>
           <el-button type="primary" icon="Search" @click.stop="gettrainingServicesAll">查询</el-button>
           <el-button type="primary" icon="Refresh" @click.stop="reset">重置</el-button>
-          <el-button type="primary" icon="IceCreamSquare" @click.stop="exportClick2">导出EXECL</el-button>
           </el-form-item>
         </el-form>
+        <div style="float: right;display: flex;flex-direction: row;">
+        <!-- <el-button type="primary" icon="plus"  @click.stop="add">添加</el-button> -->
+        <el-button
+                  type="primary"
+                  icon="Download"
+                  style="margin-left: 10px"
+                  ><a
+                    style="text-decoration: none; color: #fff"
+                    download="clz.xlsx"
+                    href="http://minio.bjwcxf.com/cultural-file/template/ent_merchants_list.xlsx"
+                    >下载模板</a
+                  ></el-button>
+          <el-button type="primary" icon="IceCreamSquare" @click.stop="exportClick2">导出EXECL</el-button>
+          <el-upload :before-upload="importClick" style="display: inline; margin-left: 10px">
+            <el-button type="primary" icon="UploadFilled">导入名单</el-button>
+          </el-upload>
+        </div>
         <el-table
           id="my-table"
           :data="state.tableData"
@@ -42,10 +58,10 @@
               <el-button type="primary" size="small" @click.stop="detail(scope.row)">
                 查看详情
               </el-button>
-              <el-button type="primary" size="small" @click.stop="changeVip(scope.row)">
+<!--               <el-button type="primary" size="small" @click.stop="changeVip(scope.row)">
                 修改会员等级
-              </el-button>
-              <el-button type="primary" size="small" @click.stop="examine(scope.row)" :disabled="[scope.row.applyStatus !== 0]">
+              </el-button> -->
+              <el-button type="primary" size="small" @click.stop="examine(scope.row)" >
                 审核
               </el-button>
             </template>
@@ -111,6 +127,7 @@ import { export_json_to_excel } from "@/execl/Export2Excel";
     entInfoAll,
     entApplAddOne,
     entInfoUpdate,
+    entInfoImportExcel,
     entApplyDelete,
   } from "@/config/api";
   import { ElMessage, ElMessageBox } from "element-plus";
@@ -185,123 +202,6 @@ import { export_json_to_excel } from "@/execl/Export2Excel";
     required: false,
     showInput: true
   },
-  {
-    prop: "businessArea",
-    label: "业务领域",
-    options: [
-      {
-        label: '数字创意',
-        value: '数字创意'
-      },
-      {
-        label: '文化旅游',
-        value: '文化旅游'
-      },
-      {
-        label: '高精尖产业',
-        value: '高精尖产业'
-      },
-      {
-        label: '现代服务业',
-        value: '现代服务业'
-      },
-      {
-        label: '商贸流通业',
-        value: '商贸流通业'
-      },
-      {
-        label: '企业服务',
-        value: '企业服务'
-      },
-      {
-        label: '其他',
-        value: '其他'
-      }
-    ],
-    showSelect: true,
-  },
-  {
-    prop: "honorsQualification",
-    label: "企业资质",
-    options: [
-      {
-        label: '中关村高新企业',
-        value: '中关村高新企业'
-      },{
-        label: '双软认证企业',
-        value: '双软认证企业'
-      },{
-        label: '专精特新企业',
-        value: '专精特新企业'
-      },{
-        label: '专精特新小巨人企业',
-        value: '专精特新小巨人企业'
-      },{
-        label: '科技小巨人企业',
-        value: '科技小巨人企业'
-      },{
-        label: '瞪羚企业',
-        value: '瞪羚企业'
-      },{
-        label: '科技型中小企业',
-        value: '科技型中小企业'
-      },{
-        label: '展翼企业',
-        value: '展翼企业'
-      },{
-        label: '隐形冠军企业',
-        value: '隐形冠军企业'
-      },{
-        label: '技术先进型服务企业',
-        value: '技术先进型服务企业'
-      },{
-        label: '牛羚企业',
-        value: '牛羚企业'
-      },{
-        label: '独角兽企业',
-        value: '独角兽企业'
-      },{
-        label: '创新型企业',
-        value: '创新型企业'
-      },{
-        label: '民营科技企业',
-        value: '民营科技企业'
-      }
-    ], 
-    showSelect: true,
-  },
-  {
-    prop: "entLevel",
-    label: "会员等级",
-    showInput: true
-  },
-  /* {
-    prop: "entScale",
-    label: "企业规模",
-    options: [
-      {
-        label: '特大型企业',
-        value: '1'
-      },
-      {
-        label: '大型企业',
-        value: '2'
-      },
-      {
-        label: '中型企业',
-        value: '3'
-      },
-      {
-        label: '小型企业',
-        value: '4'
-      },
-      {
-        label: '微型企业',
-        value: '5'
-      }
-    ],
-    showSelect: true,
-  } */
 ]
       };
     },
@@ -419,6 +319,28 @@ const handleSelectionChange = (row) => {
 const formatJson  = (filterVal, jsonData) => {
   return jsonData.map(v => filterVal.map(j => v[j]));
 }
+
+// 导入表格
+const importClick = (e) => {
+  debugger;
+  var axios = require("axios");
+  var FormData = require("form-data");
+  var data = new FormData();
+  data.append("file", e); // file 即选中的文件
+  var config = {
+    method: "post",
+    url: `${entInfoImportExcel}`, //上传图片地址
+    data: data,
+  };
+  axios(config)
+    .then(function (res) {
+      ElMessage.success("添加成功");
+      getentMerchantsSuccessList();
+    })
+    .catch(function (error) {
+      console.log(error);
+    });
+};
 // 导出表格
 const exportClick2 = () => {
   if(state.selectionList.length === 0) {

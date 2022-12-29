@@ -28,7 +28,7 @@
          <el-card class="box-card">
            <template #header>
              <div class="card-header">
-                    <span>一键清空
+                    <span>一键重置
                   </span>
              </div>
            </template>

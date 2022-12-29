@@ -61,9 +61,9 @@ export async function get(url: string, params?: any) {
  * @param url
  * @param params
  */
-export async function post(url: string, params?: any) {
+export async function post(url: string, params?: any,) {
 	return new Promise((resolve, reject) => {
-		axios.post(url, params).then((res: any) => {
+		axios.post(url, {timeout: 10000, ...params}).then((res: any) => {
 			if(res.code === "5003") {
 				ElMessage.error(res.msg);
 				reject(res.msg)

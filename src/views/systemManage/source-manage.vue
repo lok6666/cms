@@ -88,9 +88,9 @@
           <el-form-item label="资源链接" prop="href">
             <el-input v-model="ruleForm.href" />
           </el-form-item>
-          <!-- <el-form-item label="资源图标" prop="icon">
+           <el-form-item label="资源图标" prop="icon">
             <el-input v-model="ruleForm.icon　" />
-          </el-form-item> -->
+          </el-form-item>
           <!-- <el-form-item label="跳转方式" prop="target">
             <el-input v-model="ruleForm.target" />
           </el-form-item> -->
@@ -129,6 +129,7 @@ const baseData = {
   picture: "" || 'https://www.baidu.com/img/flexible/logo/pc/result.png',
   type: "",
   id: "",
+  icon: ""
 };
 let ruleForm = ref(baseData);
 
@@ -159,7 +160,7 @@ const pageSize = ref(100)
 // 关闭弹窗
 const handleClose = async (done: () => void) => {
   dialogVisible.value = false;
-  if(title.value === '新增') {
+  if(title.value === '添加') {
       post(`${sysResourceInsert}`, {
         ...ruleForm.value
       }).then(function (data) {

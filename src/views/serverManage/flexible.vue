@@ -20,7 +20,7 @@
         @selection-change="handleSelectionChange"
       >
         <el-table-column align="center" type="selection" width="60"></el-table-column>
-        <el-table-column type="index" label="序号" width="80" />
+        <!-- <el-table-column type="index" label="序号" width="80" /> -->
         <el-table-column
           v-for="(item, index) in tableHeaderConfig"
           :key="index"
@@ -148,11 +148,6 @@ const formConfig = [ {
   {
     prop: "companyPerson",
     label: "企业联系人",
-    showInput: true,
-    disabled: true
-  }, {
-    prop: "dockStatus",
-    label: "对接状态",
     showInput: true,
     disabled: true
   },

@@ -5,7 +5,7 @@
     <div :style="customStyle">
       <el-form
         ref="formRef"
-        style="width: 80%;display:inline"
+        style="width: 80%; display: inline"
         v-for="(item, i) in state.formConfig"
         :key="i"
         :disabled="state.disabled || item.disabled"
@@ -15,30 +15,48 @@
         label-position="right"
       >
         <el-form-item
-        :rules="item.rules || [{ required: item.required, message: `${item.label}为必填项`,validator: item.validator }]"
+          :rules="
+            item.rules || [
+              {
+                required: item.required,
+                message: `${item.label}为必填项`,
+                validator: item.validator,
+              },
+            ]
+          "
           :prop="item.prop"
           :label="item.label"
         >
           {{ item[i] }}
           <!--输入框-->
-          <el-input :readonly="state.disabled" v-model="item[item.prop]" v-if="item.showInput" />
+          <el-input
+            :readonly="state.disabled"
+            v-model="item[item.prop]"
+            v-if="item.showInput"
+          />
           <!--输入框-->
-          <el-input v-model="item[item.prop]" type="textarea" v-if="item.showTextarea" />
+          <el-input
+            v-model="item[item.prop]"
+            type="textarea"
+            v-if="item.showTextarea"
+          />
           <!--时间选择器-->
           <el-date-picker
             v-model="item[item.prop]"
             type="datetime"
             v-if="item.showDatePicker"
             :placeholder="item[placeholder]"
-            :disabled-date="(e) => {
-              if(!item.getMinTime && !item.getMaxTime) {
-                return false;
-              } else if(item.getMinTime) {
-                return minTime(e, item.getMinTime, item)
-              } else if (item.getMaxTime) {
-                return maxTime(e, item.getMaxTime, item)
+            :disabled-date="
+              (e) => {
+                if (!item.getMinTime && !item.getMaxTime) {
+                  return false;
+                } else if (item.getMinTime) {
+                  return minTime(e, item.getMinTime, item);
+                } else if (item.getMaxTime) {
+                  return maxTime(e, item.getMaxTime, item);
+                }
               }
-            }"
+            "
             format="YYYY/MM/DD HH:mm:ss"
             value-format="YYYY-MM-DD HH:mm:ss"
           />
@@ -80,7 +98,7 @@
               class="avatar"
             />
           </div>
-<!--             <div v-else-if="item.showFile && item[item.prop]" class="avatar-uploader" style="display: flex;flex-direction: column;">
+          <!--             <div v-else-if="item.showFile && item[item.prop]" class="avatar-uploader" style="display: flex;flex-direction: column;">
               <div v-for="(items, i) in Object.values(JSON.parse(item[item.prop]))">
                 {{JSON.parse(items)[0].label}}: <a :href="JSON.parse(items)[0].url">{{JSON.parse(items)[0].name}}</a>
               </div>  
@@ -89,91 +107,106 @@
           <div @click.stop="getIndex(i)" v-else-if="item.upload">
             <el-upload
               class="avatar-uploader"
-              :show-file-list="false"
               v-if="item.upload"
+              :list-type="rest(item[item.prop])"
               :before-upload="beforeAvatarUpload"
             >
-              <img
-                v-if="item[item.prop]"
-                :src="item[item.prop]"
-                style="width: 178px; height: 178px"
-                @click="getIndex(i, item)"
-                class="avatar"
-              />
-              <video
-                v-else-if="item.video"
-                :src="item.video"
-                controls
-                :poster="item.video"
-                style="width: 178px; height: 178px"
-                class="avatar"
-              ></video>
-              <el-icon v-else class="avatar-uploader-icon" @click="getIndex(i, item)"><Plus /></el-icon>
+              <div v-if="item[item.prop]">
+                <img
+                  :src="item[item.prop]"
+                  style="width: 178px; height: 178px"
+                  @click="getIndex(i, item)"
+                  class="avatar"
+                />
+                <span class="el-upload-list__item-actions">
+                  <span
+                    class="el-upload-list__item-preview"
+                    @click.stop="handlePictureCardPreview(item[item.prop])"
+                  >
+                    <el-icon><zoom-in /></el-icon>
+                  </span>
+                  <span
+                    v-if="!disabled"
+                    class="el-upload-list__item-delete"
+                    @click.stop="handleRemove(i, item[item.prop])"
+                  >
+                    <el-icon><Delete /></el-icon>
+                  </span>
+                </span>
+              </div>
+             <el-icon v-else class="avatar-uploader-icon" @click="getIndex(i, item)"><Plus /></el-icon>
             </el-upload>
           </div>
           <!--富文本编辑-->
-          <div @click.stop="getIndex(i)" ref="uploadSingle" :indexValue="i" v-if="item.showWangEditor">
-            <editor 
-            :content="item[item.prop]"
-            @handle="changeContent"
-          ></editor>
+          <div
+            @click.stop="getIndex(i)"
+            ref="uploadSingle"
+            :indexValue="i"
+            v-if="item.showWangEditor"
+          >
+            <editor :content="item[item.prop]" @handle="changeContent"></editor>
           </div>
         </el-form-item>
       </el-form>
     </div>
+    <el-dialog v-model="dialogVisible">
+      <img  :src="dialogImageUrl" alt="Preview Image" style="width: 100%; height:100%"/>
+    </el-dialog>
     <div v-if="state.showBtn" style="float: right">
-      <el-button type="primary" @click.stop="submitForm(formRef)">保存</el-button>
+      <el-button type="primary" @click.stop="submitForm(formRef)"
+        >保存</el-button
+      >
       <el-button @click.stop="resetForm(formRef)">取消</el-button>
     </div>
   </u-container-layout>
 </template>
 
 <script lang="ts" setup>
-import { ref, reactive, watch, onMounted, getCurrentInstance  } from "vue";
+import { ref, reactive, watch, onMounted, getCurrentInstance, computed } from "vue";
 import type { FormInstance } from "element-plus";
 import { ElMessage, UploadProps } from "element-plus";
 import editor from "@/components/editor/index.vue";
 import { upLoad } from "@/config/api";
 import { de } from "element-plus/es/locale";
 import { debugWarn } from "element-plus/es/utils";
-interface prop{
-   formConfig: {
-    type: Array<Object>
-  },
-  title: {
-    type: String,
-    default: "",
-  },
-  showBtn: {
-    type: Boolean,
-    default: true
-  },
-  customStyle: {
-    type: Object,
-    default: {}
-  },
-  disabled: {
-    type: Boolean,
-    default: false
-  }
-}
-const defaultTime2: [Date, Date] = [
-  new Date(2022, 11, 1, 12, 0, 0)
-]
-let minTimeValue = ref<String>('');
-let maxTimeValue = ref<String>('');
-const minTime = (time, getMinTime, item): boolean => {
-  if(!minTimeValue.value) {
-    minTimeValue.value = getMinTime();
+interface prop {
+  formConfig: {
+    type: Array<Object>;
   };
+  title: {
+    type: String;
+    default: "";
+  };
+  showBtn: {
+    type: Boolean;
+    default: true;
+  };
+  customStyle: {
+    type: Object;
+    default: {};
+  };
+  disabled: {
+    type: Boolean;
+    default: false;
+  };
+}
+const dialogImageUrl = ref('')
+const dialogVisible = ref(false)
+const defaultTime2: [Date, Date] = [new Date(2022, 11, 1, 12, 0, 0)];
+let minTimeValue = ref<String>("");
+let maxTimeValue = ref<String>("");
+const minTime = (time, getMinTime, item): boolean => {
+  if (!minTimeValue.value) {
+    minTimeValue.value = getMinTime();
+  }
   return new Date(minTimeValue.value).getTime() > new Date(time).getTime();
 };
 const maxTime = (time, getMaxTime, item): boolean => {
-  if(!maxTimeValue.value) {
+  if (!maxTimeValue.value) {
     maxTimeValue.value = getMaxTime();
-  };
+  }
   return new Date(maxTimeValue.value).getTime() < new Date(time).getTime();
-}
+};
 const emit = defineEmits(["handle", "dialogClose"]);
 const uploadSingle = ref(null);
 let props = defineProps<prop>();
@@ -190,17 +223,17 @@ watch(
 );
 const formData = {};
 const formRef = ref<FormInstance>();
-  onMounted(() => {
-      return uploadSingle;
-		});
+onMounted(() => {
+  return uploadSingle;
+});
 /**
  * 表单校验
  */
 const validateForm = (formEl: FormInstance | undefined) => {
   return new Promise((resolve, reject) => {
-    let add:number = 0;
+    let add: number = 0;
     formEl.forEach(async (el, i) => {
-      el.validate((v, a ,c) => {
+      el.validate((v, a, c) => {
         ++add;
         // 当存在校验失败的情况直接返回
         if (!v) {
@@ -241,14 +274,31 @@ const resetForm = (formEl: FormInstance | undefined) => {
 const changeContent = (HTML: String) => {
   // todo 记得封装一下
   let index = uploadSingle.value[0].attributes.indexvalue.value;
-  state.formConfig[index].prop && (state.formConfig[index][state.formConfig[index].prop] = HTML);
+  state.formConfig[index].prop &&
+    (state.formConfig[index][state.formConfig[index].prop] = HTML);
+};
+
+const handleRemove = (i, res) => {
+  state.formConfig[i][
+        state.formConfig[i].prop
+      ] = '';
+      formRef.value[i] && formRef.value[i].validate(() => true);
+};
+
+const handlePictureCardPreview = (file: UploadFile) => {
+  dialogImageUrl.value = file;
+  dialogVisible.value = true;
+};
+
+const rest = (i) => {
+  return i ? 'picture-card' : ''
 };
 
 // 获取索引
 const getIndex = (i: Number, item) => {
   itemIndex.value = i;
 };
-
+let {ctx:that, proxy} = getCurrentInstance()
 /**
  * 上传图片
  */
@@ -270,17 +320,38 @@ const beforeAvatarUpload: UploadProps["beforeUpload"] = (rawFile) => {
     method: "post",
     url: `${upLoad}`, //上传图片地址
     type: uploadType.value,
-    data: data
+    data: data,
   };
   axios.defaults.crossDomain = true;
   axios.defaults.headers.common["Access-Control-Allow-Origin"] = "*";
   axios(config)
     .then(function (res) {
-      state.formConfig[itemIndex.value][state.formConfig[itemIndex.value].prop] = res;
-      formRef.value[itemIndex.value] && formRef.value[itemIndex.value].validate(() => true)
+      state.formConfig[itemIndex.value][
+        state.formConfig[itemIndex.value].prop
+      ] = res;
+      formRef.value[itemIndex.value] && formRef.value[itemIndex.value].validate(() => true);
+	    proxy.$forceUpdate()
     })
     .catch(function (error) {
       console.log(error);
     });
 };
 </script>
+<style lang="scss">
+.el-upload-list__item-actions {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  left: 0;
+  top: 0;
+  cursor: default;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  color: #fff;
+  opacity: 0;
+  font-size: 20px;
+  background-color: var(--el-overlay-color-lighter);
+  transition: opacity var(--el-transition-duration);
+}
+</style>

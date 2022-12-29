@@ -18,6 +18,13 @@
           :prop="item.prop"
           :label="item.label"
         >
+        <template #default="scope" v-if="item.showImg">
+            <img
+            v-if="item.showImg"
+            :src="scope.row[item.prop]"
+            style="width: 50px; height: 50px"
+          />
+          </template>
         </el-table-column>
         <el-table-column prop="operator" label="操作" width="200" fixed="right">
           <template #default="scope">
@@ -87,13 +94,17 @@ import {
 } from "@/config/api";
 import formConpoent from "@/components/form/form.vue";
 import { ElMessage, ElMessageBox, FormRules, UploadProps } from "element-plus";
-import { get, post } from "@/utils/request";
+import { get, post, deleteItem } from "@/utils/request";
 import { tr } from "element-plus/es/locale";
 export default {
   name: "sensitive-manage",
   data() {
     return {
       tableHeaderConfig: [
+        {
+          prop: "sortNum",
+          label: "序号",
+        },
         {
           prop: "bannerPicture",
           label: "轮播图",
@@ -106,6 +117,12 @@ export default {
 </script>
 <script lang="ts" setup >
 const formConfig = [
+  {
+    prop: "sortNum",
+    label: "序号",
+    required: true,
+    showInput: true
+  },
   {
     prop: "bannerPicture",
     label: "轮播图",
@@ -206,7 +223,8 @@ const add = () => {
  * 提交表单数据
  */
 const postFormData = (formData) => {
-  if (title.value === "新增") {
+  state.dialogVisible = false;
+  if (title.value === "添加") {
     post(`${industryDataAddOne}`, {
       ...formData
     })
@@ -242,7 +260,6 @@ const closeDialog = async (done: () => void) => {
  * 编辑表单
  */
 const edit = (row) => {
-  debugger;
   state.currentRoleId = row.id;
   title.value = "编辑";
   /*   post(`${selectByIdType}`, {
@@ -325,8 +342,8 @@ const deleteAction = (row) => {
     draggable: true,
   })
     .then(() => {
-      post(`${industryDataDeleteOne}`, {
-        ...obj
+      deleteItem(`${industryDataDeleteOne}`, {
+        data: [obj.id],
       }).then(function (data) {
         getIndustryDataAll();
       });
@@ -340,17 +357,30 @@ const deleteAction = (row) => {
  */
 const changeFormData = (formData) => {
   state.dialogVisible = false;
-  console.log("changeFormData", formData);
-  post(`${industryDataUpdateOne}`, {
-    id: state.currentRoleId,
-    ...formData,
-  })
-  .then(function (data) {
-    getIndustryDataAll();
-  })
-  .catch((e) => {
-    console.log("e", e);
-  });
+  if (title.value === "添加") {
+    post(`${industryDataAddOne}`, {
+      id: state.currentRoleId,
+      ...formData
+    })
+      .then(function (data) {
+        getIndustryDataAll();
+      })
+      .catch((e) => {
+        console.log("e", e);
+      });
+    ElMessage.success("添加成功");
+  } else {
+    post(`${industryDataUpdateOne}`, {
+      id: state.currentRoleId,
+      ...formData
+    })
+      .then(function (data) {
+        getIndustryDataAll();
+      })
+      .catch((e) => {
+        console.log("e", e);
+      });
+  }
 };
 </script>
 

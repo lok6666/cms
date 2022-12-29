@@ -29,7 +29,7 @@
         @selection-change="handleSelectionChange"
       >
       <el-table-column align="center" type="selection" width="60"></el-table-column>
-      <el-table-column type="index" label="序号" width="80" />
+      <!-- <el-table-column type="index" label="序号" width="80" /> -->
         <el-table-column
           v-for="(item, index) in tableHeaderConfig"
           :key="index"
@@ -275,7 +275,7 @@ const state = reactive({
   showForm: false,
   showExamineForm: false,
   showSort: false,
-  docStatus: '',
+  docStatus: 0,
   entName: '',
   tabList: [],
   baseInfo: {},
@@ -703,7 +703,7 @@ const editSort = (row) => {
  * 审核
  */
 const examine = (row) => {
-  state.docStatus = row.dockStatus === '1' ? true: false;
+  state.docStatus = row.dockStatus === '1' ? 1: 0;
   currentRoleId.value = row.id;
   state.dialogVisible = true;
   state.showForm = false;

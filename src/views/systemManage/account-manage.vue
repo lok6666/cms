@@ -66,8 +66,8 @@
         :small="small"
         :disabled="disabled"
         :background="background"
-        layout="prev, pager, next, jumper"
-        :total="1000"
+        layout="total, sizes, prev, pager, next, jumper"
+        :total="totaL"
         @size-change="handleSizeChange"
         @current-change="handleCurrentChange"
       />
@@ -85,7 +85,7 @@
           class="demo-ruleForm"
           :size="formSize"
         >
-          <el-form-item label="用户名" prop="username" :rules="[
+          <el-form-item label="用户名" prop="username"  :rules="[
                 {
                   validator: (rule, value, callback) => {
                     if (/^(?![a-zA-Z0-9_])/.test(value)) {
@@ -97,12 +97,11 @@
                   trigger: ['blur', 'change'],
                 },
               ]">
-            <el-input
-              v-model="ruleForm.username"
+            <el-input :disabled="formDisabled" v-model="ruleForm.username"
             />
           </el-form-item>
-          <el-form-item label="密码" prop="password">
-            <el-input type="password" v-model="ruleForm.password" :disabled="passwordDisabled.value"/>
+           <el-form-item label="密码" prop="password" >
+            <el-input type="password" v-model="ruleForm.password" :disabled="formDisabled"/>
           </el-form-item>
           <el-form-item label="姓名" prop="name">
             <el-input v-model="ruleForm.name" />
@@ -154,6 +153,7 @@ import formData from "form-data";
 let businessUseList = ref([]);
 let currentPage = ref(1);
 let pageSize = ref(10);
+let totaL = ref(10);
 const ruleFormRef = ref();
 const passwordDisabled = ref<Boolean>(false);
 const roleOptions = ref<[]>([]);
@@ -171,13 +171,14 @@ const baseData = {
   id: "",
 };
 let ruleForm = ref(baseData);
-
+const formDisabled = ref(false);
 const getSysUserSelectAll = () => {
   post(`${sysUserSelectAll}`, {
     pageSize: pageSize.value,
     pageNum: currentPage.value,
-  }).then(function ({ list }) {
+  }).then(function ({ list,total }) {
     businessUseList.value = list;
+    totaL.value = total;
   });
 };
 getSysUserSelectAll();
@@ -227,13 +228,14 @@ const add = (): void => {
       value: e.roleName
     }
   });
-  passwordDisabled.value = false;
+  formDisabled.value = false;
   dialogVisible.value = true;
   ruleForm.value = baseData;
 };
 
 // 编辑
 const edit = (row): void => {
+  formDisabled.value = true;
   title.value = "编辑";
   rowObj.value = row;
   ruleForm.value.name = row.name;
@@ -261,7 +263,7 @@ const handleClose = async (done: () => void) => {
       let obj = {
         ...ruleForm.value,
       };
-      if (title.value === "新增") {
+      if (title.value === "添加") {
         post(`${sysUserAddOne}`, {
           ...obj,
         })
@@ -293,6 +295,7 @@ const handleClose = async (done: () => void) => {
           });
       }
       dialogVisible.value = false;
+      formDisabled.value = false;
       console.log("submit!", obj);
     } else {
       console.log("error submit!", fields);

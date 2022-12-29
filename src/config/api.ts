@@ -1,5 +1,5 @@
-//export const host =  process.env.NODE_ENV === 'development'? "http://172.16.4.62:28182": "http://enterprise.bjwcxf.com:28191";
-export const host = "http://enterprise.bjwcxf.com:28191";
+export const host =  process.env.NODE_ENV === 'development'? "http://172.16.4.62:28182": "http://enterprise.bjwcxf.com:28191";
+//export const host = "http://enterprise.bjwcxf.com:28191";
 // 登录接口
 export const login = `${host}/auth/login`
 export const reset = `${host}/auth/reset`
@@ -38,7 +38,7 @@ export const industryDataList = `${host}/banner/list` //  数据表格
 export const selectByIdType = `${host}/assoication_sjs/trzDictionaries/selectByIdType` // 单条下拉框查询*/
 export const industryDataAddOne = `${host}/banner/insert` // 行业数据新增
 export const industryDataUpdateOne = `${host}/banner/update` // 行业数据更新
-export const industryDataDeleteOne = `${host}/article/deleteAll` // 行业数据删除
+export const industryDataDeleteOne = `${host}/banner/delete` // 行业数据删除
 export const industryDataOptionList = `${host}/assoication_sjs/trzDictionaries/deleteOneType` // 下拉框option列表
 
 /*信息发布-*/
@@ -153,9 +153,10 @@ export const actionDelete = `${host}/activity/delete` // 删除
 export const entInfoAll = `${host}/entUser/list` // 基本信息列表
 export const entInfoUpdate = `${host}/entUser/update` // 基本信息更新
 export const entInfoGet = `${host}/entUser/get` // 基本信息详情
-export const entPropagateAll = `${host}/entPropagate/list` // 宣传资料列表
-export const entPropagateGet = `${host}/entPropagate/get` // 宣传资料详情
-export const entPropagateUpdate = `${host}/entPropagate/update` // 宣传资料列表
+export const entInfoImportExcel = `${host}/entUser/importExcel` // 基本信息详情
+export const entPropagateAll = `${host}/entPropagateTemplate/list` // 宣传资料列表
+export const entPropagateGet = `${host}/entPropagateTemplate/get` // 宣传资料详情
+export const entPropagateUpdate = `${host}/entPropagateTemplate/update` // 宣传资料列表
 export const entIncomeAll = `${host}/entIncome/list` // 财税数据列表
 export const entIncomeGet = `${host}/entIncome/get` // 财税数据详情
 

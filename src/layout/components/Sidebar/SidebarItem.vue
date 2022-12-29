@@ -12,7 +12,7 @@
     </template>
     <el-sub-menu :index="resolvePath(item.path, item.meta.title)" v-else popper-append-to-body>
       <template #title>
-        <el-icon :size="20"> <component :is="item.meta?.icon"></component></el-icon>
+        <el-icon v-if="item.meta?.icon" :size="20"><img style="width: 16px; height: 16px;" :src="item.meta?.icon"/></el-icon>
         <span>{{ item.meta&&item.meta.title }}</span>
       </template>
       <sidebar-item

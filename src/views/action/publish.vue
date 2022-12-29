@@ -7,7 +7,7 @@
         </el-form-item>
         <el-form-item>
           <el-button type="primary" @click.stop="onSubmit">搜索</el-button>
-          <el-button type="primary" @click.stop="onClear">清空</el-button>
+          <el-button type="primary" @click.stop="onClear">重置</el-button>
           <el-button type="primary" @click.stop="add">添加</el-button>
           <el-button type="primary" icon="IceCreamSquare" @click.stop="exportClick2">导出EXECL</el-button>
         </el-form-item>
@@ -167,13 +167,13 @@ export default {
       },
       {
         prop: "applyTimeFrom",
-        label: "活动报名开始日期",
-        placeholder: "活动报名开始日期"
+        label: "活动报名开始时间",
+        placeholder: "活动报名开始时间"
       },
       {
         prop: "applyTimeTo",
-        label: "活动报名结束日期",
-        placeholder: "活动报名结束日期"
+        label: "活动报名结束时间",
+        placeholder: "活动报名结束时间"
       },
  /*      {
         prop: "activityStatus",
@@ -272,8 +272,8 @@ const formConfig = [
   },
   {
     prop: "applyTimeFrom",
-    label: "活动报名开始日期",
-    placeholder: "活动报名开始日期",
+    label: "活动报名开始时间",
+    placeholder: "活动报名开始时间",
     getMinTime: () => new Date(),
     rules: { required: true, validator: (r, e, c) => {
       if(!e) {
@@ -289,8 +289,8 @@ const formConfig = [
   },
   {
     prop: "applyTimeTo",
-    label: "活动报名结束日期",
-    placeholder: "活动报名结束日期",
+    label: "活动报名结束时间",
+    placeholder: "活动报名结束时间",
     getMinTime: () => new Date(),
     rules: { required: true, validator: (r, e, c) => {
       if(!e) {
@@ -427,13 +427,13 @@ const exportClick2 = () => {
       },
       {
         prop: "applyTimeFrom",
-        label: "活动报名开始日期",
-        placeholder: "活动报名开始日期"
+        label: "活动报名开始时间",
+        placeholder: "活动报名开始时间"
       },
       {
         prop: "applyTimeTo",
-        label: "活动报名结束日期",
-        placeholder: "活动报名结束日期"
+        label: "活动报名结束时间",
+        placeholder: "活动报名结束时间"
       },
  /*      {
         prop: "activityStatus",

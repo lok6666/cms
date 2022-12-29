@@ -46,7 +46,7 @@
         </el-form-item>
         <el-form-item>
           <el-button type="primary" @click.stop="onSubmit">搜索</el-button>
-          <el-button type="primary" @click.stop="onClear">清空</el-button>
+          <el-button type="primary" @click.stop="onClear">重置</el-button>
         </el-form-item>
       </el-form>
       <div style="display: flex; justify-content: flex-end">
@@ -169,16 +169,32 @@
           <el-form-item label="缩略图" prop="picture">
             <el-upload
               class="avatar-uploader"
-              action="#"
-              :show-file-list="false"
+              :list-type="rest(ruleForm.picture)"
               :before-upload="beforeAvatarUpload"
             >
+            <div v-if="ruleForm.picture">
               <img
                 v-if="ruleForm.picture"
                 :src="ruleForm.picture"
                 style="width: 50px; height: 50px;"
                 class="avatar"
               />
+              <span class="el-upload-list__item-actions">
+                  <span
+                    class="el-upload-list__item-preview"
+                    @click.stop="handlePictureCardPreview(ruleForm.picture)"
+                  >
+                    <el-icon><zoom-in /></el-icon>
+                  </span>
+                  <span
+                    v-if="!disabled"
+                    class="el-upload-list__item-delete"
+                    @click.stop="handleRemove(ruleForm.picture)"
+                  >
+                    <el-icon><Delete /></el-icon>
+                  </span>
+                </span>
+            </div>
               <el-icon v-else class="avatar-uploader-icon"><Plus /></el-icon>
             </el-upload>
           </el-form-item>
@@ -198,6 +214,9 @@
           </span>
         </template>
       </el-dialog>
+      <el-dialog v-model="dialogVisible">
+      <img  :src="dialogImageUrl" alt="Preview Image" style="width: 100%; height:100%"/>
+    </el-dialog>
       <div
         style="
           width: 100%;
@@ -223,7 +242,7 @@
 export default { name: "inline-table" };
 </script>
 <script lang="ts" setup >
-import { computed, ref, reactive, onMounted, toRefs } from "vue";
+import { computed, ref, reactive, onMounted, toRefs,getCurrentInstance } from "vue";
 import { upLoad } from "@/config/api";
 import editor from "@/components/editor/index.vue";
 import {
@@ -262,7 +281,6 @@ const rules = reactive<FormRules>({
   title: { required: true, validator: emtyRules, trigger: 'blur'},
   operator:{ required: true, validator: emtyRules, trigger: 'blur'},
   dataSources: { required: true, validator: emtyRules, trigger: 'blur'},
-  picture: { required: true, validator: emtyRules, trigger: 'blur'},
   releaseDate: { required: true, validator: emtyRules, trigger: 'blur'},
   content: { required: true, validator: emtyRules, trigger: 'blur'},
 });
@@ -283,6 +301,8 @@ const state = reactive({
   isTop: 0,
   title: ''
 });
+const dialogImageUrl = ref('')
+const dialogVisible = ref(false)
 const ruleFormRef = ref();
 const title = ref("添加");
 let ruleForm: baseData = reactive({
@@ -310,6 +330,19 @@ const userChange1 = (row) => {
     getArticleSelectAll();
     ElMessage.success("操作成功");
   });
+};
+
+const handleRemove = (i, res) => {
+  ruleForm.picture = '';
+};
+
+const handlePictureCardPreview = (file: UploadFile) => {
+  dialogImageUrl.value = file;
+  dialogVisible.value = true;
+};
+
+const rest = (i) => {
+  return i ? 'picture-card' : ''
 };
 
 const userChange = (row) => {
@@ -398,7 +431,7 @@ const handleClose = async (done: () => void) => {
       let obj = {
         ...ruleForm,
       };
-      if (title.value === "新增") {
+      if (title.value === "添加") {
         post(`${articleArticleAddOne}`, {
           ...obj,
         })
@@ -426,6 +459,7 @@ const handleClose = async (done: () => void) => {
     }
   });
 };
+let {ctx:that, proxy} = getCurrentInstance()
 const beforeAvatarUpload: UploadProps["beforeUpload"] = (rawFile) => {
         var axios = require("axios");
         var FormData = require("form-data");
@@ -443,7 +477,8 @@ const beforeAvatarUpload: UploadProps["beforeUpload"] = (rawFile) => {
         axios.defaults.headers.common["Access-Control-Allow-Origin"] = "*";
         axios(config)
         .then(function (res) {
-          ruleForm.picture = res
+          ruleForm.picture = res;
+          proxy.$forceUpdate()
         })
         .catch(function (error) {
           console.log(error);
@@ -548,7 +583,7 @@ const onSubmit = () => {
   }, 500);
 };
 
-// 清空
+// 重置
 const onClear = () => {
   loading.value = true;
   formInline.title = '';

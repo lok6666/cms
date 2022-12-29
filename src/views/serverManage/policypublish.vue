@@ -666,8 +666,8 @@ const policyStatus = ref(0);
 // 模糊匹配
 const policyTags = ref("");
 const isTag = ref(0);
-const startTime = ref(0);
-const endTime = ref(0);
+const startTime = ref('');
+const endTime = ref('');
 const router = useRouter();
 const total = ref(0);
 const pageNum = ref(1);
@@ -684,7 +684,7 @@ const applydialogVisible = ref(false);
 const detailRow = ref();
 const announcementVisible = ref(false);
 const locationValue = ref("shijingshan");
-const isRelationValue = ref(0);
+const isRelationValue = ref('');
 const policyPushData: policyPush = reactive({
 policyTitle: '',
 policyAgency: '',
@@ -1266,7 +1266,7 @@ const onSubmit = () => {
   }, 500);
 };
 
-// 清空
+// 重置
 const onClear = () => {
   formInline.username = "";
   inputName.value = "";

@@ -144,14 +144,31 @@
             },{
             prop: "businessIncome",
             label: "营业收入(万)",
-            },{
+            },
+            {
             prop: "cultureIncome",
             label: "文化产业相关营业收入(万)",
 
-            },{
+            },
+            {
+            prop: "payTaxes",
+            label: "纳税额(不含个人所得税)(万)",
+            }
+            ,
+            {
+            prop: "addedTax",
+            label: "增值税(万)",
+            },
+            {
+            prop: "corporateIncomeTax",
+            label: "企业所得税(万)",
+            }
+            /* ,
+            {
             prop: "totalProfit",
             label: "利润总额(万)",
-            },{
+            },
+            {
             prop: "netProfit",
             label: "净利润(万)",
             },{
@@ -166,19 +183,11 @@
             },{
             prop: "equity",
             label: "所有者权益(万)",
-            },{
-            prop: "payTaxes",
-            label: "纳税额(不含个人所得税)(万)",
-            },{
-            prop: "addedTax",
-            label: "增值税(万)",
-            },{
-            prop: "corporateIncomeTax",
-            label: "企业所得税(万)",
-            },{
+            },
+            {
             prop: "individualIncomeTax",
             label: "个人所得税(万)"
-            }
+            } */
         ],
       };
     },

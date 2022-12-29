@@ -251,7 +251,7 @@ const deleteAction = (row) => {
  * 提交表单数据
  */
 const postFormData = (formData) => {
-  post(title.value === "新增" ? `${videoAddOne}` : `${videoUpdateOne}`,
+  post(title.value === "添加" ? `${videoAddOne}` : `${videoUpdateOne}`,
   {
     ...formData
   })

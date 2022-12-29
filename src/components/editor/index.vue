@@ -1,5 +1,6 @@
 <template>
-  <div style="border: 1px solid #ccc; margin-top: 10px">    <Toolbar
+  <div style="border: 1px solid #ccc; margin-top: 10px" v-loading="loading" element-loading-background="rgba(122, 122, 122, 0.8)" element-loading-text="上传中...">
+    <Toolbar
     style="border-bottom: 1px solid #ccc"
     :editor="editorRef"
     :defaultConfig="toolbarConfig"
@@ -29,6 +30,7 @@ import { upLoad } from "@/config/api";
 import formData from "form-data";
 
 const emit = defineEmits(['handle']);
+const loading = ref(false);
 const props = defineProps({
     content:String
 });
@@ -102,7 +104,6 @@ const valueHtml = ref("");
     file_picker_types: "file image media", //file image media分别对应三个类型文件的上传：link插件，image和axupimgs插件，media插件。想屏蔽某个插件的上传就去掉对应的参数
     // 文件上传处理函数
     file_picker_callback: function (callback, value, meta) {
-      debugger;
       // 使用案例http://tinymce.ax-z.cn/general/upload-images.php
       // meta.filetype  //根据这个判断点击的是什么file image media
       let filetype; //限制文件的上传类型,需要什么就添加什么的后缀
@@ -278,6 +279,7 @@ const editorConfig = {
             video1.autoplay=true;
             video1.crossOrigin = 'Anonymous';
             document.getElementById('app').appendChild(video1);
+            loading.value = true;
             setTimeout(() => {
               const video = document.getElementById('getPoster');
               const canvas = document.createElement('canvas');
@@ -307,6 +309,7 @@ const editorConfig = {
                   video.poster= res;
                   document.getElementById('app').removeChild(document.getElementById('getPoster'));
                   insertFn(url, res, url); //插入图片 */
+                  loading.value = false;
                 })
                 .catch(function (error) {
                   console.log(error);

@@ -128,6 +128,9 @@ export const phoneRules = (rule, value, callback) => {
   if(!value) {
     callback('不能为空');
   }
+  else if(/^(0\d{2,3}\-)?([2-9]\d{6,7})+(\-\d{1,6})?$/.test(value)) {
+    callback();
+  }
   else if(!/^1([358][0-9]|4[579]|66|7[0135678]|9[89])[0-9]{8}$/.test(value)) {
     callback('手机号格式有误');
   }else {

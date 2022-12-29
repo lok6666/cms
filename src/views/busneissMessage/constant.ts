@@ -301,8 +301,8 @@ export const map = {
             ZL: '种类',
             DBFW: '担保的范围',
             SE: '数额',
-            LXZWKSRQ: '债务人履行债务开始日期',
-            LXZWJSRQ: '债务人履行债务结束日期',
+            LXZWKSRQ: '债务人履行债务开始时间',
+            LXZWJSRQ: '债务人履行债务结束时间',
             BZ: '被担保债权-备注',
         }
     },

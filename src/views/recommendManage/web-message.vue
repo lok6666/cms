@@ -8,7 +8,7 @@
         </el-form-item>
         <el-form-item>
           <el-button type="primary" @click.stop="onSubmit">搜索</el-button>
-          <el-button type="primary" @click.stop="onClear">清空</el-button>
+          <el-button type="primary" @click.stop="onClear">重置</el-button>
           <el-button type="primary" @click.stop="examine">编辑站内信</el-button>
         </el-form-item>
       </el-form>
@@ -172,7 +172,7 @@
   const onSubmit = (val) => {
     getmessageList();
   };
-  // 清空
+  // 重置
   const onClear = (val) => {
     state.messageContent = '';
     state.companyName = '';

@@ -58,8 +58,8 @@
       </el-table>
       <el-dialog v-model="dialogVisible" :title="title" @closed="closeDialog()">
         <el-form :model="formInline">
-          <el-form-item label="标题" width="100%">
-            <el-input v-model="formInline.username" placeholder="请输入标题" />
+          <el-form-item label="角色" width="100%">
+            <el-input v-model="formInline.username" placeholder="请输入角色名称" />
           </el-form-item>
           <el-form-item>
             <el-tree
@@ -87,8 +87,8 @@
       v-model:currentPage="currentPage"
       v-model:page-size="pageSize"
       :background="background"
-      layout="prev, pager, next, jumper"
-      :total="1000"
+      layout="total, sizes, prev, pager, next, jumper"
+      :total="totaL"
       @size-change="handleSizeChange"
       @current-change="handleCurrentChange"
     />
@@ -124,16 +124,18 @@ let roleName = ref('');
 const treeTable = ref([]);
 let currentPage = ref(1);
 let pageSize = ref(10);
+let totaL = ref(10);
 const dialogVisible = ref(false);
 const title = ref("添加");
 
 // 获取列表
 const getSysRoleList = () => {
   post(`${sysRoleList}`, {
-    pageSize: 5,
-    pageNum: 1
-  }).then(function ({list}) {
+    pageSize: pageSize.value,
+    pageNum: currentPage.value
+  }).then(function ({list, total}) {
     roleList.value = list;
+    totaL.value = total
   });
 };
 getSysRoleList();
@@ -199,7 +201,7 @@ const closeDialog = async (done: () => void) => {
 // 关闭弹窗
 const handleClose = async (done: () => void) => {
   dialogVisible.value = false;
-  if(title.value === '新增') {
+  if(title.value === '添加') {
       post(`${sysRoleInsert}`, {
         roleName: formInline.value.username,
         tree: state.updateList
@@ -232,7 +234,7 @@ const deleteAction = (row) => {
           ]
       })
       .then(function (data) {
-        console.log('data', data);
+        getSysRoleList();
       })
       .catch((e) => {
         console.log("e", e);

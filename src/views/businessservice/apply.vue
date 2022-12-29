@@ -54,7 +54,6 @@
               size="small"
               icon="check"
               @click.stop="examine(scope.row)"
-              :disabled="scope.row.applyStatus !== 0"
             >
               审核
             </el-button>

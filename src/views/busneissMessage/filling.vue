@@ -31,16 +31,16 @@
               {{this.applyStatusObj[scope.row.applyStatus]}}
             </template>
           </el-table-column>
-          <el-table-column prop="operator" label="操作" width="200" fixed="right">
+<!--           <el-table-column prop="operator" label="操作" width="200" fixed="right">
             <template #default="scope">
               <el-button type="primary" size="small" @click.stop="detail(scope.row)">
                 查看详情
               </el-button>
-              <el-button type="primary" size="small" @click.stop="examine(scope.row)" :disabled="[scope.row.applyStatus !== 0]">
+              <el-button type="primary" size="small" @click.stop="examine(scope.row)">
                 审核
               </el-button>
             </template>
-          </el-table-column>
+          </el-table-column> -->
         </el-table>
         <el-dialog
           v-model="state.dialogVisible"
@@ -116,20 +116,25 @@
                 label: "企业名称"
             },
             {
+                prop: 'shxydm',
+                label: "社会统一代码"
+            },
+            {
                 prop: "frdb",
                 label: "法定代表人",
                 width: '140'
             },
             {
-                prop: "email",
-                label: "企业邮箱"
+                prop: "frdbPhone",
+                label: "法人手机号",
+                width: '140'
             },
             {
-                prop: "entPhone",
-                label: "公司电话"
+                prop: "frdbCard",
+                label: "法人身份证"
             },
             {
-                prop: "authorDate",
+                prop: "authData",
                 label: "认证日期"
             }
         ],

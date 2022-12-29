@@ -372,7 +372,7 @@ const detail = async (row) => {
  * 提交表单数据
  */
 const postFormData = (formData) => {
-  if (title.value === "新增") {
+  if (title.value === "添加") {
     post(`${businessEstimateAddOne}`, {
       ...formData,
     })

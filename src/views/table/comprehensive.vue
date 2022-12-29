@@ -170,7 +170,7 @@ export default { name: 'comprehensive' };
   })
 
   const dialogVisible = ref(false)
-  const title = ref('新增')
+  const title = ref('添加')
   const rowObj = ref({})
   const selectObj = ref([])
 
@@ -188,7 +188,7 @@ export default { name: 'comprehensive' };
           admin:"admin",
           date: dayjs().format('YYYY-MM-DD')
       }
-      if(title.value==='新增'){
+      if(title.value==='添加'){
         list.value = [obj,...list.value]
         ElMessage.success('添加成功')
       }else {
@@ -209,7 +209,7 @@ export default { name: 'comprehensive' };
   }
 
   const add = ()=>{
-    title.value='新增'
+    title.value='添加'
     dialogVisible.value = true
   }
 

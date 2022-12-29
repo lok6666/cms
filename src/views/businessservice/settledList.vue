@@ -746,6 +746,7 @@ const edit = (row) => {
   state.dialogVisible = true;
   state.dialogVisible1 = true;
   currentRoleId.value = row.id;
+  state.primaryId = row.primaryId;
   state.formConfig = state.formConfig.map((e, b) => {
     let result = { ...e };
     result[e.prop] = row[e.prop];
@@ -800,11 +801,11 @@ const clickTab = (tab: TabsPaneContext) => {
 };
 
 const options1 = [
-/*   {
+  {
     value: "",
     label: "全部",
     isSelect: false,
-  }, */
+  },
   {
     value: "微信",
     label: "微信",
@@ -1024,8 +1025,12 @@ const importClick = (e) => {
   };
   axios(config)
     .then(function (res) {
-      ElMessage.success("添加成功");
-      getentMerchantsSuccessList();
+      if(res.data.code === '3003') {
+        ElMessage.error(res.data.msg);
+      } else {
+        ElMessage.success("添加成功");
+        getentMerchantsSuccessList();
+      }
     })
     .catch(function (error) {
       console.log(error);
@@ -1092,6 +1097,26 @@ const exportClick2 = () => {
 const formatJson  = (filterVal, jsonData) => {
     return jsonData.map(v => filterVal.map(j => v[j]));
   }
+
+
+  const handleClick2 = (index) => {
+  // state.status[state.statusIndex].isSelect = false;
+  state.options = state.options.map((e, i) => {
+    if(i === index) {
+      e.isSelect = !e.isSelect;
+      state.dynamicType = e.value;
+    } else {
+      e.isSelect = false;
+    };
+    return e;
+  });
+  post(`${entDynamicList}`, {
+      companyName: state.companyName,
+      dynamicType: state.dynamicType
+    }).then(res => {
+      state.timeList = res.list;
+    });
+};
 // 导出表格
 const exportClick = () => {
   var wb = XLSX.utils.table_to_book(document.querySelector("#my-table")); //关联don节点
@@ -1145,12 +1170,13 @@ const postFormData = (formData) => {
     }`,
     {
       listName: state.listName,
-      listId: state.primaryId,
+      primaryId: state.primaryId,
       ...formData,
     }
   )
     .then(function (data) {
       ElMessage.success("添加成功");
+      state.primaryId = '';
       getentMerchantsSuccessList();
       state.formConfig = state.formConfig.map((e, b) => {
         let result = { ...e };  

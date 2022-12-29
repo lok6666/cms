@@ -47,8 +47,8 @@
                  v-model="value3"
                  type="datetimerange"
                  range-separator="-"
-                 start-placeholder="开始日期"
-                 end-placeholder="结束日期"
+                 start-placeholder="开始时间"
+                 end-placeholder="结束时间"
              />
            </div>
          </el-card>
@@ -65,8 +65,8 @@
              <el-date-picker
                  v-model="value5"
                  type="datetimerange"
-                 start-placeholder="开始日期"
-                 end-placeholder="结束日期"
+                 start-placeholder="开始时间"
+                 end-placeholder="结束时间"
                  :default-time="defaultTime1"
              />
            </div>

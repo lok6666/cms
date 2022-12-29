@@ -431,6 +431,10 @@ export default {
 };
 </script>
 <script lang="ts" setup>
+import {useStore} from "vuex";
+// 在setup中获取store
+const store = useStore();
+console.log('store----', store);
 interface formConfigItem {
   prop: string;
   label: string;
@@ -879,11 +883,11 @@ const detail = (row) => {
     .catch(() => {});
 };
 const options1 = [
-/*   {
+  {
     value: "",
     label: "全部",
     isSelect: false,
-  }, */
+  },
   {
     value: "微信",
     label: "微信",
@@ -1122,8 +1126,12 @@ const importClick = (e) => {
   };
   axios(config)
     .then(function (res) {
-      ElMessage.success("添加成功");
-      getentMerchantsList();
+      if(res.data.code === '3003') {
+        ElMessage.error(res.data.msg);
+      } else {
+        ElMessage.success("添加成功");
+        getentMerchantsList();
+      }
     })
     .catch(function (error) {
       console.log(error);
@@ -1154,13 +1162,17 @@ const reset = () => {
   // state.listName = "";
   // state.primaryId = "";
   state.entName = "";
-  state.listIds = "";
+  state.listIds = [];
   state.value2 = "";
   state.startTime = "";
   state.endTime = "";
   state.entLocal = "";
   state.entSource = "";
   state.hctd = "";
+  state.status = state.status.map(e=> {
+    e.isSelect = false;
+    return e;
+  });
   getentMerchantsList();
 };
 const add = () => {
@@ -1201,6 +1213,7 @@ const postFormData = (formData) => {
     })
     .catch((e) => {
       console.log("e", e);
+      getentMerchantsList();
     }); 
   state.dialogVisible = false;
   state.dialogVisible1 = false;

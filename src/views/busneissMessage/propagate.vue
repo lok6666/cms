@@ -198,6 +198,7 @@
   });
   
   let currentRoleId = ref<string>("");
+  let entId = ref<string>("");
   const title = ref<string>("添加");
   
 
@@ -297,6 +298,7 @@ const reset = () => {
     title.value = '审核';
     state.formConfig.status = row.approvalStatus;
     currentRoleId.value = row.id;
+    entId.value = row.entId;
     state.dialogVisible = true;
     state.showExamineForm = true;
   };
@@ -307,7 +309,8 @@ const reset = () => {
   const postFormData = (formData) => {
     post(`${entPropagateUpdate}`, {
       id: currentRoleId.value,
-      approvalStatus: formData.status
+      entId: entId.value,
+      approvalStatus: formData.status ? 1: 2,
     })
       .then(function (data) {
         getentPropagateAll();
