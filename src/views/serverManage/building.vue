@@ -34,6 +34,9 @@
           :prop="item.prop"
           :label="item.label"
         >
+          <template #default="scope" v-if="item.prop === 'buildingLocation'">
+            {{tableMap[scope.row.buildingLocation]}}
+          </template>
           <template #default="scope" v-if="item.prop === 'serviceFlag'">
             {{ serviceFlagstatus[scope.row.serviceFlag] }}
           </template>
@@ -128,6 +131,10 @@ export default {
         4: "政府补贴",
         5: "企业服务包",
       },
+      tableMap: {
+        'shijingshan': '石景山',
+        'beijing': '北京'
+      },
       tableHeaderConfig: [
         {
           prop: "sortNum",
@@ -138,6 +145,12 @@ export default {
         {
           prop: "buildingName",
           label: "楼宇名称",
+          required: true,
+          showInput: true,
+        },
+        {
+          prop: "buildingLocation",
+          label: "区县",
           required: true,
           showInput: true,
         },
@@ -220,6 +233,61 @@ const formConfig = [
     label: "楼宇名称",
     rules: { required: true, validator: emtyRules, trigger: 'blur'},
     showInput: true,
+  },
+  {
+    prop: "buildingLocation",
+    label: "区县",
+    options: [{
+      value: "beijing",
+      label: "北京",
+    },
+    {
+      value: "dongcheng",
+      label: "东城区",
+    },
+    {
+      value: "xicheng",
+      label: "西城区",
+    },
+    {
+      value: "haidian",
+      label: "海淀区",
+    },
+    {
+      value: "chaoyang",
+      label: "朝阳区",
+    },
+    {
+      value: "changping",
+      label: "昌平区",
+    },
+    {
+      value: "shijingshan",
+      label: "石景山区",
+    },
+    {
+      value: "tongzhou",
+      label: "通州区",
+    },
+    {
+      value: "shunyi",
+      label: "顺义区",
+    },
+    {
+      value: "yanqing",
+      label: "延庆区",
+    },
+    {
+      value: "pinggu",
+      label: "延庆区",
+    },
+    {
+      value: "mentougou",
+      label: "门头沟区",
+    }],
+    label: "区县",
+    required: true,
+    showSelect: true
   },
   {
     prop: "buildingInfo",

@@ -659,7 +659,7 @@ const getNewsByName = (busneissName) => {
         optionsList: [],
       };
       /*       map7[i].forEach((key, index) => {
-        debugger;
+        
         obj.optionsList.push({
               id: index,
               ...entgetNewsByNameMap[key],
@@ -861,7 +861,7 @@ const examine = (row) => {
  * 提交表单数据
  */
 const postFormData = (formData) => {
-  debugger;
+  
   post(`${entApplyUpdateOne}`, {
     id: currentRoleId.value,
     applyStatus: formData.status ? 1: 2,

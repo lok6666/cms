@@ -88,7 +88,7 @@ const valueHtml = ref("");
     //此处为图片上传处理函数
 /*     images_upload_handler: (blobInfo, success, failure) => {
       // 这里用base64的图片形式上传图片,
-      debugger;
+      
 
       // let reader = new FileReader(); //本地预览
       // reader.readAsDataURL(blobInfo.blob());
@@ -353,7 +353,7 @@ const handleChange = (editor) => {
 /*   video.forEach(e => {
     e.crossOrigin="Anonymous";
     if(e.poster.includes('needUpdateposter')) {
-      debugger;
+      
       const canvas = document.createElement('canvas');
       canvas.width = e.videoWidth;
       canvas.height = e.videoHeight;

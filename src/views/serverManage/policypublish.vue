@@ -735,7 +735,7 @@ const message = (row) => {
   getentInfoAll();
 };
 const sendMessage = () => {
-  debugger;
+  
   console.log('multipleSelection---', multipleSelection.value);
   axios.post(`${policyPush}`, multipleSelection.value.map(e => {
     return {

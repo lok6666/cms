@@ -423,7 +423,7 @@ getentMerchantsPersonList();
  * 提交表单数据
  */
  const postFormData2 = (formData) => {
-  debugger;
+  
   let data = state.formConfig2[0].options.filter(e => e.value === formData.listName);
   post(`${entMerchantsPersonInsert}`, {
     listName: data[0].label,
@@ -724,7 +724,7 @@ const getNewsByName = (busneissName) => {
         optionsList: []
       };
 /*       map7[i].forEach((key, index) => {
-        debugger;
+        
         obj.optionsList.push({
               id: index,
               ...entgetNewsByNameMap[key],

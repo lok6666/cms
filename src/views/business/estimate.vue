@@ -610,7 +610,7 @@ const getNewsByName = (busneissName) => {
         optionsList: []
       };
 /*        map7[i].forEach((key, index) => {
-        debugger;
+        
         obj.optionsList.push({
               id: index,
               ...entgetNewsByNameMap[key],

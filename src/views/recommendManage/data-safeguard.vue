@@ -25,6 +25,9 @@
             style="width: 50px; height: 50px"
           />
           </template>
+          <template #default="scope" v-if="item.prop === 'bannerType'">
+          {{tableMap[scope.row.bannerType]}}
+          </template>
         </el-table-column>
         <el-table-column prop="operator" label="操作" width="200" fixed="right">
           <template #default="scope">
@@ -106,11 +109,19 @@ export default {
           label: "序号",
         },
         {
+          prop: "bannerType",
+          label: "区县",
+        },
+        {
           prop: "bannerPicture",
           label: "轮播图",
           showImg: true
         }
       ],
+      tableMap: {
+        'shijingshan': '石景山',
+        'beijing': '北京'
+      },
     };
   },
 };
@@ -128,6 +139,60 @@ const formConfig = [
     label: "轮播图",
     required: true,
     upload: true,
+  },
+  {
+    prop: "bannerType",
+    options: [{
+      value: "beijing",
+      label: "北京",
+    },
+    {
+      value: "dongcheng",
+      label: "东城区",
+    },
+    {
+      value: "xicheng",
+      label: "西城区",
+    },
+    {
+      value: "haidian",
+      label: "海淀区",
+    },
+    {
+      value: "chaoyang",
+      label: "朝阳区",
+    },
+    {
+      value: "changping",
+      label: "昌平区",
+    },
+    {
+      value: "shijingshan",
+      label: "石景山区",
+    },
+    {
+      value: "tongzhou",
+      label: "通州区",
+    },
+    {
+      value: "shunyi",
+      label: "顺义区",
+    },
+    {
+      value: "yanqing",
+      label: "延庆区",
+    },
+    {
+      value: "pinggu",
+      label: "延庆区",
+    },
+    {
+      value: "mentougou",
+      label: "门头沟区",
+    }],
+    label: "区县",
+    required: true,
+    showSelect: true,
   }
 ];
 const state = reactive({

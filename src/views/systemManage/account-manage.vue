@@ -110,7 +110,7 @@
             <el-input v-model="ruleForm.type" />
           </el-form-item>
           <el-form-item label="角色" prop="roleName">
-            <el-select v-model="ruleForm.roleName" class="col" size="small" placeholder="选择角色">
+            <el-select v-model="ruleForm.role" class="col" size="small" placeholder="选择角色">
               <el-option v-for="i in roleOptions" :key="i.value" :label="i.label" :value="i.value"/>
             </el-select>
             <!-- <el-input v-model="ruleForm.roleName" /> -->
@@ -144,6 +144,7 @@ import {
   sysUserDeleteOne,
   sysUserUpdateOne,
   upLoad,
+  sysRoleList
 } from "@/config/api";
 import { ElMessage, ElMessageBox, UploadProps } from "element-plus";
 import { Delete, Download, Plus, ZoomIn } from "@element-plus/icons-vue";
@@ -165,6 +166,7 @@ const baseData = {
   username: "",
   password: "",
   roleName: "",
+  role: "",
   phone: "",
   picture: "" || "https://www.baidu.com/img/flexible/logo/pc/result.png",
   type: "",
@@ -214,6 +216,7 @@ const closeDialog = (): void => {
   ruleForm.value.username = "";
   ruleForm.value.password = "";
   ruleForm.value.roleName = "";
+  ruleForm.value.role = "";
   ruleForm.value.phone = "";
   ruleForm.value.picture = "";
   ruleForm.value.type = "";
@@ -222,15 +225,20 @@ const closeDialog = (): void => {
 // 添加
 const add = (): void => {
   title.value = "添加";
-  roleOptions.value = businessUseList.value.map(e => {
-    return {
-      label: e.roleName,
-      value: e.roleName
-    }
+  post(`${sysRoleList}`, {
+    pageSize: pageSize.value,
+    pageNum: currentPage.value
+  }).then(function ({list, total}) {
+    roleOptions.value = list.map(e => {
+      return {
+        label: e.roleName,
+        value: e.roleId
+      }
+    });
+    formDisabled.value = false;
+    dialogVisible.value = true;
+    ruleForm.value = baseData;
   });
-  formDisabled.value = false;
-  dialogVisible.value = true;
-  ruleForm.value = baseData;
 };
 
 // 编辑
@@ -241,13 +249,18 @@ const edit = (row): void => {
   ruleForm.value.name = row.name;
   ruleForm.value.username = row.username;
   ruleForm.value.password = row.password;
-  roleOptions.value = businessUseList.value.map(e => {
-    return {
-      label: e.roleName,
-      value: e.roleName
-    }
+  post(`${sysRoleList}`, {
+    pageSize: pageSize.value,
+    pageNum: currentPage.value
+  }).then(function ({list, total}) {
+    roleOptions.value = list.map(e => {
+      return {
+        label: e.roleName,
+        value: e.roleId
+      }
+    });
   });
-  ruleForm.value.roleName = row.roleName;
+  ruleForm.value.role = row.role;
   ruleForm.value.phone = row.phone;
   ruleForm.value.picture = row.picture;
   ruleForm.value.type = row.type;
@@ -269,12 +282,14 @@ const handleClose = async (done: () => void) => {
         })
           .then(function (data) {
             businessUseList.value = [data, ...businessUseList.value];
+            getSysUserSelectAll();
           })
           .catch((e) => {
             console.log("e", e);
           });
         ElMessage.success("添加成功");
       } else {
+        delete obj.password;
         post(`${sysUserUpdateOne}`, {
           ...obj,
         })
@@ -289,6 +304,7 @@ const handleClose = async (done: () => void) => {
                 item.phone = obj.phone;
               }
             });
+            getSysUserSelectAll();
           })
           .catch((e) => {
             console.log("e", e);

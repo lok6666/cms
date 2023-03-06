@@ -322,7 +322,7 @@ const formatJson  = (filterVal, jsonData) => {
 
 // 导入表格
 const importClick = (e) => {
-  debugger;
+  
   var axios = require("axios");
   var FormData = require("form-data");
   var data = new FormData();

@@ -60,7 +60,13 @@
         :border="true"
         v-loading="loading"
       >
+        
         <el-table-column prop="id" label="序号" type="index" width='80px'/>
+        <el-table-column prop="contentType" label="区县" width='80px' >
+          <template #default="scope">
+            {{tableMap[scope.row.contentType]}}
+          </template>
+        </el-table-column>
         <!-- <el-table-column prop="id" label="序号" width='80px'/> -->
         <el-table-column prop="title" label="文章标题" min-width='200'/>
         <el-table-column prop="dataSources" label="文章来源" width='150'/>
@@ -148,6 +154,11 @@
         >
           <el-form-item label="标题" prop="title">
             <el-input v-model="ruleForm.title" />
+          </el-form-item>
+          <el-form-item label="区县" prop="title">
+            <el-select v-model="ruleForm.contentType" class="col" size="small" placeholder="选择区县">
+              <el-option v-for="i in roleOptions" :key="i.value" :label="i.label" :value="i.value"/>
+            </el-select>
           </el-form-item>
           <el-form-item label="摘要" prop="digest">
             <el-input v-model="ruleForm.digest" />
@@ -262,7 +273,58 @@ import {
 } from "@/config/constants";
 import { ElMessage, ElMessageBox, FormRules, UploadProps } from "element-plus";
 import { get, post } from "@/utils/request";
-
+const tableMap = {
+  'shijingshan': '石景山',
+  'beijing': '北京'
+};
+const roleOptions = [{
+      value: "beijing",
+      label: "北京",
+    },
+    {
+      value: "dongcheng",
+      label: "东城区",
+    },
+    {
+      value: "xicheng",
+      label: "西城区",
+    },
+    {
+      value: "haidian",
+      label: "海淀区",
+    },
+    {
+      value: "chaoyang",
+      label: "朝阳区",
+    },
+    {
+      value: "changping",
+      label: "昌平区",
+    },
+    {
+      value: "shijingshan",
+      label: "石景山区",
+    },
+    {
+      value: "tongzhou",
+      label: "通州区",
+    },
+    {
+      value: "shunyi",
+      label: "顺义区",
+    },
+    {
+      value: "yanqing",
+      label: "延庆区",
+    },
+    {
+      value: "pinggu",
+      label: "延庆区",
+    },
+    {
+      value: "mentougou",
+      label: "门头沟区",
+    }];
 interface baseData {
   title: string;
   operator: string;
@@ -307,7 +369,7 @@ const ruleFormRef = ref();
 const title = ref("添加");
 let ruleForm: baseData = reactive({
   title: "",
-  
+  contentType: '',
   operator: "",
   picture: "",
   
