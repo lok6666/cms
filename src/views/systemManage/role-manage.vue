@@ -228,7 +228,7 @@ const deleteAction = (row) => {
     draggable: true,
   })
     .then(() => {
-      deleteItem(`${sysRoleDelete}`, {
+      deleteItem(`${sysRoleDelete}/${row.roleId}`, {
           data: [
             row.roleId
           ]

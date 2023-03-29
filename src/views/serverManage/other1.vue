@@ -344,7 +344,7 @@ ElMessageBox.confirm("你确定要删除当前项吗?", "温馨提示", {
     draggable: true,
   })
     .then(() => {
-      deleteItem(`${suppliersDeleteOne}`, {
+      deleteItem(`${suppliersDeleteOne}/${row.supplierId}`, {
         data: [row.supplierId],
       }).then(function (data) {
         getsuppliersAll();

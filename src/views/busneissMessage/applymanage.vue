@@ -873,7 +873,7 @@ const getNewsByName = (busneissName) => {
       draggable: true,
     })
       .then(() => {
-        deleteItem(`${activityApplyDelete}`, {
+        deleteItem(`${activityApplyDelete}/${row.id}`, {
           data: [row.id],
         }).then(function (data) {
           getpolicyApplyList();

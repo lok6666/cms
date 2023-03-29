@@ -637,7 +637,7 @@ const detail = (row) => {
     draggable: true,
   })
     .then(() => {
-      deleteItem(`${entMerchantsSuccessListdelete}`, {
+      deleteItem(`${entMerchantsSuccessListdelete}/${row.primaryId}`, {
         data: [row.primaryId],
       }).then(function (data) {
         getentMerchantsSuccessList();

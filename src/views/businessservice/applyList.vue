@@ -855,7 +855,7 @@ const removeTab = (id: string) => {
     draggable: true,
   })
     .then(() => {
-      deleteItem(`${entMerchantsPersondelete}`, {
+      deleteItem(`${entMerchantsPersondelete}/${arr}`, {
         data: arr,
       }).then(function (data) {
         getentMerchantsPersonList();
@@ -873,7 +873,7 @@ const detail = (row) => {
     draggable: true,
   })
     .then(() => {
-      deleteItem(`${entMerchantsdelete}`, {
+      deleteItem(`${entMerchantsdelete}/${row.primaryId}`, {
         data: [row.primaryId],
       }).then(function (data) {
         getentMerchantsPersonList();

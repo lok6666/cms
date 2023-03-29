@@ -84,7 +84,8 @@ export async function post(url: string, params?: any,) {
  */
 export async function deleteItem(url: string, params?: any) {
 	return new Promise((resolve, reject) => {
-		axios.delete(url, params).then(res => {
+		// todo 暂时改post
+		axios.post(url, params).then(res => {
 			resolve(res.data);
 		}).
 			catch(err => {

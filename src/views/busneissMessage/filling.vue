@@ -359,7 +359,7 @@ const reset = () => {
       draggable: true,
     })
       .then(() => {
-        deleteItem(`${businessApplyDelete}`, {
+        deleteItem(`${businessApplyDelete}/${row.id}`, {
           data: [row.id],
         }).then(function (data) {
           getentFilingAll();

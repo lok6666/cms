@@ -190,7 +190,7 @@ const deleteAction = (row) => {
     draggable: true,
   })
     .then(() => {
-      deleteItem(`${sysResourceDelete}`, {
+      deleteItem(`${sysResourceDelete}/${row.roleId}`, {
           data: [
             row.resourceId
           ]

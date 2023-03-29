@@ -239,7 +239,7 @@ const deleteAction = (row, isResume) => {
     draggable: true,
   })
     .then(() => {
-      deleteItem(`${sensitiveDelete}`,{
+      deleteItem(`${sensitiveDelete}/${row.id}`,{
           data: [row.id],
         }).then(function (data) {
         getSensitiveSelectAll();
