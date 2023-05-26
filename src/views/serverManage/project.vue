@@ -40,6 +40,9 @@
             style="width: 50px; height: 50px"
           />
         </template>
+        <template #default="scope" v-if="item.prop === 'serviceLocation'">
+            {{scope.row.serviceLocation.split(',').map(e => tableMap[e]).toString()}}
+          </template>
         <template #default="scope" v-if="item.showSwitch">
           <el-switch
           @click.stop="changeStatus(scope.row, state.tableData[scope.$index].serviceStatus)"
@@ -115,6 +118,11 @@ export default {
   name: "sensitive-manage",
   data() {
     return {
+      tableMap: {
+        'shijingshan': '石景山',
+        'beijing': '北京',
+        'chaoyang': '朝阳'
+      },
       tableHeaderConfig: [
       {
         prop: "sortNum",
@@ -145,6 +153,13 @@ export default {
         prop: "publicDate",
         label: "发布日期"
       },{
+        prop: "serviceHits",
+        label: "浏览"
+      }
+      ,{
+        prop: "serviceLocation",
+        label: "区县"
+      },{
         prop: "serviceStatus",
         label: "课程状态",
         showSwitch: true,
@@ -165,6 +180,62 @@ const formConfig = [
     label: "排序",
     showInput: true,
     rules: { required: true, validator: emtyRules, trigger: 'blur'},
+  },
+  
+  {
+    prop: "serviceLocation",
+    multiple: true,
+    options: [{
+      value: "beijing",
+      label: "北京",
+    },
+    {
+      value: "dongcheng",
+      label: "东城区",
+    },
+    {
+      value: "xicheng",
+      label: "西城区",
+    },
+    {
+      value: "haidian",
+      label: "海淀区",
+    },
+    {
+      value: "chaoyang",
+      label: "朝阳区",
+    },
+    {
+      value: "changping",
+      label: "昌平区",
+    },
+    {
+      value: "shijingshan",
+      label: "石景山区",
+    },
+    {
+      value: "tongzhou",
+      label: "通州区",
+    },
+    {
+      value: "shunyi",
+      label: "顺义区",
+    },
+    {
+      value: "yanqing",
+      label: "延庆区",
+    },
+    {
+      value: "pinggu",
+      label: "延庆区",
+    },
+    {
+      value: "mentougou",
+      label: "门头沟区",
+    }],
+    label: "区县",
+    rules: { required: true, validator: emtyRules, trigger: 'blur'},
+    showSelect: true
   },
   {
     prop: "serviceName",
@@ -187,11 +258,17 @@ const formConfig = [
     rules: { required: true, validator: emtyRules, trigger: 'blur'},
     showInput: true
   },
-  {
+/*   {
     prop: "serviceUrl",
     label: "课程链接",
-    rules: { required: true, validator: emtyRules, trigger: 'blur'},
+    rules: { required: false, validator: emtyRules, trigger: 'blur'},
     showInput: true
+  }, */
+  {
+    prop: "serviceUrl",
+    label: "本地视频课程链接",
+    rules: { required: true, validator: emtyRules, trigger: 'blur'},
+    videoUpload: true
   },
 ];
 const state = reactive({
@@ -303,6 +380,7 @@ const add = (row) => {
  * 提交表单数据
  */
 const postFormData = (formData) => {
+  formData.serviceLocation = formData.serviceLocation.toString();
   if (title.value === "添加") {
     post(`${trainingServicesInsert}`, {
       ...formData
@@ -386,7 +464,12 @@ const edit = (row) => {
   state.formConfig = state.formConfig
   .map((e, b) => {
     let result = { ...e };
-    result[e.prop] = row[e.prop];
+    if(e.prop === 'serviceLocation') {
+      result[e.prop] = row[e.prop].split(',');
+    } else {
+      result[e.prop] = row[e.prop];
+    }
+
     return result;
   });
 };

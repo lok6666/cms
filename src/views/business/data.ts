@@ -1,4 +1,4 @@
-export const  busneissData = {
+export const  busneissData:Object = {
     // "RESULTTYPEINFO": [
     //     {
     //         "RESULTTYPE": "1"

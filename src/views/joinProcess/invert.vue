@@ -171,11 +171,7 @@ export default {
         {
           prop: "dockTime",
           label: "申请时间",
-        },
-/*         {
-          prop: "sortNum",
-          label: "排序",
-        }, */
+        }
       ],
     };
   },

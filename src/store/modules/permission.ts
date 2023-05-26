@@ -83,6 +83,7 @@ export function filterAsyncRoutes(routes, roles) {
  * @param roles
  */
  export function filterRoutes2Redirect(routes) {
+    // console.log('routes----', routes);
     let res = routes.path;
     if (routes.children) {
         res = res + '/' + filterRoutes2Redirect(routes.children[0])
@@ -114,9 +115,9 @@ const actions = {
             })
             .then(function (data) {
                 let routers = generator(data);
+                console.log('filterRoutes2Redirect(routers[0])----', routers[0].children, filterRoutes2Redirect(routers[0]));
                 baseRoutes[0].redirect = '' + filterRoutes2Redirect(routers[0]);
                 routers = routers.concat(baseRoutes);
-                console.log('routers', routers);
                 commit('SET_ROUTES', routers);
                 resolve(routers);
             });

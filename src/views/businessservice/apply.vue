@@ -37,6 +37,9 @@
           <template #default="scope" v-if="item.prop === 'applyStatus'">
             {{ applyStatusObj[scope.row.applyStatus] }}
           </template>
+          <template #default="scope" v-if="item.prop === 'entLocation'">
+            {{ locationMap[scope.row.entLocation] }}
+          </template>
         </el-table-column>
         <el-table-column prop="operator" label="操作" width="300" fixed="right">
           <template #default="scope">
@@ -164,6 +167,7 @@ import {
   entgetRecruitByNameMap,
   entgetNewsByNameMap,
 } from "./constant";
+import { getLocation } from '@/utils/auth'
 import { ref, reactive, provide } from "vue";
 import formConpoent from "@/components/form/form.vue";
 import busneissDetail from "@/components/form/busneissDetail.vue";
@@ -198,6 +202,11 @@ export default {
         1: "审核通过",
         2: "审核未通过",
       },
+      locationMap: {
+        shijingshan: "石景山",
+        beijing: "北京",
+        chaoyang: "朝阳"
+      },
       tableHeaderConfig: [
         {
           prop: "entName",
@@ -210,7 +219,7 @@ export default {
         },
         {
           prop: "registerDistrict",
-          label: "公司地址",
+          label: "地址",
         },
         {
           prop: "entIndustry",
@@ -246,6 +255,10 @@ export default {
         {
           prop: "applyStatus",
           label: "审核状态",
+        },
+        {
+          prop: "entLocation",
+          label: "区县",
         },
 /*         {
           prop: "applyInfo",
@@ -305,7 +318,7 @@ const formConfig: formConfigItem[] = [
   },
   {
     prop: "registerDistrict",
-    label: "公司地址",
+    label: "地址",
     showInput: true,
   },
   {
@@ -710,7 +723,7 @@ const exportClick2 = () => {
         },
         {
           prop: "registerDistrict",
-          label: "公司地址",
+          label: "地址",
         },
         {
           prop: "entIndustry",
@@ -813,9 +826,10 @@ const detail = (row) => {
  const postFormData2 = (formData) => {
   let data = state.formConfig2[0].options.filter(e => e.value === formData.listName);
   post(`${data[0].label === '意向企业' ?  entMerchantsInsert : entMerchantsSuccessListInsert}`, {
+    entLocation: getLocation(),
     companyName: state.tableItem.entName,
-    contactPerson: state.tableItem.legalPerson,
-    contactPhone: state.tableItem.legalId,
+    contactPerson: state.tableItem.contactsName,
+    contactPhone: state.tableItem.contactsPhone,
     ...formData,
     entStatus: data[0].label === '意向企业' ? '待接洽' :  '已入住',
     entLocal: state.tableItem.registerDistrict
@@ -887,12 +901,14 @@ const closeDialog = async (done: () => void) => {
   state.showForm = false;
 };
 
+console.log('getLocation()---', getLocation());
 //  文章内容列表
-const getentApplyAll = () => {
+const getentApplyAll = ():void => {
   post(`${entApplyAll}`, {
     pageNum: state.currentPage,
     pageSize: state.pageSize,
     entName: state.entName,
+    entLocation: getLocation()
   }).then(function (data) {
     state.tableData = data.list;
     state.total = data.total;

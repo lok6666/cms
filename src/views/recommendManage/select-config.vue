@@ -31,7 +31,14 @@
           </el-tabs>
         </el-tab-pane>
       </el-tabs>
-      <div style="display: flex; justify-content: flex-end">
+      <div style="display: flex; justify-content: space-between">
+        <el-form :inline="true" :model="state" class="demo-form-inline">
+          <el-form-item label="区县">
+          <el-select clearable v-model="state.locationValue" class="col"  @change="getData()" size="small" placeholder="选择区县" style="width: 120px;">
+            <el-option v-for="i in locationOptions" :key="i.value" :label="i.label" :value="i.value"/>
+          </el-select>
+      </el-form-item>
+      </el-form>
         <el-button type="primary" @click.stop="add"
           ><el-icon><plus /></el-icon> 添加</el-button
         >
@@ -240,7 +247,7 @@ const getOPtionList = () => {
       console.log("e", e);
     });
 };
-getOPtionList();
+// getOPtionList();
 
 const articleHandleClick = (tab, event) => {
   state.articletype = tab.props.name;

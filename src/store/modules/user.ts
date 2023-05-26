@@ -17,6 +17,10 @@ const mutations = {
     SET_TOKEN: (state, token) => {
         state.token = token
     },
+    SET_LOCATION: (state, location) => {
+        localStorage.location = location || ''
+        state.location = location
+    },
     SET_USERID: (state, userId) => {
         localStorage.userInfo = userId
         state.userId = userId
@@ -47,10 +51,11 @@ const actions = {
                 },
                 username,
                 password,
-            }).then(async function ({ token, userId, userRealName }) {
+            }).then(async function ({ token, userId, userRealName,location }) {
                 commit('SET_DEFULTUSERNAME', username)
                 commit('SET_USERNAME', userRealName)
                 commit('SET_TOKEN', token)
+                commit('SET_LOCATION', location)
                 commit('SET_USERID', userId)
                 await dispatch('getInfo', ['admin']) // 获取权限列表 默认就是超级管理员，因为没有进行接口请求 写死
                 setToken(token)
@@ -76,10 +81,11 @@ const actions = {
             commit('SET_USERID', '')
             commit('SET_ROLES', '')
             resolve(null)
+            location.reload()
         })
     },
 }
-
+//http://192.168.10.28:8080/#/systemManage/accountManage
 
 const user: Module<any, any> = {
     namespaced: true,

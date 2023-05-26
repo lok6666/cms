@@ -5,6 +5,11 @@
         <el-form-item label="活动名称">
             <el-input v-model="state.activityName" placeholder="请输入活动名称" style="width: 300px; margin-right: 10px;margin-bottom: 10px;"/>
         </el-form-item>
+        <el-form-item label="区县">
+          <el-select clearable v-model="state.locationValue" class="col"  @change="getData()" size="small" placeholder="选择区县" style="width: 120px;">
+            <el-option v-for="i in locationOptions" :key="i.value" :label="i.label" :value="i.value"/>
+          </el-select>
+      </el-form-item>
         <el-form-item>
           <el-button type="primary" @click.stop="onSubmit">搜索</el-button>
           <el-button type="primary" @click.stop="onClear">重置</el-button>
@@ -36,6 +41,9 @@
             :src="scope.row[item.prop]"
             style="width: 50px; height: 50px"
           />
+          </template>
+          <template #default="scope" v-if="item.prop === 'activityLocation'">
+          {{tableMap[scope.row.activityLocation]}}
           </template>
         </el-table-column>
         <el-table-column prop="operator" label="操作" width="200" fixed="right">
@@ -99,6 +107,9 @@ import * as XLSX from 'xlsx';
 import { ref, reactive, provide } from "vue";
 import formConpoent from "@/components/form/form.vue";
 import {
+  locationOptions,
+} from "@/config/constant";
+import {
   actionAll,
   actionAddOne,
   actionrUpdateOne,
@@ -118,7 +129,16 @@ export default {
         0: '未发布',
         1: '已发布'
       },
+      tableMap: {
+        'shijingshan': '石景山',
+        'beijing': '北京',
+        'chaoyang': '朝阳'
+      },
       tableHeaderConfig: [
+      {
+          prop: "sortNum",
+          label: "排序",
+      },
       {
         prop: "activityName",
         label: "活动名称"
@@ -126,6 +146,10 @@ export default {
       {
         prop: "activityAddress",
         label: "活动地点"
+      },
+      {
+        prop: "activityLocation",
+        label: "区县"
       },
       // {
       //   prop: "activityAbstract",
@@ -175,6 +199,10 @@ export default {
         label: "活动报名结束时间",
         placeholder: "活动报名结束时间"
       },
+      {
+        prop: "activityHits",
+        label: "浏览"
+      },
  /*      {
         prop: "activityStatus",
         label: "活动状态",
@@ -200,6 +228,12 @@ export default {
 </script>
 <script lang="ts" setup>
 const formConfig = [
+{
+    prop: "sortNum",
+    label: "序号",
+    rules: { required: true, validator: emtyRules, trigger: 'blur'},
+    showInput: true,
+  },
   {
     prop: "activityName",
     label: "活动名称",
@@ -211,6 +245,61 @@ const formConfig = [
     label: "活动地点",
     rules: { required: true, validator: emtyRules, trigger: 'blur'},
     showInput: true 
+  },
+  {
+    prop: "activityLocation",
+    label: "区县",
+    options: [{
+      value: "beijing",
+      label: "北京",
+    },
+    {
+      value: "dongcheng",
+      label: "东城区",
+    },
+    {
+      value: "xicheng",
+      label: "西城区",
+    },
+    {
+      value: "haidian",
+      label: "海淀区",
+    },
+    {
+      value: "chaoyang",
+      label: "朝阳区",
+    },
+    {
+      value: "changping",
+      label: "昌平区",
+    },
+    {
+      value: "shijingshan",
+      label: "石景山区",
+    },
+    {
+      value: "tongzhou",
+      label: "通州区",
+    },
+    {
+      value: "shunyi",
+      label: "顺义区",
+    },
+    {
+      value: "yanqing",
+      label: "延庆区",
+    },
+    {
+      value: "pinggu",
+      label: "延庆区",
+    },
+    {
+      value: "mentougou",
+      label: "门头沟区",
+    }],
+    label: "区县",
+    required: true,
+    showSelect: true
   },
   {
     prop: "activityNum",
@@ -350,6 +439,7 @@ const state = reactive({
   formConfig: formConfig,
   tableData: [],
   selectionList: [],
+  locationValue: '',
   total: 0,
   activityName: '',
   sensitiveword: "",
@@ -554,7 +644,8 @@ const getactionAll = () => {
   post(`${actionAll}`, {
     pageNum: state.currentPage,
     pageSize: state.pageSize,
-    activityName: state.activityName
+    activityName: state.activityName,
+    activityLocation: state.locationValue
   }).then(function (data) {
     state.tableData = data.list;
     state.total = data.total;
@@ -589,7 +680,7 @@ const deleteAction = (row) => {
     draggable: true,
   })
     .then(() => {
-      deleteItem(`${actionDelete}`, {
+      deleteItem(`${actionDelete}/${row.id}`, {
         data: [row.id],
       }).then(function (data) {
         getactionAll();

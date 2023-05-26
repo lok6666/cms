@@ -21,6 +21,11 @@
         <el-table-column prop="type" label="职务" />
         <el-table-column prop="roleName" label="角色" />
         <el-table-column prop="phone" label="手机" />
+        <el-table-column prop="location" label="区县" >
+          <template #default="scope">
+            {{tableMap[scope.row.location]}}
+          </template>    
+        </el-table-column>
         <el-table-column prop="loginSum" label="登录次数" />
         <el-table-column prop="lastLoginTime" label="最后登录时间" />
         <el-table-column
@@ -118,6 +123,21 @@
           <el-form-item label="手机" prop="phone">
             <el-input v-model="ruleForm.phone" />
           </el-form-item>
+          <el-form-item label="区县" prop="location">
+            <el-select
+              v-model="ruleForm.location"
+              filterable
+              placeholder="区域"
+              @change="getData()"
+            >
+              <el-option
+                v-for="item in locationOptions"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value"
+              />
+            </el-select>
+          </el-form-item>
         </el-form>
         <template #footer>
           <span class="dialog-footer">
@@ -132,12 +152,24 @@
   </u-container-layout>
 </template>
 <script lang="ts">
-export default { name: "inline-table" };
+export default { name: "inline-table",
+data() {
+    return {
+      tableMap: {
+        'shijingshan': '石景山',
+        'beijing': '北京',
+        'chaoyang': '朝阳'
+      }
+    };
+  } };
 </script>
 <script lang="ts" setup>
 import { computed, ref, reactive, onMounted } from "vue";
 import TwoPng from "@/assets/image/im1.jpeg";
 import UUpload from "../components-demo/form/u-upload.vue";
+import {
+  locationOptions,
+} from "@/config/constant";
 import {
   sysUserSelectAll,
   sysUserAddOne,
@@ -171,6 +203,7 @@ const baseData = {
   picture: "" || "https://www.baidu.com/img/flexible/logo/pc/result.png",
   type: "",
   id: "",
+  location: ""
 };
 let ruleForm = ref(baseData);
 const formDisabled = ref(false);

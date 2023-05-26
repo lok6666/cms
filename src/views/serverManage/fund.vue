@@ -7,6 +7,11 @@
       <el-form-item label="服务商名称">
           <el-input v-model="state.serviceBank" placeholder="请输入服务商名称" />
       </el-form-item>
+      <el-form-item label="区县">
+          <el-select clearable v-model="state.locationValue" class="col"  @change="getData()" size="small" placeholder="选择区县" style="width: 120px;">
+            <el-option v-for="i in locationOptions" :key="i.value" :label="i.label" :value="i.value"/>
+          </el-select>
+      </el-form-item>
       <el-form-item>
        <el-button type="primary" @click.stop="getfinancialServicesAll">查询</el-button>
       </el-form-item>
@@ -36,7 +41,7 @@
           :label="item.label"
         >
         <template #default="scope" v-if="item.prop === 'serviceLocation'">
-            {{tableMap[scope.row.serviceLocation]}}
+            {{scope.row.serviceLocation.split(',').map(e => tableMap[e]).toString()}}
           </template>
         <template #default="scope" v-if="item.prop === 'serviceFlag'">
             {{serviceFlagstatus[scope.row.serviceFlag]}}
@@ -107,6 +112,14 @@
   </u-container-layout>
 </template>
 <script lang="ts">
+import {
+  locationOptions,
+} from "@/config/constant";
+import {
+  phoneRules,
+  emtyRules,
+  typeRules
+} from "@/config/constants";
 import FileSaver from "file-saver";
 import * as XLSX from "xlsx";
 import { export_json_to_excel } from "@/execl/Export2Excel";
@@ -126,7 +139,8 @@ export default {
       },
       tableMap: {
         'shijingshan': '石景山',
-        'beijing': '北京'
+        'beijing': '北京',
+        'chaoyang': '朝阳'
       },
       tableHeaderConfig: [
         {
@@ -170,6 +184,10 @@ export default {
           prop: "serviceFlag",
           label: "上下架",
         },
+        {
+          prop: "serviceHits",
+          label: "浏览",
+        }
       ],
     };
   },
@@ -187,6 +205,8 @@ const formConfig = [
   {
     prop: "serviceLocation",
     label: "区县",
+    multiple: true,
+    rules: { required: true, validator: emtyRules, trigger: 'blur'},
     options: [{
       value: "beijing",
       label: "北京",
@@ -297,6 +317,7 @@ const state = reactive({
   username: '',
   serviceBank: '',
   culName: "",
+  locationValue: '',
   formConfig: formConfig,
   tableData: [
   ],
@@ -305,7 +326,8 @@ const state = reactive({
   levelOptions: [],
 });
 const title = ref("添加");
-
+const getData = () => {
+};
 const handleSelectionChange = (row) => {
   console.log('row', row);
   state.selectionList = row; 
@@ -479,7 +501,11 @@ const edit = (row) => {
   state.formConfig = state.formConfig
   .map((e, b) => {
     let result = { ...e };
-    result[e.prop] = row[e.prop];
+    if(e.prop === 'serviceLocation') {
+      result[e.prop] = row[e.prop].split(',');
+    } else {
+      result[e.prop] = row[e.prop];
+    }
     return result;
   });
 };
@@ -494,7 +520,7 @@ const deleteAction = (row, isResume) => {
     draggable: true,
   })
     .then(() => {
-      deleteItem(`${financialServicesDeleteOne}`, {
+      deleteItem(`${financialServicesDeleteOne}/${row.id}`, {
         data: [row.id],
       }).then(function (data) {
         getfinancialServicesAll();
@@ -512,9 +538,9 @@ const getfinancialServicesAll = () => {
     serviceName: state.username,
     serviceBank: state.serviceBank,
     pageNum: state.currentPage,
-    pageSize: state.pageSize
+    pageSize: state.pageSize,
+    serviceLocation: state.locationValue.toString()
   }).then(function (data) {
-    console.log('aaaaa---', data);
     state.tableData = data.list;
     state.total = data.total;
   });
@@ -554,6 +580,7 @@ const loading = ref(false);
  * 提交表单数据
  */
  const postFormData = (formData) => {
+  formData.serviceLocation = formData.serviceLocation.toString();
   if (title.value === "添加") {
     post(`${financialServicesInsert}`, {
       ...formData

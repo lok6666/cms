@@ -61,9 +61,29 @@ export async function get(url: string, params?: any) {
  * @param url
  * @param params
  */
-export async function post(url: string, params?: any,) {
+export async function post(url: string, params?: any) {
 	return new Promise((resolve, reject) => {
 		axios.post(url, {timeout: 10000, ...params}).then((res: any) => {
+			if(res.code === "5003") {
+				ElMessage.error(res.msg);
+				reject(res.msg)
+			};
+			resolve(res.data);
+		}).
+			catch(err => {
+				reject(err.data)
+			})
+	})
+}
+
+/**
+ * POST请求
+ * @param url
+ * @param params
+ */
+ export async function postArray(url: string, params?: any) {
+	return new Promise((resolve, reject) => {
+		axios.post(url, params).then((res: any) => {
 			if(res.code === "5003") {
 				ElMessage.error(res.msg);
 				reject(res.msg)
@@ -86,6 +106,23 @@ export async function deleteItem(url: string, params?: any) {
 	return new Promise((resolve, reject) => {
 		// todo 暂时改post
 		axios.post(url, params).then(res => {
+			resolve(res.data);
+		}).
+			catch(err => {
+				reject(err.data)
+			})
+	})
+}
+
+/**
+ *  delete请求
+ * @param url
+ * @param params
+ */
+ export async function deleteReal(url: string, data?: any) {
+	return new Promise((resolve, reject) => {
+		// todo 暂时改post
+		axios.delete(url, {data}).then(res => {
 			resolve(res.data);
 		}).
 			catch(err => {

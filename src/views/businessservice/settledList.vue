@@ -244,6 +244,9 @@
               :prop="item.prop"
               :label="item.label"
             >
+            <template #default="scope" v-if="item.prop === 'entLocation'">
+              {{ locationMap[scope.row.entLocation] }}
+            </template>
             </el-table-column>
             <el-table-column
               prop="operator"
@@ -413,6 +416,7 @@ import { export_json_to_excel } from "@/execl/Export2Excel";
 import busneissDetail from "@/components/form/busneissDetail.vue";
 import testCharts from "@/components/Charts/echarts.vue";
 import { ref, reactive, provide, nextTick, getCurrentInstance  } from "vue";
+import { getLocation } from '@/utils/auth'
 // import { busneissData } from "./data";
 import {
   map,
@@ -451,6 +455,11 @@ export default {
   name: "sensitive-manage",
   data() {
     return {
+      locationMap: {
+        shijingshan: "石景山",
+        beijing: "北京",
+        chaoyang: "朝阳"
+      },
       entCodeStatus: {},
       tableHeaderConfig: [
         {
@@ -488,6 +497,10 @@ export default {
         {
           prop: "entStatus",
           label: "状态",
+        },
+        {
+          prop: "entLocation",
+          label: "区县",
         },
       ],
       tableHeaderConfig1: [
@@ -549,9 +562,71 @@ const formConfig: formConfigItem[] = [
   {
     prop: "entLocal",
     label: "地址",
-    rules: { required: true, validator: emtyRules, trigger: 'blur'},
+    rules: { required: false, validator: emtyRules, trigger: 'blur'},
     showInput: true,
-  }
+  },
+  {
+    prop: "entLocation",
+    rules: { required: true, validator: emtyRules, trigger: 'blur'},
+    label: "区县",
+    options: [
+      {
+      value: "dongcheng",
+      label: "东城区",
+      isSelect: false,
+    },
+    {
+      value: "xicheng",
+      label: "西城区",
+      isSelect: false,
+    },
+    {
+      value: "haidian",
+      label: "海淀区",
+      isSelect: false,
+    },
+    {
+      value: "chaoyang",
+      label: "朝阳区",
+      isSelect: false,
+    },
+    {
+      value: "changping",
+      label: "昌平区",
+      isSelect: false,
+    },
+    {
+      value: "shijingshan",
+      label: "石景山区",
+      isSelect: false,
+    },
+    {
+      value: "tongzhou",
+      label: "通州区",
+      isSelect: false,
+    },
+    {
+      value: "shunyi",
+      label: "顺义区",
+      isSelect: false,
+    },
+    {
+      value: "yanqing",
+      label: "延庆区",
+      isSelect: false,
+    },
+    {
+      value: "pinggu",
+      label: "延庆区",
+      isSelect: false,
+    },
+    {
+      value: "mentougou",
+      label: "门头沟区",
+      isSelect: false,
+    }
+    ],
+    showSelect: true}
 ];
 
 const map1 = {
@@ -1239,6 +1314,7 @@ const getentMerchantsSuccessList = () => {
     endTime: state.endTime,
     entLocal: state.entLocal,
     entSource: state.entSource,
+    entLocation: getLocation(),
     hctd: state.hctd,
   }).then(function (data) {
     state.tableData = data.list;

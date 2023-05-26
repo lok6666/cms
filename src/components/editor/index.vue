@@ -1,5 +1,5 @@
 <template>
-  <div style="border: 1px solid #ccc; margin-top: 10px" v-loading="loading" element-loading-background="rgba(122, 122, 122, 0.8)" element-loading-text="上传中...">
+  <div style="border: 1px solid #ccc; margin-top: 10px" v-loading="loading" element-loading-text="上传中...">
     <Toolbar
     style="border-bottom: 1px solid #ccc"
     :editor="editorRef"
@@ -270,6 +270,7 @@ const editorConfig = {
         axios.defaults.crossDomain = true;
         //Access-Control-Allow-Origin 指向前端 ip:port
         axios.defaults.headers.common["Access-Control-Allow-Origin"] = "*";
+        loading.value = true;
         axios(config)
           .then(function (res) {
             let url = res; //拼接成可浏览的图片地址
@@ -279,7 +280,6 @@ const editorConfig = {
             video1.autoplay=true;
             video1.crossOrigin = 'Anonymous';
             document.getElementById('app').appendChild(video1);
-            loading.value = true;
             setTimeout(() => {
               const video = document.getElementById('getPoster');
               const canvas = document.createElement('canvas');

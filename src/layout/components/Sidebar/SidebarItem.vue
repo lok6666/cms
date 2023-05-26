@@ -3,7 +3,7 @@
     <template v-if="!item.alwaysShow&&hasOneShowingChild(item.children,item)">
       <app-link v-if="onlyOneChild.meta" :to="resolvePath(onlyOneChild.path)">
         <el-menu-item :index="resolvePath(onlyOneChild.path)">
-          <el-icon :size="20">
+          <el-icon :size="10">
             <component :is="onlyOneChild?.meta.icon"></component>
           </el-icon>
           <template #title>{{ onlyOneChild.meta&&onlyOneChild.meta.title }}</template>
@@ -12,10 +12,11 @@
     </template>
     <el-sub-menu :index="resolvePath(item.path, item.meta.title)" v-else popper-append-to-body>
       <template #title>
-        <el-icon v-if="item.meta?.icon" :size="20"><img style="width: 16px; height: 16px;" :src="item.meta?.icon"/></el-icon>
-        <span>{{ item.meta&&item.meta.title }}</span>
+        <el-icon v-if="item.meta?.icon" :size="10"><img style="width: 16px; height: 16px;" :src="item.meta?.icon"/></el-icon>
+        <span :style="{padding: paddingStyle}">{{ item.meta&&item.meta.title }}</span>
       </template>
       <sidebar-item
+          :paddingStyle="style"
           v-for="child in item.children"
           :key="child.path"
           :item="child"
@@ -38,9 +39,14 @@ const props = defineProps({
   basePath: {
     type: String,
     default: ''
+  },
+  paddingStyle: {
+    type: String,
+    required: false
   }
 })
-
+// console.log('props----', props.paddingStyle);
+const style = '0px 0px 0px 20px';
 const onlyOneChild = ref(null)
 const hasOneShowingChild = (children = [], parent)=>{
   const showingChildren = children.filter(item => {

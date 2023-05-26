@@ -8,8 +8,13 @@
           <el-input v-model="state.supplierName" placeholder="请输入服务商名称" />
       </el-form-item>
       <el-form-item label="服务类型">
-          <el-select clearable v-model="state.serviceType" class="col" size="small" placeholder="选择分类" style="width: 120px;">
+          <el-select clearable v-model="state.serviceType" class="col" size="small"  @change="getData()" placeholder="选择分类" style="width: 120px;">
             <el-option v-for="i in state.formConfig[2].options" :key="i.value" :label="i.label" :value="i.value"/>
+          </el-select>
+      </el-form-item>
+      <el-form-item label="区县">
+          <el-select multiple clearable v-model="state.locationValue" class="col"  @change="getData()" size="small" placeholder="选择区县" style="width: 120px;">
+            <el-option v-for="i in locationOptions" :key="i.value" :label="i.label" :value="i.value"/>
           </el-select>
       </el-form-item>
       <el-form-item label="联系人">
@@ -48,7 +53,7 @@
           :label="item.label"
         >
         <template #default="scope" v-if="item.prop === 'serviceLocation'">
-            {{tableMap[scope.row.serviceLocation]}}
+            {{scope.row.serviceLocation.split(',').map(e => tableMap[e]).toString()}}
           </template>
         <template #default="scope" v-if="item.prop === 'serviceFlag'">
             {{serviceFlagstatus[scope.row.serviceFlag]}}
@@ -105,6 +110,13 @@
 <script lang="ts">
 import FileSaver from "file-saver";
 import * as XLSX from "xlsx";
+import {
+  phoneRules,
+  emtyRules
+} from "@/config/constants";
+import {
+  locationOptions,
+} from "@/config/constant";
 import { export_json_to_excel } from "@/execl/Export2Excel";
 import { computed, ref, reactive, onMounted, toRefs } from "vue";
 import { entServicesAll, entServicesInsert, entServicesUpdateOne, entServicesDeleteOne } from "@/config/api";
@@ -122,7 +134,8 @@ export default {
       },
       tableMap: {
         'shijingshan': '石景山',
-        'beijing': '北京'
+        'beijing': '北京',
+        'chaoyang': '朝阳'
       },
       serviceTypetatus: {
         0: '知识产权',
@@ -187,12 +200,31 @@ export default {
          prop: "servicePrice",
          label: "服务价格"
        },
+       {
+        prop: "serviceHits",
+        label: "浏览",
+      }
       ],
     };
   },
 };
 </script>
 <script lang="ts" setup >
+const tableMap = {
+    'shijingshan': '石景山',
+    'beijing': '北京',
+    'chaoyang': '朝阳',
+    'xicheng': '西城',
+    'dongcheng': '东城',
+    'fengtai': '丰台',
+    'haidian': '海淀',
+    'fangshan': '房山',
+    'mentougou': '门头沟',
+    'shunyi': '顺义',
+    'hairou': '怀柔',
+    'miyun': '密云',
+    'tongzhou': '通州'
+  };
 const formConfig = [
   {
     prop: "serviceName",
@@ -248,6 +280,7 @@ const formConfig = [
   },
   {
     prop: "serviceLocation",
+    multiple: true,
     label: "区县",
     options: [{
       value: "beijing",
@@ -298,7 +331,7 @@ const formConfig = [
       label: "门头沟区",
     }],
     label: "区县",
-    required: true,
+    rules: { required: true, validator: emtyRules, trigger: 'blur'},
     showSelect: true
   },
   {
@@ -362,6 +395,7 @@ const state = reactive({
   supplierPerson: '',
   supplierContact: '',
   culName: "",
+  locationValue: '',
   selectionList: [],
   formConfig: formConfig,
   tableData: [],
@@ -452,6 +486,9 @@ const exportClick2 = () => {
   export_json_to_excel(tHeader, data, '企业服务管理');
   }
 };
+const getData = () => {
+  getentServicesAll();
+};
 // 导出表格
 const exportClick = () => {
 	var wb = XLSX.utils.table_to_book(document.querySelector('#my-table'));//关联don节点
@@ -474,6 +511,7 @@ const exportClick = () => {
  * 提交表单数据
  */
  const postFormData = (formData) => {
+  formData.serviceLocation = formData.serviceLocation.toString();
   if (title.value === "添加") {
     post(`${entServicesInsert}`, {
       ...formData
@@ -525,7 +563,11 @@ const edit = (row) => {
   state.formConfig = state.formConfig
   .map((e, b) => {
     let result = { ...e };
-    result[e.prop] = row[e.prop];
+    if(e.prop === 'serviceLocation') {
+      result[e.prop] = row[e.prop].split(',');
+    } else {
+      result[e.prop] = row[e.prop];
+    }  
     return result;
   });
 };
@@ -606,7 +648,8 @@ const getentServicesAll = () => {
     supplierName: state.supplierName,
     serviceType: state.serviceType,
     supplierPerson: state.supplierPerson,
-    supplierContact: state.supplierContact
+    supplierContact: state.supplierContact,
+    serviceLocation: state.locationValue.toString()
   }).then(function (data) {
     state.tableData = data.list;
     state.total = data.total;

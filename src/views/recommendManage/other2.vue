@@ -1,26 +1,30 @@
 <template>
   <u-container-layout>
-    <div style="display: flex">
+    <div style="display: flex;">
       <div class="custom-tree-container">
-        <p style="margin-left: 23px;margin-bottom: 10px;">菜单管理</p>
+        <div style="display: flex;align-items: center;justify-content: space-between;">
+          <p style="margin-left: 23px;">菜单管理</p><el-button style="margin-right: 8px;" @click="treeAdd()">添加</el-button>
+        </div>
         <el-tree
           :data="dataSource"
           node-key="id"
           default-expand-all
+          :default-checked-keys="[1]"
           :expand-on-click-node="false"
         >
           <template #default="{ node, data }">
             <span class="custom-tree-node">
-              <span @click="getNode(data)">{{ node.label }}</span>
-  <!--             <span style="margin-left: 10px;">
-                <el-button style="height: 20px;" @click="append(data)"> 添加 </el-button>
-                <el-button style="margin-left: 8px;height: 20px;" @click="remove(node, data)">删除</el-button>
-              </span> -->
+              <span v-if="!state.isInput" @click="getNode(data)" @dblclick="(event) =>changeLabel(data, node.label)">{{ node.label }}</span>
+              <input v-else :value="node.label"/>
+              <span style="margin-left: 10px;">
+                <!-- <el-button style="height: 20px;" @click="append(data)"> 添加 </el-button> -->
+                <el-button style="margin-left: 8px;height: 20px;" @click="treeDeleteAction(node, data)">删除</el-button>
+              </span>
             </span>
           </template>
         </el-tree>
       </div>
-      <div style="margin-left: 20px;margin-right: 20px;width: 100%;">
+      <div style="margin-left: 20px;margin-right: 20px;width: 81%;">
         <el-form :inline="true" :model="state" class="demo-form-inline">
           <el-form-item>
             <el-button type="primary" @click.stop="add">
@@ -122,6 +126,9 @@ import {
   dictionariesBranchAddOne,
   dictionariesBranchUpdateOne,
   dictionariesBranchDeleteOne,
+  dictionariesAddOne,
+  dictionariesUpdateOne,
+  dictionariesDeleteOne
 } from "@/config/api";
 import formConpoent from "@/components/form/form.vue";
 import { ElMessage, ElMessageBox, FormRules, UploadProps } from "element-plus";
@@ -145,10 +152,10 @@ export default {
         6: "企业服务包",
       },
       tableHeaderConfig: [
-        {
+/*         {
           prop: "sortNum",
           label: "排序",
-        },
+        }, */
         {
           prop: "branchCode",
           label: "编号",
@@ -164,12 +171,12 @@ export default {
 </script>
 <script lang="ts" setup>
 const formConfig = [
-  {
+/*   {
     prop: "sortNum",
     label: "序号",
     required: true,
     showInput: true,
-  },
+  }, */
   {
     prop: "branchCode",
     label: "编号",
@@ -179,6 +186,26 @@ const formConfig = [
   {
     prop: "branchName",
     label: "选项名称",
+    required: true,
+    showInput: true,
+  }
+];
+const treeFormConfig = [
+/*   {
+    prop: "sortNum",
+    label: "序号",
+    required: true,
+    showInput: true,
+  }, */
+  {
+    prop: "dicCode",
+    label: "菜单编码",
+    required: true,
+    showInput: true
+  },
+  {
+    prop: "dicName",
+    label: "菜单名称",
     required: true,
     showInput: true,
   }
@@ -200,7 +227,8 @@ const state = reactive({
   tableData:<any> [],
   optionsList: [],
   levelOptions: [],
-  dicCode: ''
+  dicCode: 'institutionalType',
+  isInput: false
 });
 const title = ref("添加");
 let currentRoleId = ref<string>("");
@@ -257,8 +285,14 @@ const getNode = (data: Tree) => {
   state.dicCode = data.dicCode;
   getDictionariesGetByCode();
 };
+const changeLabel = (data: Tree, label) => {
+  console.log('changeLabel---',data.label === label);
+  if(data.label === label) {
+    state.isInput = true
+  };
+};
 const append = (data: Tree) => {
-  // 
+
   const newChild = { id: id++, label: "testtest", children: [] };
   if (!data.children) {
     data.children = [];
@@ -296,6 +330,16 @@ const handleInputConfirm = () => {
 const add = (row) => {
   title.value = "添加";
   currentRoleId.value = row.id;
+  state.formConfig = formConfig;
+  state.dialogVisible = true;
+};
+
+/**
+ * 添加
+ */
+ const treeAdd = (row) => {
+  title.value = "添加";
+  state.formConfig = treeFormConfig;
   state.dialogVisible = true;
 };
 
@@ -308,7 +352,9 @@ const handleSelectionChange = (row) => {
  * 提交表单数据
  */
 const postFormData = (formData) => {
-  if (title.value === "添加") {
+  // 选项添加
+  if(formData.branchCode) {
+    if (title.value === "添加") {
     post(`${dictionariesBranchAddOne}`, {
       ...formData,
       //todo 一会获取
@@ -326,20 +372,51 @@ const postFormData = (formData) => {
         console.log("e", e);
       });
     ElMessage.success("添加成功");
-  } else {
-    post(`${dictionariesBranchUpdateOne}`, {
-      id: currentRoleId.value,
-      //todo 一会获取
-      branchTypeId: state.dicCode,
-      ...formData,
+    } else {
+      post(`${dictionariesBranchUpdateOne}`, {
+        id: currentRoleId.value,
+        //todo 一会获取
+        branchTypeId: state.dicCode,
+        ...formData,
+      })
+        .then(function (data) {
+          getDictionariesGetByCode();
+        })
+        .catch((e) => {
+          console.log("e", e);
+        });
+    }
+  };
+    // 菜单添加
+  if(formData.dicCode) {
+    if (title.value === "添加") {
+    post(`${dictionariesAddOne}`, {
+      ...formData
     })
       .then(function (data) {
-        getDictionariesGetByCode();
+        getDictionariesList();
+        state.formConfig = state.formConfig.map((e, b) => {
+          let result = { ...e };
+          delete result[e.prop];
+          return result;
+        });
       })
       .catch((e) => {
         console.log("e", e);
       });
-  }
+    ElMessage.success("添加成功");
+    } else {
+      post(`${dictionariesUpdateOne}`, {
+        ...formData,
+      })
+        .then(function (data) {
+          getDictionariesList();
+        })
+        .catch((e) => {
+          console.log("e", e);
+        });
+    }
+  };
   state.dialogVisible = false;
   console.log("submit!", formData);
 };
@@ -386,6 +463,24 @@ const deleteAction = (row) => {
     .catch(() => {});
 };
 
+/**
+ * 删除
+ */
+ const treeDeleteAction = (row) => {
+  ElMessageBox.confirm("你确定要删除当前项吗?", "温馨提示", {
+    confirmButtonText: "确定",
+    cancelButtonText: "取消",
+    type: "warning",
+    draggable: true,  
+  })
+    .then(() => {
+      deleteItem(`${dictionariesDeleteOne}/${row.data.id}`).then(function (data) {
+        getDictionariesList();
+      });
+      ElMessage.success("删除成功");
+    })
+    .catch(() => {});
+};
 
 // 一级菜单
 const getDictionariesList = () => {

@@ -1,7 +1,22 @@
 <template>
   <u-container-layout>
     <div class="inline-edit-table">
-      <div style="display: flex; justify-content: flex-end">
+      <div style="display: flex; justify-content: space-between">
+        <div style="display: inline-block; padding-bottom: 10px;margin-right: 10px;">
+          <el-select
+          v-model="state.locationValue"
+          filterable
+          placeholder="区域"
+          @change="getData()"
+        >
+          <el-option
+            v-for="item in locationOptions"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value"
+          />
+        </el-select>
+      </div>
         <el-button type="primary" @click.stop="add"
           ><el-icon><plus /></el-icon> 添加</el-button
         >
@@ -88,13 +103,13 @@
 import { computed, ref, reactive, onMounted, toRefs } from "vue";
 import {
   industryDataList,
-  selectByIdType,
   industryDataAddOne,
-  articleArticleAelectCircle,
   industryDataUpdateOne,
   industryDataDeleteOne,
-  industryDataOptionList,
 } from "@/config/api";
+import {
+  locationOptions,
+} from "@/config/constant";
 import formConpoent from "@/components/form/form.vue";
 import { ElMessage, ElMessageBox, FormRules, UploadProps } from "element-plus";
 import { get, post, deleteItem } from "@/utils/request";
@@ -120,7 +135,8 @@ export default {
       ],
       tableMap: {
         'shijingshan': '石景山',
-        'beijing': '北京'
+        'beijing': '北京',
+        'chaoyang': '朝阳'
       },
     };
   },
@@ -205,6 +221,7 @@ const state = reactive({
   year: 0,
   month: "",
   currentRoleId: '',
+  locationValue: '',
   culName: "",
   formConfig: formConfig,
   tableData: [
@@ -320,7 +337,9 @@ const closeDialog = async (done: () => void) => {
   state.dialogVisible = false;
   state.formConfig = formConfig;
 };
-
+const getData = () => {
+  getIndustryDataAll();
+};
 /**
  * 编辑表单
  */
@@ -358,6 +377,7 @@ const getIndustryDataAll = () => {
     year: state.year,
     month: state.month,
     culName: state.culName,
+    bannerType: state.locationValue
   }).then(function (data) {
     state.tableData = data.list;
     state.total = data.total;
@@ -407,7 +427,7 @@ const deleteAction = (row) => {
     draggable: true,
   })
     .then(() => {
-      deleteItem(`${industryDataDeleteOne}`, {
+      deleteItem(`${industryDataDeleteOne}/${obj.id}`, {
         data: [obj.id],
       }).then(function (data) {
         getIndustryDataAll();

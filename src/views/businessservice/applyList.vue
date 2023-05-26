@@ -204,6 +204,9 @@
               :prop="item.prop"
               :label="item.label"
             >
+            <template #default="scope" v-if="item.prop === 'entLocation'">
+              {{ locationMap[scope.row.entLocation] }}
+            </template>
             </el-table-column>
             <el-table-column
               prop="operator"
@@ -335,6 +338,7 @@ import * as XLSX from "xlsx";
 import { export_json_to_excel } from "@/execl/Export2Excel";
 import busneissDetail from "@/components/form/busneissDetail.vue";
 import { ref, reactive, provide, nextTick, getCurrentInstance } from "vue";
+import { getLocation } from '@/utils/auth'
 // import { busneissData } from "./data";
 import {
   map,
@@ -377,6 +381,11 @@ export default {
   name: "sensitive-manage",
   data() {
     return {
+      locationMap: {
+        shijingshan: "石景山",
+        beijing: "北京",
+        chaoyang: "朝阳"
+      },
       entCodeStatus: {},
       tableHeaderConfig: [
 /*         {
@@ -419,6 +428,10 @@ export default {
           prop: "entStatus",
           label: "状态",
         },
+        {
+          prop: "entLocation",
+          label: "区县",
+        },
       ],
       tableHeaderConfig1: [
         {
@@ -440,17 +453,18 @@ interface formConfigItem {
   label: string;
   required?: boolean;
   showInput?: boolean;
+  showSelect?: boolean;
   showDatePicker?: boolean;
+  rules: {
+    required: boolean,
+    validator: any,
+    trigger: string
+  },
+  options?: Array<Object>,
   upload?: boolean;
   uploadType?: string;
 }
 const formConfig: formConfigItem[] = [
-/*   {
-    prop: "listName",
-    label: "名单分组",
-    required: true,
-    showInput: true,
-  }, */
   {
     prop: "entStatus",
     label: "招商状态",
@@ -486,12 +500,6 @@ const formConfig: formConfigItem[] = [
     showInput: true,
   },
   {
-    prop: "entLocal",
-    label: "企业地址",
-    rules: { required: true, validator: emtyRules, trigger: 'blur'},
-    showInput: true,
-  },
-  {
     prop: "contactPerson",
     label: "企业联系人",
     rules: { required: true, validator: emtyRules, trigger: 'blur'},
@@ -519,69 +527,75 @@ const formConfig: formConfigItem[] = [
     rules: { required: true, validator: emtyRules, trigger: 'blur'},
     showInput: true,
   },
- /*  {
+  {
     prop: "entLocal",
-    label: "注册区县",
-    required: true,
+    label: "地址",
+    rules: { required: false, validator: emtyRules, trigger: 'blur'},
+    showInput: true,
+  },
+  {
+    prop: "entLocation",
+    rules: { required: true, validator: emtyRules, trigger: 'blur'},
+    label: "区县",
     options: [
       {
-        value: "东城区",
-        label: "东城区",
-        isSelect: false,
-      },
-      {
-        value: "西城区",
-        label: "西城区",
-        isSelect: false,
-      },
-      {
-        value: "海淀区",
-        label: "海淀区",
-        isSelect: false,
-      },
-      {
-        value: "朝阳区",
-        label: "朝阳区",
-        isSelect: false,
-      },
-      {
-        value: "昌平区",
-        label: "昌平区",
-        isSelect: false,
-      },
-      {
-        value: "石景山区",
-        label: "石景山区",
-        isSelect: false,
-      },
-      {
-        value: "通州区",
-        label: "通州区",
-        isSelect: false,
-      },
-      {
-        value: "顺义区",
-        label: "顺义区",
-        isSelect: false,
-      },
-      {
-        value: "延庆区",
-        label: "延庆区",
-        isSelect: false,
-      },
-      {
-        value: "平谷区",
-        label: "平谷区",
-        isSelect: false,
-      },
-      {
-        value: "门头沟区",
-        label: "门头沟区",
-        isSelect: false,
-      },
+      value: "dongcheng",
+      label: "东城区",
+      isSelect: false,
+    },
+    {
+      value: "xicheng",
+      label: "西城区",
+      isSelect: false,
+    },
+    {
+      value: "haidian",
+      label: "海淀区",
+      isSelect: false,
+    },
+    {
+      value: "chaoyang",
+      label: "朝阳区",
+      isSelect: false,
+    },
+    {
+      value: "changping",
+      label: "昌平区",
+      isSelect: false,
+    },
+    {
+      value: "shijingshan",
+      label: "石景山区",
+      isSelect: false,
+    },
+    {
+      value: "tongzhou",
+      label: "通州区",
+      isSelect: false,
+    },
+    {
+      value: "shunyi",
+      label: "顺义区",
+      isSelect: false,
+    },
+    {
+      value: "yanqing",
+      label: "延庆区",
+      isSelect: false,
+    },
+    {
+      value: "pinggu",
+      label: "延庆区",
+      isSelect: false,
+    },
+    {
+      value: "mentougou",
+      label: "门头沟区",
+      isSelect: false,
+    }
     ],
     showSelect: true,
-  }, */
+  },
 ];
 const fn = ({row, column}) => {
     if(column.label === '企业名称') {
@@ -731,18 +745,19 @@ const edit = (row) => {
   state.dialogVisible1 = true;
   currentRoleId.value = row.id;
   state.formConfig = state.formConfig.map((e, b) => {
+    // console.log('--------e', e, row[e.prop]);
     let result = { ...e };
     result[e.prop] = row[e.prop];
     return result;
   });
 };
 
-const addTab = (targetName: string) => {
+const addTab = ():void => {
   state.dialogVisible = true;
   state.dialogVisible2 = true;
 };
 
-const showInput = () => {
+const showInput = ():void => {
   state.inputVisible = true;
   nextTick(() => {
     InputRef.value!.input!.focus();
@@ -1046,15 +1061,15 @@ const state = reactive({
 let currentRoleId = ref<string>("");
 const title = ref<string>("添加");
 
-const handleSelectionChange = (row) => {
+const handleSelectionChange = (row):void => {
   console.log('row', row);
   state.selectionList = row; 
 };
-const formatJson  = (filterVal, jsonData) => {
+function formatJson(filterVal, jsonData):[] {
   return jsonData.map(v => filterVal.map(j => v[j]));
 }
 // 导出表格
-const exportClick2 = () => {
+const exportClick2 = ():void => {
   if(state.selectionList.length === 0) {
     ElMessage({
         message: '请选择要导出的数据',
@@ -1103,8 +1118,8 @@ const exportClick2 = () => {
           label: "状态",
         },
       ];
-  const tHeader = tableHeaderConfig.map(e => e.label);
-  const filterVal = tableHeaderConfig.map(e => e.prop);
+  const tHeader:Object[] = tableHeaderConfig.map(e => e.label);
+  const filterVal:Object[] = tableHeaderConfig.map(e => e.prop);
   const list = state.selectionList;
   const data = formatJson(filterVal, list);
   export_json_to_excel(tHeader, data, '意向企业');
@@ -1220,7 +1235,7 @@ const postFormData = (formData) => {
 };
 
 // todo 改写法
-const closeDialog = async (done: () => void) => {
+const closeDialog = async (done: () => void):void => {
   state.dialogVisible = false;
   state.dialogVisible1 = false;
   state.dialogVisible2 = false;
@@ -1243,7 +1258,7 @@ const closeDialog = async (done: () => void) => {
   });
 };
 //  文章内容列表
-const getentMerchantsList = () => {
+const getentMerchantsList = ():void => {
   post(`${entMerchantsList}`, {
     pageNum: state.currentPage,
     pageSize: state.pageSize,
@@ -1255,6 +1270,7 @@ const getentMerchantsList = () => {
     endTime: state.endTime,
     entLocal: state.entLocal,
     entSource: state.entSource,
+    entLocation: getLocation(),
     hctd: state.hctd,
   }).then(function (data) {
     state.tableData = data.list;
@@ -1262,37 +1278,38 @@ const getentMerchantsList = () => {
   });
 };
 // 筛选名单
-const getentMerchantsPersonList = () => {
+const getentMerchantsPersonList = ():void => {
   post(`${entMerchantsPersonList}`, {
     pageNum: state.currentPage,
     pageSize: state.pageSize,
+    entLocation: getLocation()
   }).then(function (data) {
     /*     state.primaryId = data.list[0] ? data.list[0].primaryId: '';
     state.listName =data.list[0] ?  data.list[0].listName : '全部'; */
     state.tabTableData = state.tabTableData.concat(data.list);
-    state.formConfig[state.formConfig.length - 1].options = data.list.map(
+/*     state.formConfig[state.formConfig.length - 1].options = data.list.map(
       (e) => {
         return {
           label: e.listName,
           value: e.primaryId,
         };
       }
-    );
+    ); */
     getentMerchantsList();
   });
 };
 getentMerchantsPersonList();
 //  文章内容列表
-const getentGetByName = (busneissName) => {
+const getentGetByName = (busneissName):void => {
   get(`${entGetByName}/${busneissName}`, {}).then(async function (data) {
     let list = [];
-    Object.keys(map1).forEach((i, index) => {
+    Object.keys(map1).forEach((i:string, index:string|number) => {
       let obj = {
         tabName: i,
         id: index,
         optionsList: [],
       };
-      map1[i].forEach((key, index) => {
+      map1[i].forEach((key: string, index: string|number) => {
         if (key === "BASICINFO") {
           state.baseInfo = {
             id: index,
@@ -1328,7 +1345,7 @@ const getentGetByName = (busneissName) => {
 };
 
 //  文章内容列表
-const getentPatentGet = (busneissName) => {
+const getentPatentGet = (busneissName:string) => {
   return get(`${entPatentGet}/${busneissName}`, {}).then(function (data) {
     let list = [];
     Object.keys(map2).forEach((i, index) => {
@@ -1352,7 +1369,7 @@ const getentPatentGet = (busneissName) => {
 };
 
 //  软著列表
-const getentgetSoftByName = (busneissName) => {
+const getentgetSoftByName = (busneissName:string) => {
   return get(`${entgetSoftByName}/${busneissName}`, {}).then(function (data) {
     let list = [];
     Object.keys(map3).forEach((i, index) => {
@@ -1377,7 +1394,7 @@ const getentgetSoftByName = (busneissName) => {
 };
 
 //  商标列表
-const getTrademarkByName = (busneissName) => {
+const getTrademarkByName = (busneissName:string) => {
   return get(`${entgetTrademarkByName}/${busneissName}`, {}).then(function (
     data
   ) {
@@ -1402,7 +1419,7 @@ const getTrademarkByName = (busneissName) => {
   });
 };
 //  著作权列表
-const getWorksByName = (busneissName) => {
+const getWorksByName = (busneissName:string) => {
   return get(`${entgetWorksByName}/${busneissName}`, {}).then(function (data) {
     let list = [];
     Object.keys(map5).forEach((i, index) => {
@@ -1427,7 +1444,7 @@ const getWorksByName = (busneissName) => {
 };
 
 //  招聘列表
-const getRecruitByName = (busneissName) => {
+const getRecruitByName = (busneissName:string) => {
   return get(`${entgetRecruitByName}/${busneissName}`, {}).then(function (
     data
   ) {
@@ -1453,7 +1470,7 @@ const getRecruitByName = (busneissName) => {
 };
 
 // 舆情列表
-const getNewsByName = (busneissName) => {
+const getNewsByName = (busneissName:string) => {
   return get(`${entgetNewsByName}/${busneissName}`, {}).then(function (data) {
     let list = [];
     Object.keys(map7).forEach((i, index) => {
@@ -1489,7 +1506,7 @@ const getNewsByName = (busneissName) => {
     return true;
   });
 };
-const handleChange = (val) => {
+const handleChange = (val):void => {
   post(`${entMerchantsList}`, {
     companyName: val,
     pageNum: state.currentPage,

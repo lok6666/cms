@@ -5,6 +5,10 @@ export function getToken() {
   return localStorage.TokenKey
 }
 
+export function getLocation() {
+  return localStorage.location
+}
+
 export function setToken(token) {
   return localStorage.TokenKey = token
 }

@@ -1,0 +1,55 @@
+<div class="txt" id="mainText">
+        <p>5月14日下午，区委书记常卫主持召开区委常委（扩大）会议，传达学习习近平总书记在河北考察并主持召开深入推进京津冀协同发展座谈会时的重要讲话精神，贯彻落实北京市委常委会扩大会议精神。李文起、田利跃等区四套班子领导参加会议。
+        </p>
+        <p style="text-align: center"><img alt="" border="0" hspace="0"
+                        src="http://www.sjsrm.cn/szztc/images/pic8r5x6801.jpg" width="600" /></p>
+        <p>会议指出，要认真学习领会习近平总书记在河北考察并主持召开深入推进京津冀协同发展座谈会时的重要讲话精神和北京市委常委会扩大会议精神，牢记“国之大者”，深刻领悟“两个确立”的决定性意义，增强“四个意识”、坚定“四个自信”、做到“两个维护”，进一步统一思想、统一意志、统一行动，始终沿着习近平总书记指引的方向，积极服务和融入首都发展新格局，深入做好“四个融合”文章，更好谋划和推进未来更长时期全区高质量发展，高水平建设好首都城市西大门，努力在推动京津冀成为中国式现代化建设的先行区、示范区上展现石景山作为。
+        </p>
+        <p style="text-align: center"><img alt="" border="0" hspace="0"
+                        src="http://www.sjsrm.cn/szztc/images/picn4ro870o.jpg" width="600" /></p>
+        <p>会议强调，要切实肩负起重大政治责任，推动京津冀协同发展工作走深走实。始终将推动京津冀协同发展作为重要政治任务和重大历史机遇，紧紧围绕落实首都城市战略定位、加强“四个中心”功能建设、提高“四个服务”水平来谋划和推进各项工作，牢牢牵住疏解北京非首都功能这个“牛鼻子”，推动高质量发展取得新突破，推进与津冀联动发展迈上新台阶，坚决把习近平总书记擘画的京津冀协同发展宏伟蓝图变成生动实景，形成中国式现代化的石景山实践。
+        </p>
+        <p>要大力实施城市更新行动，进一步打好疏解整治促提升“组合拳”。坚持问题导向、系统治理、精准发力，把城市更新与“疏整促”专项行动紧密结合起来，积极引进新业态新模式，不断提升城市基础设施建设水平和综合承载能力，做好城园融合文章，打造首都城市复兴新地标。坚持严控增量和疏解存量相结合，加快推进公共服务资源疏解调整优化，统筹用好疏解腾退和地下空间资源，不断优化城市品质，提升市民生活便利性、宜居性。
+        </p>
+        <p style="text-align: center"><img alt="" border="0" hspace="0"
+                        src="http://www.sjsrm.cn/szztc/images/picv51im874.jpg" width="600" /></p>
+        <p>要深入推进产业转型发展战略，进一步释放创新发展新动能。紧抓京西行动计划落地实施重大机遇，强化协同创新和产业协作，加快产业融合，全面提升发展活力、经济实力和综合竞争力。巩固完善“1+3+1”高精尖产业格局，持续优化营商环境，深化区域协作，做大产业增量，为京津冀协同发展注入强劲动力。
+        </p>
+        <p>要坚持以人民为中心，不断增进民生福祉。强化就业优先政策，深化教育、医疗、养老等领域发展，强化与周边地区生态环境联防联控。共同做好冬奥遗产利用，不断推动体育文旅融合发展。发挥区推进京津冀协同发展领导小组统筹作用，加大统筹协调力度，努力讲好京津冀协同发展的石景山故事。
+        </p>
+        <p>要以开展好主题教育为契机，统筹抓好各项工作。坚持以首善标准抓好主题教育，确保在以学铸魂、以学增智、以学正风、以学促干上见实效，进一步增强各党组织的政治功能和组织功能。牢固树立大抓基层鲜明导向，大兴调查研究，以强化理论学习指导发展实践，以深化调查研究推动解决发展难题，切实把学习成效转化为推动发展的实际成效。
+        </p>
+        <p>来源：石景山区融媒体中心</p>
+        <p
+                style="text-align:center;font-size:14px;margin-top:20px; text-indent:0em; line-height:auto; padding-bottom:0px">
+        </p>
+        <script src="/js/qrcode.min.js"></script>
+        <script>
+
+                var qrcode = new QRCode("qrcode", {
+                        width: 150,
+                        height: 150,
+                        correctLevel: QRCode.CorrectLevel.H
+                });
+                //qrcode.makeCode(window.location.href);
+                var Url = window.location.href;
+                var mUrl = Url.substring(0, Url.indexOf(".shtml")) + "-m.shtml";
+                $.ajax({
+                        type: "GET",
+                        dataType: "jsonp", //跨域采用jsonp方式
+                        cache: false,
+                        url: mUrl,
+                        data: "",
+                        timeout: 1500,
+                        async: false,
+                        complete: function (xhr) {
+                                if (xhr.status == 200) {
+                                        qrcode.makeCode(mUrl);
+                                } else if (xhr.status == 404) {
+                                        qrcode.makeCode(Url);
+                                }
+                        }
+                });
+
+        </script>
+</div>

@@ -1,5 +1,5 @@
-export const host =  process.env.NODE_ENV === 'development'? "http://192.168.10.68:28182": "https://entapi.bjwcxf.com";
-// export const host = "https://entapi.bjwcxf.com";
+export const host =  process.env.NODE_ENV === 'development'? "http://192.168.10.41:28182": "http://entapi.bjwcxf.com";
+//export const host = "http://enterprise.bjwcxf.com";
 // 登录接口
 export const login = `${host}/auth/login`
 export const reset = `${host}/auth/reset`
@@ -16,6 +16,19 @@ export  const articleMoveDown = `${host}/article/moveDown` // 文章下移
 export  const articleArticleAelectCircle = `${host}/articletype/selectType` // 文章类型 
 export  const articleArticleAddOne = `${host}/article/insert` // 新增
 export const policyPulishDetaill = `${host}`;
+
+/*信息发布-文章爬虫发布*/
+export  const articleSpiderSelectArticle = `${host}/articleSpider/selectTAL` //  文章类型
+export  const articleSpiderSelectAll = `${host}/articleSpider/list` //  文章列表
+export  const articleSpiderDelete = `${host}/articleSpider/delete` // 文章删除
+export  const articleSpiderRecycle = `${host}/articleSpider/selectRecycleBin` // 回收站文章
+export  const articleSpiderSelectById = `${host}/articleSpider/get` // 文章内容
+export  const articleSpiderUpdateOne = `${host}/articleSpider/update` // 文章内容
+export  const articleSpiderMoveUp = `${host}/articleSpider/moveUp` // 文章上移
+export  const articleSpiderMoveDown = `${host}/articleSpider/moveDown` // 文章下移
+export  const articleSpiderArticleAelectCircle = `${host}/articleSpider/selectType` // 文章类型 
+export  const articleSpiderArticleAddOne = `${host}/articleSpider/insert` // 新增
+export  const articleSpiderTransform = `${host}/articleSpider/transform`
 
 /*信息发布-敏感词*/
 export  const sensitiveSelectAll = `${host}/sensitive/list` //  文章列表
@@ -253,3 +266,19 @@ export const treeTable = `${host}/sysResource/treeTable` // 树形结构
 export const sysResourceInsert = `${host}/sysResource/insert` // 插入
 export const sysResourceUpdate = `${host}/sysResource/update` // 更新
 export const sysResourceDelete = `${host}/sysResource/delete` // 删除
+
+// 菜单选项管理
+export const dictionariesList = `${host}/dictionaries/list`
+export const dictionariesGetByCode = `${host}/dictionariesBranch/getByCode`
+export const dictionariesBranchAddOne = `${host}/dictionariesBranch/insert`
+export const dictionariesBranchUpdateOne = `${host}/dictionariesBranch/update`
+export const dictionariesBranchDeleteOne = `${host}/dictionariesBranch/delete`
+
+// 菜单管理
+export const dictionariesAddOne = `${host}/dictionaries/insert`
+export const dictionariesUpdateOne = `${host}/dictionaries/update`
+export const dictionariesDeleteOne = `${host}/dictionaries/delete`
+
+// 问卷
+export const questionnaireList = `${host}/questionnaire/list`
+export const questionnairehDeleteOne = `${host}/questionnaire/delete`

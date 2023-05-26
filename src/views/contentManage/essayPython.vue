@@ -51,71 +51,76 @@
       </el-form>
       <div style="display: flex; justify-content: space-between">
         <div style="display: inline-block; padding-bottom: 10px;margin-right: 10px;">
-          <el-select
-          v-model="state.locationValue"
-          filterable
-          placeholder="区域"
-          @change="getData()"
-        >
-          <el-option
-            v-for="item in locationOptions"
-            :key="item.value"
-            :label="item.label"
-            :value="item.value"
-          />
-        </el-select>
+          <el-form :inline="true" :model="formInline" class="demo-form-inline">
+            <el-form-item label="区县">
+              <el-select
+                v-model="state.locationValue"
+                filterable
+                placeholder="区域"
+                @change="getData()"
+              >
+                <el-option
+                  v-for="item in locationOptions1"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value"
+                />
+              </el-select>
+            </el-form-item>
+          </el-form>
+
       </div>
+      <div>
         <el-button type="primary" @click.stop="add"
           ><el-icon><plus /></el-icon> 添加</el-button
         >
+        <el-button type="success" @click.stop="publish"
+          ><el-icon><Pointer /></el-icon>发布</el-button
+        >
+      </div>
       </div>
       <el-table
         :data="state.tableData"
         style="width: 100%"
         :border="true"
         v-loading="loading"
+        @selection-change="handleSelectionChange"
       >
-        
+        <el-table-column align="center" type="selection" width="60"></el-table-column>
         <el-table-column prop="id" label="序号" type="index" width='80px'/>
-        <el-table-column prop="contentType" label="区县" width='80px' >
+        <el-table-column prop="contentType" label="区县" width='180px' >
           <template #default="scope">
-            {{scope.row.contentType.split(',').map(e => tableMap[e]).toString()}}
+              {{scope.row.contentType.split(',').map(e => tableMap[e]).toString()}}
+<!--             <el-select
+            v-model="scope.row.contentType"
+            filterable
+            placeholder="区域"
+            @change="getData()"
+          >
+            <el-option
+              v-for="item in locationOptions1"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            />
+          </el-select> -->
           </template>
         </el-table-column>
         <!-- <el-table-column prop="id" label="序号" width='80px'/> -->
-        <el-table-column prop="title" label="文章标题" min-width='200'/>
+        <el-table-column prop="title" label="文章标题" min-width='200'>
+          <template #default="scope">
+            <a v-if="scope.row.otherUrl" class="aaaa" :href="scope.row.otherUrl" target="_blank">{{scope.row.title}}</a>
+            <span v-else>{{scope.row.title}}</span>
+          </template>   
+        </el-table-column>
         <el-table-column prop="dataSources" label="文章来源" width='150'/>
         <!-- <el-table-column prop="storageTime" label="创建时间" /> -->
         <!-- <el-table-column prop="status" label="发布状态" /> -->
         <el-table-column prop="operator" label="文章作者" width='150'/>
         <el-table-column prop="releaseDate" label="发布日期" width="180px"/>
-        <el-table-column prop="pageView" label="浏览" width='150'/>
-        <el-table-column prop="isTop" label="置顶" width='80px'>
+        <el-table-column prop="recommend" label="发布状态" width="180px">
           <template #default="scope">
-            <el-switch
-              size="large"
-              v-model="scope.row.booleanIsTop"
-              class="ml-2"
-              @change="userChange1(scope.row)"
-              inline-prompt
-              style="--el-switch-on-color: #13ce66; --el-switch-off-color: #ff4949"
-              active-text="是"
-              inactive-text="否"
-            />
-          </template>
-        </el-table-column>
-        <el-table-column prop="recommend" label="推荐" width='80px'>
-          <template #default="scope">
-            <el-switch
-            size="large"
-            v-model="scope.row.booleanRecommend"
-            class="ml-2"
-            @change="userChange(scope.row)"
-            inline-prompt
-            style="--el-switch-on-color: #13ce66; --el-switch-off-color: #ff4949"
-            active-text="是"
-            inactive-text="否"
-          />
+            {{publicMap[scope.row.recommend]}}
           </template>
         </el-table-column>
         <el-table-column prop="operator" label="操作" width="200" fixed="right">
@@ -230,6 +235,7 @@
               :content="ruleForm.content"
               @handle="changeContent"
             ></editor>
+            <!-- <div v-html="ruleForm.content" style="width: 100%;border: 0.5px solid;padding: 0 40px;"></div> -->
           </el-form-item>
         </el-form>
         <template #footer>
@@ -273,41 +279,37 @@ import { computed, ref, reactive, onMounted, toRefs,getCurrentInstance } from "v
 import { upLoad } from "@/config/api";
 import editor from "@/components/editor/index.vue";
 import {
-  locationOptions,
+  locationOptions1,
 } from "@/config/constant";
 import {
-  articleArticleAddOne,
-  articleUpdateOne,
-  articleRecycle,
-  articleSelectAll,
-  articleDelete,
+  articleSpiderArticleAddOne,
+  articleSpiderUpdateOne,
+  articleSpiderRecycle,
+  articleSpiderSelectAll,
+  articleSpiderDelete,
   articleArticleAelectCircle,
-  articleSelectById,
-  articleMoveUp,
-  articleMoveDown
+  articleSpiderSelectById,
+  articleSpiderMoveUp,
+  articleSpiderMoveDown,
+  articleSpiderTransform
 } from "@/config/api";
 import {
   phoneRules,
   emtyRules
 } from "@/config/constants";
 import { ElMessage, ElMessageBox, FormRules, UploadProps } from "element-plus";
-import { get, post } from "@/utils/request";
+import { get, post, deleteReal, postArray } from "@/utils/request";
 const tableMap = {
     'shijingshan': '石景山',
     'beijing': '北京',
-    'chaoyang': '朝阳',
-    'xicheng': '西城',
-    'dongcheng': '东城',
-    'fengtai': '丰台',
-    'haidian': '海淀',
-    'fangshan': '房山',
-    'mentougou': '门头沟',
-    'shunyi': '顺义',
-    'hairou': '怀柔',
-    'miyun': '密云',
-    'tongzhou': '通州'
+    'chaoyang': '朝阳'
   };
-const roleOptions = [{
+  const publicMap = {
+    '1': '已发布',
+    '0': '未发布'
+  };
+const roleOptions = [
+    {
       value: "beijing",
       label: "北京",
     },
@@ -366,7 +368,8 @@ interface baseData {
 }
 
 interface selectAllConfig {
-  title?: string
+  title?: string,
+  deleteState?: number
 }
 
 const rules = reactive<FormRules>({
@@ -391,7 +394,8 @@ const state = reactive({
   optionsList: [],
   isResume: false,
   isTop: 0,
-  title: ''
+  title: '',
+  selectionList: []
 });
 const dialogImageUrl = ref('')
 const dialogVisible = ref(false)
@@ -416,7 +420,7 @@ const userChange1 = (row) => {
     ...row,
     isTop:row.booleanIsTop ? 1 : 0,
   };
-  post(`${articleUpdateOne}`, {
+  post(`${articleSpiderUpdateOne}`, {
     ...obj
   }).then(function (data) {
     getArticleSelectAll();
@@ -424,6 +428,20 @@ const userChange1 = (row) => {
   });
 };
 
+const publish = () => {
+  if(!state.selectionList.length) {
+    ElMessage.warning("请选择要发布的文章");
+  } else {
+    postArray(`${articleSpiderTransform}`, [...state.selectionList]).then(function (data) {
+      ElMessage.success("操作成功");
+      getArticleSelectAll();
+    });
+  }
+};
+// 发布
+const handleSelectionChange = (row) => {
+  state.selectionList = row;
+};
 const handleRemove = (i, res) => {
   ruleForm.picture = '';
 };
@@ -442,7 +460,7 @@ const userChange = (row) => {
     ...row,
     recommend:row.booleanRecommend ? 1 : 0,
   };
-  post(`${articleUpdateOne}`, {
+  post(`${articleSpiderUpdateOne}`, {
     ...obj
   }).then(function (data) {
     getArticleSelectAll();
@@ -476,7 +494,7 @@ ElMessageBox.confirm("你确定要上架当前项吗?", "温馨提示", {
     draggable: true,
   })
     .then(() => {
-      get(`${articleMoveUp}?id=${row.id}`).then(function (data) {
+      get(`${articleSpiderMoveUp}?id=${row.id}`).then(function (data) {
         getArticleSelectAll();
       });
       ElMessage.success("上架成功");
@@ -495,7 +513,7 @@ ElMessageBox.confirm("你确定要下架当前项吗?", "温馨提示", {
     draggable: true,
   })
     .then(() => {
-      get(`${articleMoveDown}?id=${row.id}`).then(function (data) {
+      get(`${articleSpiderMoveDown}?id=${row.id}`).then(function (data) {
         getArticleSelectAll();
       });
       ElMessage.success("下架成功");
@@ -527,7 +545,7 @@ const handleClose = async (done: () => void) => {
       };
       obj.contentType = obj.contentType.toString();
       if (title.value === "添加") {
-        post(`${articleArticleAddOne}`, {
+        post(`${articleSpiderArticleAddOne}`, {
           ...obj,
         })
           .then(function (data) {
@@ -538,7 +556,7 @@ const handleClose = async (done: () => void) => {
           });
         ElMessage.success("添加成功");
       } else {
-        post(`${articleUpdateOne}`, {
+        post(`${articleSpiderUpdateOne}`, {
           ...obj,
         })
           .then(function (data) {
@@ -597,7 +615,7 @@ const closeDialog = async (done: () => void) => {
 // 编辑
 const edit = (row) => {
   title.value = "编辑";
-  get(`${articleSelectById}/${row.id}`, {
+  get(`${articleSpiderSelectById}/${row.id}`, {
   })
     .then(function (data) {
       state.dialogVisible = true;
@@ -610,13 +628,14 @@ const edit = (row) => {
 };
 //  文章内容列表
 const getArticleSelectAll = (config?: selectAllConfig) => {
-  post(`${articleSelectAll}`, {
+  post(`${articleSpiderSelectAll}`, {
     pageNum: state.currentPage,
     pageSize: state.pageSize,
     articletype: state.articletype,
     contentType: state.locationValue,
     title: state.title,
     ...config,
+    deleteState: state.isResume ? 1: 0
   }).then(function (data) {
     state.tableData = data.list.map(e => {
       e.booleanIsTop = e.isTop === 0 ? false :true;
@@ -630,10 +649,10 @@ getArticleSelectAll();
 
 // 回收站·
 const getArticleRecycle = (config?: selectAllConfig) => {
-  post(`${articleRecycle}`, {
+  post(`${articleSpiderSelectAll}`, {
     pageNum: state.currentPage,
     pageSize: state.pageSize,
-    ...config,
+    deleteState: 1,
   }).then(function (data) {
     state.tableData = data.list.map(e => {
       e.booleanIsTop = e.isTop === 0 ? false :true;
@@ -648,10 +667,10 @@ const getArticleRecycle = (config?: selectAllConfig) => {
 const handleClick = (tab, event) => {
   if (tab.props.name === "resume") {
     state.isResume = true;
-    getArticleRecycle();
+    getArticleRecycle({deleteState: 1});
   } else {
     state.isResume = false;
-    getArticleSelectAll();
+    getArticleSelectAll({deleteState: 0});
   }
 };
 
@@ -705,12 +724,12 @@ const deleteAction = (row, isResume) => {
   })
     .then(() => {
       !isResume
-        ? post(`${articleUpdateOne}`, {
+        ? post(`${articleSpiderUpdateOne}`, {
             ...obj
           }).then(function (data) {
             getArticleSelectAll();
           })
-        : post(`${articleDelete}`, [row.id]).then(function (data) {
+        : deleteReal(`${articleSpiderDelete}`, [row.id]).then(function (data) {
             getArticleRecycle();
           });
       ElMessage.success("删除成功");
@@ -731,7 +750,7 @@ const resume = (row) => {
     draggable: true,
   })
     .then(() => {
-      post(`${articleUpdateOne}`, {
+      post(`${articleSpiderUpdateOne}`, {
         ...obj
       }).then(function (data) {
         getArticleRecycle();
@@ -742,7 +761,7 @@ const resume = (row) => {
 };
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 .edit-input {
   padding-right: 100px;
 }
@@ -753,6 +772,12 @@ const resume = (row) => {
 }
 .inline-edit-table {
   width: 100%;
+  .aaaa {
+    text-decoration : none;
+    &:visited {
+      color:  rgb(0, 0, 238);
+  }
+  }
 }
 </style>
 <style>

@@ -463,6 +463,7 @@
       <el-table-column label="发布时间" width="200">
         <template #default="scope">{{ scope.row.policyTime || '//' }}</template>
       </el-table-column>
+      <el-table-column property="policyHits" label="浏览" width="100px"/>
       <el-table-column
         prop="lastUpdateTime"
         label="删除时间"
